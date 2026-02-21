@@ -32,7 +32,7 @@
 ### 현재 시스템 상태
 
 - 인증 시스템 구현 완료: Supabase Auth 기반 이메일/비밀번호 + Google OAuth 인증
-- 라우트 보호 구현 완료: `proxy.ts`를 통한 세션 갱신 및 페이지/API 라우트 보호
+- 라우트 보호 구현 완료: `middleware.ts`를 통한 세션 갱신 및 페이지/API 라우트 보호
 - 역할 기반 접근 제어 구현 완료: `ADMIN_EMAILS` 환경 변수 기반 관리자 역할 확인 (`/api/auth/me` 엔드포인트)
 - 데이터베이스 마이그레이션 완료: Supabase PostgreSQL (`card_requests` 테이블)
 - 파일 저장소 마이그레이션 완료: Supabase Storage (avatars, illustrations 버킷)
@@ -110,7 +110,7 @@
 | `/admin` | Admin Only | 관리자 대시보드 |
 | `/admin/[id]` | Admin Only | 요청 상세 페이지 |
 
-- REQ-AUTH-003.1: `proxy.ts` (Next.js 16의 미들웨어 대체)를 통해 Supabase 세션 갱신을 처리한다
+- REQ-AUTH-003.1: `middleware.ts`를 통해 Supabase 세션 갱신을 처리한다 (Cloudflare Edge Runtime 호환)
 - REQ-AUTH-003.2: 인증되지 않은 사용자가 보호된 라우트에 접근하면 `/login`으로 리다이렉트한다
 - REQ-AUTH-003.3: 리다이렉트 시 원래 요청 URL을 `callbackUrl` 파라미터로 전달한다
 - REQ-AUTH-003.4: 인증된 일반 사용자가 `/admin` 라우트에 접근하면 `/`로 리다이렉트한다
@@ -177,7 +177,7 @@
 ```
 [Browser]
    |
-   +--> proxy.ts (Supabase 세션 갱신 미들웨어)
+   +--> middleware.ts (Supabase 세션 갱신 미들웨어)
    |        |
    |        +--> Supabase 쿠키 세션 갱신
    |        +--> 보호된 라우트 접근 시 세션 검증
@@ -221,7 +221,7 @@
 |-----------|------|
 | `src/lib/supabase-auth.ts` | 브라우저 Supabase 클라이언트 (createBrowserClient, anon key) |
 | `src/lib/auth-utils.ts` | 서버 인증 유틸리티 (createServerSupabaseClient, getServerUser, requireAuth, requireAdmin, isAdmin, AuthError) |
-| `src/proxy.ts` | Supabase 세션 갱신 미들웨어 (Next.js 16 proxy, middleware.ts 대체) |
+| `src/middleware.ts` | Supabase 세션 갱신 미들웨어 (Cloudflare Edge Runtime 호환) |
 | `src/app/callback/route.ts` | OAuth 콜백 핸들러 (exchangeCodeForSession) |
 | `src/app/api/auth/me/route.ts` | 사용자 정보 + isAdmin 상태 API |
 | `src/app/login/page.tsx` | 로그인 페이지 (이메일/비밀번호 폼 + Google OAuth 버튼) |
@@ -283,9 +283,9 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 |------------|----------|---------------|
 | REQ-AUTH-001 | `src/lib/supabase-auth.ts`, `src/lib/auth-utils.ts` | 이메일/비밀번호 및 Google OAuth 로그인 플로우 검증 |
 | REQ-AUTH-002 | `src/app/api/auth/me/route.ts`, `src/lib/auth-utils.ts` (isAdmin) | 역할 확인 검증 |
-| REQ-AUTH-003 | `src/proxy.ts` | 라우트 보호 리다이렉트 검증 |
+| REQ-AUTH-003 | `src/middleware.ts` | 라우트 보호 리다이렉트 검증 |
 | REQ-AUTH-004 | `src/app/api/*/route.ts`, `src/lib/auth-utils.ts` (requireAuth, requireAdmin) | API 인증/인가 검증 |
 | REQ-AUTH-005 | `src/app/login/page.tsx` | 로그인 페이지 UI/UX 검증 |
 | REQ-AUTH-006 | `src/components/auth/UserMenu.tsx`, `src/components/auth/AuthProvider.tsx` | 로그아웃 플로우 검증 |
 | REQ-AUTH-007 | `src/components/auth/UserMenu.tsx`, `src/components/auth/AuthProvider.tsx` | 사용자 상태 표시 검증 |
-| REQ-AUTH-008 | `src/lib/auth-utils.ts`, `src/proxy.ts` | 보안 요구사항 검증 |
+| REQ-AUTH-008 | `src/lib/auth-utils.ts`, `src/middleware.ts` | 보안 요구사항 검증 |

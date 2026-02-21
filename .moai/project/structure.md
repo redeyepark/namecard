@@ -5,7 +5,7 @@
 ```
 namecard/
 ├── src/
-│   ├── proxy.ts                           # Supabase 세션 갱신 미들웨어 (라우트 보호)
+│   ├── middleware.ts                           # Supabase 세션 갱신 미들웨어 (라우트 보호)
 │   ├── app/                               # Next.js App Router
 │   │   ├── layout.tsx                     # Root layout (AuthProvider 래핑)
 │   │   ├── page.tsx                       # 랜딩 페이지 (LandingPage 컴포넌트)
@@ -106,6 +106,9 @@ namecard/
 │   ├── rules/                             # Project rules
 │   │   └── moai/                          # MoAI-specific rules
 │   └── skills/                            # Skills 정의
+├── .github/                               # GitHub 설정
+│   └── workflows/
+│       └── deploy.yml                     # Cloudflare Workers 배포 CI/CD
 ├── _AEC/                                  # 참조용 디자인 에셋
 ├── public/                                # Static assets
 ├── package.json                           # 프로젝트 의존성 및 스크립트
@@ -114,6 +117,7 @@ namecard/
 ├── postcss.config.mjs                     # PostCSS 설정 (Tailwind CSS 4)
 ├── eslint.config.mjs                      # ESLint 9 설정
 ├── vitest.config.mts                      # Vitest 테스트 설정
+├── wrangler.jsonc                         # Cloudflare Workers 설정
 └── CLAUDE.md                              # MoAI Execution Directive
 ```
 
@@ -147,7 +151,7 @@ Card Editor -> Zustand Store -> localStorage (persist) -> html-to-image -> PNG �
 
 ### 인증 및 권한 구조
 
-- `proxy.ts`: 모든 요청에 대해 Supabase 세션 자동 갱신
+- `middleware.ts`: 모든 요청에 대해 Supabase 세션 자동 갱신
 - `AuthProvider`: `onAuthStateChange` 리스너로 클라이언트 인증 상태 관리
 - `requireAuth`: API 라우트에서 인증 사용자만 접근 허용
 - `requireAdmin`: API 라우트에서 관리자만 접근 허용 (ADMIN_EMAILS 환경변수 기반)
@@ -209,7 +213,7 @@ layout.tsx (Root - AuthProvider 래핑)
 
 | 디렉토리 | 설명 |
 |----------|------|
-| `src/proxy.ts` | Supabase 세션 갱신 미들웨어 (Next.js 16 호환) |
+| `src/middleware.ts` | Supabase 세션 갱신 미들웨어 (Next.js 16 호환) |
 | `src/app/` | Next.js App Router 기반 페이지, 레이아웃, API 라우트 |
 | `src/app/api/` | REST API 엔드포인트 (인증, 요청 CRUD) |
 | `src/app/login/`, `signup/`, `confirm/`, `callback/` | 인증 관련 페이지 |
@@ -227,6 +231,7 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/types/` | TypeScript 타입 정의 (카드, 요청) |
 | `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증) |
 | `src/test/` | 테스트 환경 설정 |
+| `.github/workflows/` | GitHub Actions CI/CD 워크플로우 (Cloudflare Workers 배포) |
 
 ## 파일 수 현황
 

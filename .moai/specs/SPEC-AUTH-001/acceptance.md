@@ -200,7 +200,7 @@
 - [x] 이메일/비밀번호 회원가입 및 로그인 정상 동작
 - [x] Google OAuth 로그인/로그아웃 정상 동작
 - [x] 환경 변수 기반 관리자 역할 확인 (`/api/auth/me` + `isAdmin`)
-- [x] proxy.ts를 통한 세션 갱신 및 라우트 보호 (Public / Authenticated / Admin)
+- [x] middleware.ts를 통한 세션 갱신 및 라우트 보호 (Public / Authenticated / Admin)
 - [x] API 라우트 인증 및 인가 적용 (requireAuth / requireAdmin)
 - [x] 로그인 페이지 반응형 UI (이메일/비밀번호 폼 + Google OAuth 버튼)
 - [x] 회원가입 페이지 및 이메일 확인 플로우

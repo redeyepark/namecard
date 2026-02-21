@@ -64,13 +64,13 @@ Supabase Auth 설정 흐름:
 
 ### 목표
 
-proxy.ts를 통한 세션 갱신과 API 라우트 인증/인가를 구현한다.
+middleware.ts를 통한 세션 갱신과 API 라우트 인증/인가를 구현한다.
 
 ### 작업 목록
 
 #### 2.1 프록시 미들웨어 생성
 
-- `src/proxy.ts` 생성 (Next.js 16에서 middleware.ts 대체)
+- `src/middleware.ts` 생성 (Cloudflare Edge Runtime 호환 미들웨어)
   - Supabase 쿠키 세션 갱신 처리
   - 보호 라우트 접근 시 세션 검증
   - 인증되지 않은 접근 시 `/login?callbackUrl=...`로 리다이렉트
@@ -97,7 +97,7 @@ proxy.ts를 통한 세션 갱신과 API 라우트 인증/인가를 구현한다.
 
 ```
 라우트 보호 전략:
-1. proxy.ts에서 Supabase 세션 쿠키 갱신 (모든 요청에 대해)
+1. middleware.ts에서 Supabase 세션 쿠키 갱신 (모든 요청에 대해)
 2. 보호된 라우트 패턴 매칭으로 세션 확인
 3. 세션 없음 -> /login 리다이렉트 (callbackUrl 포함)
 4. 세션 있으나 admin 아님 + /admin 접근 -> / 리다이렉트
@@ -106,7 +106,7 @@ proxy.ts를 통한 세션 갱신과 API 라우트 인증/인가를 구현한다.
 
 ### 산출물
 
-- `src/proxy.ts`
+- `src/middleware.ts`
 - `src/app/api/auth/me/route.ts`
 - 수정된 API 라우트 핸들러 (`requests/route.ts`, `requests/[id]/route.ts`)
 
@@ -269,7 +269,7 @@ layout.tsx
 사용자 접근
     |
     v
-[proxy.ts - Supabase 세션 갱신]
+[middleware.ts - Supabase 세션 갱신]
     |
     +--> Public Route? ---------> [Page Rendered]
     |    (/, /login, /signup,
@@ -292,7 +292,7 @@ layout.tsx
 
 ```
 src/
-├── proxy.ts                         # Supabase 세션 갱신 미들웨어
+├── middleware.ts                     # Supabase 세션 갱신 미들웨어
 ├── lib/
 │   ├── supabase-auth.ts             # 브라우저 Supabase 클라이언트
 │   └── auth-utils.ts                # 서버 인증 유틸리티
@@ -336,7 +336,7 @@ src/
 | 위험 요소 | 가능성 | 영향도 | 대응 방안 |
 |-----------|--------|--------|----------|
 | @supabase/ssr과 Next.js 16 호환성 문제 | Low | High | 공식 문서 확인 및 최신 버전 사용 |
-| Supabase Auth 쿠키 갱신 이슈 | Low | Medium | proxy.ts에서 세션 갱신 로직 구현 |
+| Supabase Auth 쿠키 갱신 이슈 | Low | Medium | middleware.ts에서 세션 갱신 로직 구현 |
 | Cloudflare Pages 환경 변수 관리 | Low | Medium | `.dev.vars` 및 Cloudflare 대시보드 설정 |
 | Google OAuth 콜백 URL 설정 오류 | Medium | Medium | `.env.example` 템플릿 및 설정 가이드 제공 |
 
@@ -350,10 +350,10 @@ src/
 - **이유**: 데이터베이스(Supabase PostgreSQL), 파일 저장소(Supabase Storage)와 통합된 단일 플랫폼, Cloudflare Pages 배포 호환성
 - **트레이드오프**: Supabase 플랫폼에 대한 의존성 증가
 
-### 결정 2: proxy.ts vs middleware.ts
+### 결정 2: middleware.ts (Edge Runtime)
 
-- **선택**: `proxy.ts` (Next.js 16 방식)
-- **이유**: Next.js 16에서 미들웨어 파일명이 `proxy.ts`로 변경됨
+- **선택**: `middleware.ts` (표준 Next.js 미들웨어)
+- **이유**: Cloudflare Workers는 Edge Runtime만 지원하므로 `middleware.ts`를 사용. Next.js 16의 `proxy.ts`는 Node.js 런타임으로 Cloudflare에서 동작하지 않음
 - **트레이드오프**: Next.js 15 이하 프로젝트와의 파일명 차이
 
 ### 결정 3: 이메일/비밀번호 + Google OAuth

@@ -2,27 +2,29 @@
 
 ## 메타데이터
 
-| 항목 | 값 |
-|------|-----|
+| 항목 | 내용 |
+|------|------|
 | SPEC ID | SPEC-DEPLOY-001 |
-| 제목 | Cloudflare Pages + Supabase 인프라 마이그레이션 구현 계획 |
-| 관련 문서 | spec.md, acceptance.md |
+| 제목 | Cloudflare Workers + Supabase Infrastructure Migration |
+| 상태 | Completed |
+| 관련 SPEC | SPEC-UI-001, SPEC-FLOW-001, SPEC-AUTH-001 |
 
 ---
 
 ## 마일스톤 개요
 
-| 마일스톤 | 목표 | 우선순위 | 의존성 |
-|---------|------|---------|--------|
-| M1 | Supabase 프로젝트 설정 및 스키마 | Primary | 없음 |
-| M2 | 스토리지 레이어 리팩토링 | Primary | M1 완료 |
-| M3 | API 라우트 업데이트 | Primary | M2 완료 |
-| M4 | Cloudflare Pages 배포 설정 | Primary | M3 완료 |
-| M5 | 통합 테스트 및 프로덕션 배포 | Secondary | M4 완료 |
+| 마일스톤 | 목표 | 상태 |
+|---------|------|------|
+| M1 | Supabase 프로젝트 설정 및 스키마 | Completed |
+| M2 | 스토리지 레이어 리팩토링 | Completed |
+| M3 | API 라우트 업데이트 | Completed |
+| M4 | Cloudflare Workers 배포 설정 | Completed |
+| M5 | GitHub Actions CI/CD 구축 | Completed |
+| M6 | 통합 테스트 및 프로덕션 배포 | Completed |
 
 ---
 
-## M1: Supabase 프로젝트 설정 및 스키마
+## M1: Supabase 프로젝트 설정 및 스키마 (Completed)
 
 ### 목표
 
@@ -30,24 +32,24 @@ Supabase 프로젝트를 생성하고 card_requests 데이터 모델에 맞는 P
 
 ### 작업 목록
 
-**M1-1: Supabase 프로젝트 초기화**
+#### M1-1: Supabase 프로젝트 초기화
 
 - Supabase Dashboard에서 새 프로젝트 생성
-- 프로젝트 URL과 service_role 키 확보
+- 프로젝트 URL과 키 확보 (URL, anon key, service_role key)
 - `.env.local`에 환경 변수 추가
 
-**M1-2: 데이터베이스 스키마 생성**
+#### M1-2: 데이터베이스 스키마 생성
 
 - `card_requests` 테이블 생성 (spec.md R1 참조)
   - id: UUID PK
-  - card_front: JSONB (CardFrontData, avatarImage 제외)
+  - card_front: JSONB (CardFrontData)
   - card_back: JSONB (CardBackData)
   - original_avatar_path: TEXT (Storage 경로)
   - illustration_path: TEXT (Storage 경로)
-  - status: TEXT + CHECK constraint
+  - status: TEXT + CHECK constraint ('submitted', 'processing', 'confirmed')
   - submitted_at, updated_at: TIMESTAMPTZ
   - note: TEXT (nullable)
-  - created_by: TEXT (nullable, NextAuth 사용자 이메일)
+  - created_by: TEXT (nullable)
 - `card_request_status_history` 테이블 생성
   - id: BIGSERIAL PK
   - request_id: UUID FK -> card_requests(id) ON DELETE CASCADE
@@ -55,35 +57,26 @@ Supabase 프로젝트를 생성하고 card_requests 데이터 모델에 맞는 P
   - timestamp: TIMESTAMPTZ
 - 인덱스 생성 (status, submitted_at DESC, request_id)
 
-**M1-3: Storage 버킷 생성**
+#### M1-3: Storage 버킷 생성
 
 - `avatars` 버킷 생성 (Public)
 - `illustrations` 버킷 생성 (Public)
 - 파일 경로 규칙: `{request_id}/avatar.png`, `{request_id}/illustration.png`
 
-**M1-4: RLS 비활성화 확인**
+#### M1-4: RLS 비활성화 확인
 
 - card_requests 테이블의 RLS 비활성화 확인
 - card_request_status_history 테이블의 RLS 비활성화 확인
 - Storage 버킷의 공개 읽기 정책 설정
 
-### 기술 접근
+### 산출물
 
-- Supabase SQL Editor 또는 마이그레이션 파일로 스키마 생성
-- JSONB 컬럼 사용으로 중첩된 카드 데이터 유연하게 저장
-- status 필드에 CHECK constraint로 유효값 보장
-- `created_by` 필드 추가로 향후 사용자별 필터링 가능
-
-### 위험
-
-| 위험 | 영향 | 대응 |
-|------|------|------|
-| JSONB 쿼리 성능 | 대량 데이터 시 느려질 수 있음 | GIN 인덱스 추가 검토 |
-| Storage 용량 한도 | 무료 플랜 1GB 제한 | 이미지 최적화, 필요 시 유료 전환 |
+- Supabase PostgreSQL 스키마 (card_requests, card_request_status_history)
+- Supabase Storage 버킷 (avatars, illustrations)
 
 ---
 
-## M2: 스토리지 레이어 리팩토링
+## M2: 스토리지 레이어 리팩토링 (Completed)
 
 ### 목표
 
@@ -91,65 +84,41 @@ Supabase 프로젝트를 생성하고 card_requests 데이터 모델에 맞는 P
 
 ### 작업 목록
 
-**M2-1: Supabase 클라이언트 모듈 생성**
+#### M2-1: Supabase 클라이언트 모듈 생성
 
-- `src/lib/supabase.ts` 생성
-  - `createClient` with service_role key
-  - 환경 변수 검증 (런타임 에러 방지)
+- `src/lib/supabase.ts` 생성 (서버 사이드 service_role 클라이언트)
+- `src/lib/supabase-auth.ts` 생성 (브라우저 anon key 클라이언트)
+- `src/lib/auth-utils.ts` 생성 (서버 인증 유틸리티)
 
-**M2-2: 데이터베이스 CRUD 함수 구현**
+#### M2-2: 데이터베이스 CRUD 함수 구현
 
 - `src/lib/supabase-storage.ts` 생성
   - `insertCardRequest(request)`: INSERT + status_history INSERT
   - `getCardRequest(id)`: SELECT by UUID + JOIN status_history
   - `getAllCardRequests()`: SELECT ALL + ORDER BY submitted_at DESC
-  - `updateCardRequest(id, updates)`: UPDATE + status_history INSERT (상태 변경 시)
+  - `updateCardRequest(id, updates)`: UPDATE + status_history INSERT
 
-**M2-3: 이미지 업로드/URL 함수 구현**
+#### M2-3: 이미지 업로드/URL 함수 구현
 
-- `uploadImage(requestId, type, base64Data)`: base64 -> Buffer -> Supabase Storage upload
+- `uploadImage(requestId, type, base64Data)`: base64 -> Uint8Array -> Supabase Storage upload
 - `getImagePublicUrl(requestId, type)`: Supabase Storage 공개 URL 생성
-- Buffer -> Uint8Array 변환 (Cloudflare Workers 호환)
+- Workers 호환을 위한 Uint8Array 기반 구현
 
-**M2-4: 기존 storage.ts 제거**
+#### M2-4: 기존 storage.ts 제거
 
 - `src/lib/storage.ts` 삭제
 - 모든 import 경로 업데이트
 
-### 기술 접근
+### 산출물
 
-- Supabase JS 클라이언트 v2 사용
-- 서버 사이드 전용 클라이언트 (service_role key)
-- base64 디코딩: `atob()` + `Uint8Array` (Workers 호환)
-- 트랜잭션: INSERT card_request와 status_history를 순차 실행 (Supabase JS에서는 명시적 트랜잭션 미지원이므로 순차 처리)
-
-### 데이터 매핑
-
-```
-CardRequest (TypeScript)          ->  card_requests (PostgreSQL)
-  .id                             ->  id (UUID)
-  .card.front                     ->  card_front (JSONB)
-  .card.back                      ->  card_back (JSONB)
-  .originalAvatarPath             ->  original_avatar_path (TEXT)
-  .illustrationPath               ->  illustration_path (TEXT)
-  .status                         ->  status (TEXT)
-  .submittedAt                    ->  submitted_at (TIMESTAMPTZ)
-  .updatedAt                      ->  updated_at (TIMESTAMPTZ)
-  .note                           ->  note (TEXT)
-  .statusHistory[]                ->  card_request_status_history (별도 테이블)
-```
-
-### 위험
-
-| 위험 | 영향 | 대응 |
-|------|------|------|
-| camelCase -> snake_case 매핑 오류 | 데이터 불일치 | 변환 유틸리티 함수 작성, 단위 테스트 |
-| Workers 환경에서 Buffer 미지원 | 이미지 업로드 실패 | Uint8Array 기반 구현, 폴리필 검토 |
-| Supabase 클라이언트 초기화 타이밍 | cold start 지연 | 싱글톤 패턴, lazy initialization |
+- `src/lib/supabase.ts`
+- `src/lib/supabase-auth.ts`
+- `src/lib/auth-utils.ts`
+- `src/lib/supabase-storage.ts`
 
 ---
 
-## M3: API 라우트 업데이트
+## M3: API 라우트 업데이트 (Completed)
 
 ### 목표
 
@@ -157,120 +126,149 @@ CardRequest (TypeScript)          ->  card_requests (PostgreSQL)
 
 ### 작업 목록
 
-**M3-1: POST /api/requests 수정**
+#### M3-1: POST /api/requests 수정
 
 - `saveRequest` -> `insertCardRequest`
 - `saveImageFile` -> `uploadImage`
-- NextAuth 세션 체크 유지
+- Supabase Auth 세션 체크 (requireAuth)
 - 응답 형식 유지
 
-**M3-2: GET /api/requests 수정**
+#### M3-2: GET /api/requests 수정
 
 - `getAllRequests` -> `getAllCardRequests`
-- 관리자 권한 체크 유지
+- 관리자 권한 체크 (requireAdmin)
 - 응답 형식 유지
 
-**M3-3: GET /api/requests/[id] 수정**
+#### M3-3: GET /api/requests/[id] 수정
 
 - `getRequest` -> `getCardRequest`
 - `originalAvatarUrl`: Supabase Storage 공개 URL로 변경
 - `illustrationUrl`: Supabase Storage 공개 URL로 변경
-- NextAuth 세션 체크 유지
+- 세션 체크 (requireAuth)
 
-**M3-4: PATCH /api/requests/[id] 수정**
+#### M3-4: PATCH /api/requests/[id] 수정
 
 - `getRequest` -> `getCardRequest`
 - `updateRequest` -> `updateCardRequest`
 - `saveImageFile` -> `uploadImage`
-- 상태 전환 검증 유지
-- 관리자 권한 체크 유지
+- 관리자 권한 체크 (requireAdmin)
 
-**M3-5: 이미지 서빙 라우트 제거**
+#### M3-5: 이미지 서빙 라우트 제거
 
 - `src/app/api/requests/[id]/avatar/route.ts` 삭제
 - `src/app/api/requests/[id]/illustration/route.ts` 삭제
-- 해당 이미지는 Supabase Storage 공개 URL로 직접 접근
+- Supabase Storage 공개 URL로 직접 접근
 
-### 기술 접근
+### 산출물
 
-- API 라우트의 요청/응답 인터페이스를 최대한 유지
-- 이미지 URL만 Supabase Storage URL로 변경
-- NextAuth 인증 로직은 변경 없이 유지
-- 에러 핸들링 패턴 유지 (try-catch + NextResponse.json)
-
-### 위험
-
-| 위험 | 영향 | 대응 |
-|------|------|------|
-| 프론트엔드 이미지 URL 변경 | 이미지 표시 깨짐 | 프론트엔드 컴포넌트의 이미지 URL 참조 확인 |
-| NextAuth Edge 호환성 | 인증 실패 | Cloudflare Workers에서 NextAuth 테스트 |
+- 수정된 API 라우트 (requests/route.ts, requests/[id]/route.ts)
+- 삭제된 이미지 서빙 라우트
 
 ---
 
-## M4: Cloudflare Pages 배포 설정
+## M4: Cloudflare Workers 배포 설정 (Completed)
 
 ### 목표
 
-@opennextjs/cloudflare 어댑터를 설치하고 Cloudflare Pages 배포를 구성한다.
+@opennextjs/cloudflare 어댑터를 설치하고 Cloudflare Workers 배포를 구성한다.
 
 ### 작업 목록
 
-**M4-1: 의존성 설치**
+#### M4-1: 의존성 설치
 
-```bash
-npm install @opennextjs/cloudflare
-npm install -D wrangler
-```
+- `@opennextjs/cloudflare@^1.16.5` 설치
+- `wrangler@^4.67.0` (devDependency) 설치
 
-**M4-2: 빌드 설정 파일 생성**
+#### M4-2: 빌드 설정 파일 생성
 
-- `wrangler.toml` 생성 (spec.md R4 참조)
-- `open-next.config.ts` 생성
+- `wrangler.jsonc` 생성 (JSONC 형식 사용, wrangler.toml 아님)
+  - Worker name: "namecard"
+  - compatibility_date: "2026-02-20"
+  - compatibility_flags: ["nodejs_compat"]
+  - assets 바인딩 설정
+  - WORKER_SELF_REFERENCE 서비스 바인딩
 
-**M4-3: package.json 빌드 스크립트 수정**
+#### M4-3: package.json 빌드 스크립트 수정
 
-```json
-{
-  "scripts": {
-    "build": "opennextjs-cloudflare build",
-    "preview": "opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare deploy"
-  }
-}
-```
+- `cf:build`: `opennextjs-cloudflare build`
+- `preview`: `opennextjs-cloudflare build && opennextjs-cloudflare preview`
+- `deploy`: `opennextjs-cloudflare build && opennextjs-cloudflare deploy`
+- `cf:typegen`: `wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts`
 
-**M4-4: next.config.ts 수정**
+#### M4-4: next.config.ts 수정
 
-- Cloudflare Workers 호환을 위한 설정 확인
-- 필요 시 `serverExternalPackages` 설정
+- `images.unoptimized: true` 설정 (Cloudflare Workers 호환)
+- `initOpenNextCloudflareForDev()` 호출 (로컬 개발 서버 통합)
 
-**M4-5: .gitignore 업데이트**
+#### M4-5: .gitignore 업데이트
 
 - `.wrangler/` 추가
 - `.open-next/` 추가
 
-**M4-6: 환경 변수 설정**
+### 산출물
 
-- Cloudflare Dashboard에서 시크릿 설정 (AUTH_SECRET, OAuth 키들, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAILS)
-- wrangler.toml에 공개 변수 설정 (NEXT_PUBLIC_SUPABASE_URL, AUTH_TRUST_HOST)
-
-### 기술 접근
-
-- TEA_MELY 프로젝트의 OpenNext 설정 패턴 참조
-- `nodejs_compat` compatibility flag로 Node.js API 일부 지원
-- 로컬 테스트: `wrangler pages dev` 또는 `npm run preview`
-
-### 위험
-
-| 위험 | 영향 | 대응 |
-|------|------|------|
-| Next.js 16 + OpenNext 호환성 | 빌드 실패 | OpenNext 최신 버전 사용, 이슈 트래커 확인 |
-| Workers 번들 크기 제한 (25MB) | 배포 실패 | 의존성 최적화, tree-shaking 확인 |
-| Cold start 지연 | 초기 응답 느림 | 경량 의존성 유지, Smart Placement 활성화 |
+- `wrangler.jsonc`
+- 수정된 `next.config.ts`
+- 수정된 `package.json`
+- 수정된 `.gitignore`
 
 ---
 
-## M5: 통합 테스트 및 프로덕션 배포
+## M5: GitHub Actions CI/CD 구축 (Completed)
+
+### 목표
+
+GitHub Actions를 사용하여 master 브랜치 push 시 자동 빌드 및 배포 파이프라인을 구성한다.
+
+### 작업 목록
+
+#### M5-1: GitHub Actions 워크플로우 생성
+
+- `.github/workflows/deploy.yml` 생성
+- 트리거: master 브랜치 push
+- ubuntu-latest 러너 사용
+
+#### M5-2: 빌드 단계 구성
+
+- actions/checkout@v4: 리포지토리 체크아웃
+- actions/setup-node@v4: Node.js 22 설정 + npm 캐시
+- npm ci: 의존성 설치
+- npx opennextjs-cloudflare build: OpenNext 빌드
+  - NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY를 빌드 환경 변수로 주입
+
+#### M5-3: 배포 단계 구성
+
+- npx opennextjs-cloudflare deploy: Cloudflare Workers 배포
+  - CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID 사용
+
+#### M5-4: 런타임 시크릿 설정 단계 구성
+
+- wrangler secret put ADMIN_EMAILS
+- wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+
+#### M5-5: GitHub Secrets 설정
+
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- ADMIN_EMAILS
+- CLOUDFLARE_API_TOKEN
+- CLOUDFLARE_ACCOUNT_ID
+
+### 산출물
+
+- `.github/workflows/deploy.yml`
+- GitHub Secrets 설정 완료
+
+### 기술적 의사결정: GitHub Actions vs 로컬 배포
+
+- **선택**: GitHub Actions CI/CD
+- **이유**: Windows 환경에서 Wrangler의 WASM 파일(resvg.wasm?module)을 처리할 수 없음. Windows 파일 시스템에서 `?` 문자가 파일명에 허용되지 않아 로컬 빌드/배포가 불가능함
+- **결과**: ubuntu-latest 환경에서 안정적으로 빌드 및 배포 수행
+
+---
+
+## M6: 통합 테스트 및 프로덕션 배포 (Completed)
 
 ### 목표
 
@@ -278,30 +276,26 @@ npm install -D wrangler
 
 ### 작업 목록
 
-**M5-1: 로컬 통합 테스트**
+#### M6-1: 프로덕션 배포
 
-- `wrangler pages dev`로 Cloudflare 로컬 환경 실행
-- 모든 API 라우트 수동 테스트
-- NextAuth 로그인 플로우 검증
-- 이미지 업로드/다운로드 검증
+- GitHub Actions를 통한 자동 배포 실행
+- 배포 URL 확인: https://namecard.redeyepark.workers.dev
 
-**M5-2: OAuth 콜백 URL 설정**
+#### M6-2: 통합 테스트
 
-- Google Cloud Console: 프로덕션 도메인 콜백 URL 추가
-- GitHub Developer Settings: 프로덕션 도메인 콜백 URL 추가
+- 명함 요청 제출 플로우 검증
+- Supabase Auth 로그인 플로우 검증 (이메일/비밀번호, Google OAuth)
+- 이미지 업로드/조회 검증
+- 관리자 대시보드 기능 검증
 
-**M5-3: 프로덕션 배포**
+#### M6-3: 정리 작업
 
-- `npm run deploy`로 Cloudflare Pages 배포
-- Cloudflare Dashboard에서 커스텀 도메인 설정 (필요 시)
-- 배포 후 전체 플로우 검증
+- 파일 시스템 기반 코드 완전 제거 확인
+- 프로젝트 문서 업데이트
 
-**M5-4: 정리 작업**
+### 산출물
 
-- `data/requests/` 디렉토리 제거 (또는 .gitignore에 추가)
-- tech.md 업데이트 (배포: Vercel -> Cloudflare Pages, DB: Supabase PostgreSQL)
-- structure.md 업데이트 (새 파일 반영)
-- product.md 업데이트 (필요 시)
+- 프로덕션 배포 완료: https://namecard.redeyepark.workers.dev
 
 ---
 
@@ -313,68 +307,111 @@ npm install -D wrangler
 [사용자 브라우저]
       |
       v
-[Cloudflare Pages CDN]   <-- 정적 자산 (HTML, CSS, JS)
-      |
-      v
-[Cloudflare Workers]     <-- Next.js API 라우트 (서버 사이드)
-      |                       - NextAuth.js 인증
-      |                       - Supabase 클라이언트 (service_role)
+[Cloudflare Workers]     <-- Next.js 전체 (SSR + 정적 자산)
+      |                       - middleware.ts (Edge Runtime)
+      |                       - Supabase Auth 쿠키 세션 관리
+      |                       - API 라우트 (Supabase service_role)
       v
 [Supabase]
-  ├── PostgreSQL           <-- card_requests, status_history
-  └── Storage              <-- avatars/, illustrations/ 버킷
+  |-- PostgreSQL           <-- card_requests, status_history
+  |-- Storage              <-- avatars/, illustrations/ 버킷
+  +-- Auth                 <-- 이메일/비밀번호 + Google OAuth
 ```
 
 ### 데이터 흐름
 
 ```
 명함 요청 제출:
-  브라우저 -> POST /api/requests -> NextAuth 세션 확인
+  브라우저 -> POST /api/requests -> requireAuth() Supabase 세션 확인
     -> Supabase DB: INSERT card_requests
     -> Supabase Storage: PUT avatars/{id}/avatar.png
     -> 응답: { id, status, submittedAt }
 
 관리자 상태 변경:
-  브라우저 -> PATCH /api/requests/[id] -> NextAuth 관리자 확인
+  브라우저 -> PATCH /api/requests/[id] -> requireAdmin() 관리자 확인
     -> Supabase DB: UPDATE card_requests + INSERT status_history
     -> Supabase Storage: PUT illustrations/{id}/illustration.png (선택)
     -> 응답: { id, status, updatedAt }
 
 이미지 접근:
-  브라우저 -> Supabase Storage 공개 URL -> CDN -> 이미지 직접 응답
+  브라우저 -> Supabase Storage 공개 URL -> 이미지 직접 응답
   (API 라우트 프록시 불필요)
 ```
 
 ### 인증 아키텍처
 
 ```
-NextAuth.js v5 (유지)
-  ├── Google OAuth Provider
-  ├── GitHub OAuth Provider
-  ├── JWT Strategy (세션)
-  └── Callbacks
-      ├── jwt: ADMIN_EMAILS 기반 role 결정
-      └── session: role을 세션에 노출
+Supabase Auth (@supabase/ssr)
+  |-- 이메일/비밀번호 인증
+  |-- Google OAuth Provider
+  +-- 쿠키 기반 세션 관리
 
-Supabase 접근:
-  └── service_role key (서버 사이드 전용)
-      └── RLS 비활성화 -> 전체 접근 (인증은 NextAuth가 담당)
+middleware.ts (Edge Runtime):
+  |-- Supabase 세션 갱신 (supabase.auth.getUser())
+  |-- 보호 라우트 접근 제어
+  +-- 관리자 라우트 접근 제어 (ADMIN_EMAILS)
+
+API 라우트 인증:
+  |-- requireAuth(): Supabase 세션 검증 (미인증 시 401)
+  +-- requireAdmin(): ADMIN_EMAILS 기반 관리자 검증 (비관리자 시 403)
+```
+
+### CI/CD 아키텍처
+
+```
+[개발자 - master push]
+      |
+      v
+[GitHub Actions]
+  1. checkout + setup node 22
+  2. npm ci (의존성 설치)
+  3. opennextjs-cloudflare build
+     (빌드 타임 환경 변수: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  4. opennextjs-cloudflare deploy
+     (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID)
+  5. wrangler secret put
+     (런타임 시크릿: ADMIN_EMAILS, SUPABASE_SERVICE_ROLE_KEY)
+      |
+      v
+[Cloudflare Workers: namecard.redeyepark.workers.dev]
 ```
 
 ---
 
-## 전문가 상담 권장 사항
+## 기술적 의사결정
 
-### expert-backend 상담 권장
+### 결정 1: middleware.ts (Edge Runtime) vs proxy.ts (Node.js Runtime)
 
-- Supabase 클라이언트 초기화 패턴 (Workers 환경)
-- camelCase/snake_case 데이터 매핑 전략
-- 트랜잭션 없이 데이터 일관성 보장 방법
-- Supabase Storage 업로드 최적화
+- **선택**: `middleware.ts` (Edge Runtime)
+- **이유**: Cloudflare Workers는 Edge Runtime만 지원함. Next.js 16의 `proxy.ts`는 Node.js Runtime으로 실행되어 Cloudflare Workers에서 동작하지 않음
+- **트레이드오프**: proxy.ts의 추가 기능(Node.js API 접근)을 사용할 수 없음
 
-### expert-devops 상담 권장
+### 결정 2: GitHub Actions CI/CD vs 로컬 배포
 
-- Cloudflare Pages 배포 파이프라인 설정
-- 환경 변수 관리 (시크릿 vs 공개)
-- OpenNext 어댑터 설정 최적화
-- 모니터링 및 로깅 전략
+- **선택**: GitHub Actions CI/CD
+- **이유**: Windows에서 Wrangler의 WASM 파일(resvg.wasm?module)을 처리할 수 없음. `?` 문자가 Windows 파일명에서 허용되지 않아 로컬 빌드가 불가능함
+- **트레이드오프**: 배포가 GitHub push에 의존하며, 로컬에서 직접 배포할 수 없음
+
+### 결정 3: images.unoptimized = true
+
+- **선택**: Next.js Image Optimization 비활성화
+- **이유**: Cloudflare Workers는 Next.js의 이미지 최적화 기능을 지원하지 않음
+- **트레이드오프**: 이미지 자동 최적화(리사이징, 포맷 변환)를 사용할 수 없음
+
+### 결정 4: 런타임 시크릿 관리 방식 (wrangler secret put)
+
+- **선택**: Cloudflare Workers secrets via `wrangler secret put`
+- **이유**: `SUPABASE_SERVICE_ROLE_KEY`와 `ADMIN_EMAILS`는 런타임에만 필요한 시크릿으로, 빌드 타임이 아닌 Cloudflare Workers 런타임에 바인딩되어야 함
+- **트레이드오프**: 시크릿 변경 시 재배포가 필요하지 않지만, wrangler CLI를 통해 별도로 관리해야 함
+
+### 결정 5: wrangler.jsonc (JSONC) vs wrangler.toml
+
+- **선택**: `wrangler.jsonc` (JSON with Comments)
+- **이유**: JSON 형식이 TypeScript 프로젝트와 일관성이 있으며, JSON Schema 지원으로 IDE 자동 완성 가능
+- **트레이드오프**: 기존 Cloudflare 가이드 문서 대부분이 TOML 형식을 사용하므로 참고 시 변환 필요
+
+### 결정 6: Supabase Auth vs NextAuth.js
+
+- **선택**: Supabase Auth (@supabase/ssr)
+- **이유**: 데이터베이스(Supabase PostgreSQL), 파일 저장소(Supabase Storage)와 통합된 단일 플랫폼 사용. Cloudflare Workers Edge Runtime 호환성 확보
+- **트레이드오프**: Supabase 플랫폼에 대한 의존성 증가, GitHub OAuth 제거
