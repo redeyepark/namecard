@@ -62,7 +62,7 @@ export function StepNavigation({ canProceed, onNext, onPrev }: StepNavigationPro
             : 'bg-red-400 hover:bg-red-500'
         }`}
       >
-        {isLastContentStep ? '완료' : '다음'}
+        {isLastContentStep ? '의뢰' : '다음'}
       </button>
     </nav>
   );

@@ -219,3 +219,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# User data (request submissions)
+data/requests/

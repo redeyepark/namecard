@@ -10,7 +10,7 @@ import { PersonalInfoStep } from '@/components/wizard/PersonalInfoStep';
 import { PhotoUploadStep } from '@/components/wizard/PhotoUploadStep';
 import { SocialTagStep } from '@/components/wizard/SocialTagStep';
 import { PreviewStep } from '@/components/wizard/PreviewStep';
-import { CompleteStep } from '@/components/wizard/CompleteStep';
+import { RequestSubmitStep } from '@/components/wizard/RequestSubmitStep';
 
 export function WizardContainer() {
   const wizardStep = useCardStore((state) => state.wizardStep);
@@ -75,7 +75,7 @@ export function WizardContainer() {
               {wizardStep === 2 && <PhotoUploadStep />}
               {wizardStep === 3 && <SocialTagStep />}
               {wizardStep === 4 && <PreviewStep />}
-              {wizardStep === 5 && <CompleteStep />}
+              {wizardStep === 5 && <RequestSubmitStep />}
             </div>
           </div>
 

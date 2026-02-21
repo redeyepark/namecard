@@ -2,7 +2,7 @@
 
 import { useCardStore } from '@/stores/useCardStore';
 
-const STEP_LABELS = ['정보', '사진', '소셜', '미리보기', '완료'];
+const STEP_LABELS = ['정보', '사진', '소셜', '미리보기', '의뢰'];
 
 export function ProgressBar() {
   const wizardStep = useCardStore((state) => state.wizardStep);
