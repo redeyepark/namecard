@@ -28,14 +28,11 @@ export async function GET(
       );
     }
 
+    // originalAvatarPath and illustrationPath now contain Supabase Storage public URLs
     return NextResponse.json({
       ...cardRequest,
-      originalAvatarUrl: cardRequest.originalAvatarPath
-        ? `/api/requests/${id}/avatar`
-        : null,
-      illustrationUrl: cardRequest.illustrationPath
-        ? `/api/requests/${id}/illustration`
-        : null,
+      originalAvatarUrl: cardRequest.originalAvatarPath ?? null,
+      illustrationUrl: cardRequest.illustrationPath ?? null,
     });
   } catch {
     return NextResponse.json(
@@ -91,7 +88,7 @@ export async function PATCH(
       }
     }
 
-    // Save illustration image if provided
+    // Upload illustration image to Supabase Storage if provided
     let illustrationPath = cardRequest.illustrationPath;
     if (illustrationImage && typeof illustrationImage === 'string') {
       const estimatedSize = (illustrationImage.length * 3) / 4;

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const id = uuidv4();
     const now = new Date().toISOString();
 
-    // Save avatar image as file if provided
+    // Upload avatar image to Supabase Storage if provided
     let originalAvatarPath: string | null = null;
     if (avatarImage && typeof avatarImage === 'string') {
       // Check base64 size (rough estimate: base64 is ~4/3 of original)
