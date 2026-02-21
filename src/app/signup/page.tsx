@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase-auth';
 
@@ -18,6 +19,7 @@ function getErrorMessage(error: string): string {
 }
 
 export default function SignupPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -44,17 +46,19 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      const { error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/confirm`,
-        },
       });
 
       if (authError) {
         setError(getErrorMessage(authError.message));
+      } else if (data.session) {
+        // Email confirmation is disabled - auto-confirmed with session
+        router.refresh();
+        router.replace('/create');
       } else {
+        // Fallback: email confirmation is enabled
         setSuccess(true);
       }
     } catch {
