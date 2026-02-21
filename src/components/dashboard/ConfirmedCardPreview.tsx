@@ -19,23 +19,29 @@ function ConfirmedFront({
 }) {
   return (
     <div
-      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col"
+      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden"
       style={{ backgroundColor }}
     >
-      <div className="p-4 sm:p-6 pt-6 sm:pt-8">
+      {/* Layer 2: Illustration image - full card cover */}
+      <img
+        src={illustrationUrl}
+        alt="Confirmed illustration"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+
+      {/* Layer 3: Display name overlay at top-left */}
+      <div className="relative z-10 p-4 sm:p-6 pt-4 sm:pt-5">
         <h1
-          className="text-xl sm:text-2xl font-bold text-white tracking-wide truncate"
+          className="text-xl sm:text-2xl font-bold tracking-wide truncate"
           title={displayName || 'YOUR NAME'}
+          style={{
+            WebkitTextStroke: '1px rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            paintOrder: 'stroke fill',
+          }}
         >
           {displayName || 'YOUR NAME'}
         </h1>
-      </div>
-      <div className="flex-1 flex items-end justify-center px-4 pb-4">
-        <img
-          src={illustrationUrl}
-          alt="Confirmed illustration"
-          className="max-h-full max-w-full object-contain"
-        />
       </div>
     </div>
   );
@@ -59,34 +65,42 @@ function ConfirmedBack({
       className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col p-4 sm:p-6"
       style={{ backgroundColor }}
     >
+      {/* Upper area (~80%): Name, title, hashtags */}
       <div className="flex-1 min-h-0">
         <h2
-          className="text-lg sm:text-xl font-bold text-white mb-1 truncate"
+          className="text-lg sm:text-xl font-bold text-black mb-1 truncate"
           title={fullName || 'FULL NAME'}
         >
           {fullName || 'FULL NAME'}
         </h2>
         <p
-          className="text-white/90 text-xs sm:text-sm mb-4 line-clamp-2"
+          className="text-black/90 text-xs sm:text-sm mb-4 line-clamp-2"
           title={title || 'Your Title'}
         >
           {title || 'Your Title'}
         </p>
         <div className="flex flex-wrap gap-1 overflow-hidden max-h-[4.5rem]">
           {hashtags.map((tag, i) => (
-            <span key={i} className="text-white font-medium text-xs sm:text-sm">
+            <span key={i} className="text-black font-medium text-xs sm:text-sm">
               {tag.startsWith('#') ? tag : `#${tag}`}
             </span>
           ))}
         </div>
       </div>
+
+      {/* Bottom area (~20%): Social links with horizontal dividers */}
       {socialLinks.length > 0 && (
-        <div className="text-right space-y-0.5 mt-2 overflow-hidden max-h-[4rem]">
+        <div className="mt-2">
           {socialLinks.map((link, i) => (
-            <p key={i} className="text-white/80 text-xs italic truncate">
-              {link.label || link.url}
-            </p>
+            <div key={i}>
+              <div className="border-t border-black/30" />
+              <p className="text-black/80 text-xs py-1.5 truncate text-left">
+                {link.label || link.url}
+              </p>
+            </div>
           ))}
+          {/* Final bottom divider */}
+          <div className="border-t border-black/30" />
         </div>
       )}
     </div>

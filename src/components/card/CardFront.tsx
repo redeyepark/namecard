@@ -8,29 +8,35 @@ export function CardFront() {
   return (
     <div
       id="card-front"
-      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col"
+      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden"
       style={{ backgroundColor: front.backgroundColor }}
     >
-      <div className="p-4 sm:p-6 pt-6 sm:pt-8">
+      {/* Layer 2: Illustration image - full card cover */}
+      {front.avatarImage ? (
+        <img
+          src={front.avatarImage}
+          alt="Illustration"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 w-full h-full bg-black/5 flex items-center justify-center">
+          <span className="text-black/30 text-xs sm:text-sm">Upload Image</span>
+        </div>
+      )}
+
+      {/* Layer 3: Display name overlay at top-left */}
+      <div className="relative z-10 p-4 sm:p-6 pt-4 sm:pt-5">
         <h1
-          className="text-xl sm:text-2xl font-bold text-white tracking-wide truncate"
+          className="text-xl sm:text-2xl font-bold tracking-wide truncate"
           title={front.displayName || 'YOUR NAME'}
+          style={{
+            WebkitTextStroke: '1px rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            paintOrder: 'stroke fill',
+          }}
         >
           {front.displayName || 'YOUR NAME'}
         </h1>
-      </div>
-      <div className="flex-1 flex items-end justify-center px-4 pb-4">
-        {front.avatarImage ? (
-          <img
-            src={front.avatarImage}
-            alt="Avatar"
-            className="max-h-full max-w-full object-contain"
-          />
-        ) : (
-          <div className="w-36 h-36 sm:w-48 sm:h-48 bg-black/10 rounded-full flex items-center justify-center">
-            <span className="text-white/50 text-xs sm:text-sm">Upload Image</span>
-          </div>
-        )}
       </div>
     </div>
   );
