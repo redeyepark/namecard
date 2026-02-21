@@ -9,20 +9,26 @@
 | 언어 | TypeScript | 5.x | 정적 타입 검사 |
 | 스타일링 | Tailwind CSS | 4.x | 유틸리티 기반 CSS 프레임워크 |
 | 상태 관리 | Zustand | 5.0.11 | 경량 상태 관리 (persist middleware 포함) |
+| 인증 | Supabase Auth (@supabase/ssr) | 0.8.0 | 이메일/비밀번호 + Google OAuth 인증 |
+| 데이터베이스 | Supabase (supabase-js) | 2.97.0 | PostgreSQL DB + Storage |
 | 색상 선택 | react-colorful | 5.6.1 | 경량 색상 선택기 (2KB, zero-dependency) |
 | 이미지 내보내기 | html-to-image | 1.11.13 | DOM 요소를 PNG 이미지로 변환 |
+| ID 생성 | uuid | 13.0.0 | 고유 식별자 생성 |
 | 테스트 | Vitest | 4.0.18 | 단위 테스트 프레임워크 |
 | 테스트 유틸 | Testing Library | 16.3.2 | React 컴포넌트 테스트 유틸리티 |
 | 린터 | ESLint | 9.x | 코드 정적 분석 및 스타일 검사 |
-| 빌드 도구 | Turbopack | Next.js 내장 | 고속 번들링 |
-| 배포 | Vercel | - | 정적 호스팅 및 배포 |
+| 빌드 도구 | Turbopack | Next.js 내장 | 고속 개발 서버 번들링 |
+| 프로덕션 빌드 | @opennextjs/cloudflare | - | Cloudflare Pages용 Next.js 빌드 어댑터 |
+| 배포 | Cloudflare Pages | - | 엣지 네트워크 기반 호스팅 및 배포 |
 
 ## 프레임워크: Next.js 16 (App Router)
 
 - React 19 기반의 최신 프레임워크
 - App Router 사용 (`src/app/` 디렉토리 구조)
-- 이 프로젝트에서는 서버 컴포넌트를 사용하지 않으며, 모든 컴포넌트에 `'use client'` 지시문 적용
-- Turbopack을 통한 고속 개발 서버 및 빌드
+- 서버 컴포넌트와 클라이언트 컴포넌트 혼합 사용
+- API Routes를 통한 서버 사이드 비즈니스 로직 처리 (`src/app/api/`)
+- proxy.ts를 통한 미들웨어 기능 (Next.js 16 호환을 위해 middleware.ts에서 이름 변경)
+- Turbopack을 통한 고속 개발 서버
 
 ## 언어: TypeScript 5.x
 
@@ -31,6 +37,53 @@
 - Module resolution: `bundler`
 - Target: `ES2017`
 - JSX: `react-jsx` (자동 import)
+
+## 인증: Supabase Auth
+
+- `@supabase/ssr` 패키지를 통한 서버 사이드 세션 관리
+- 이메일/비밀번호 인증 (회원가입 + 이메일 확인)
+- Google OAuth 소셜 로그인
+- `proxy.ts`에서 Supabase 세션 자동 갱신
+- `AuthProvider` 컴포넌트에서 `onAuthStateChange` 리스너로 인증 상태 관리
+- `useAuth` 훅을 통한 클라이언트 컴포넌트 인증 상태 접근
+- 관리자 역할: `ADMIN_EMAILS` 환경변수 화이트리스트, `/api/auth/me` 엔드포인트에서 확인
+
+### Supabase 클라이언트 구성
+
+| 클라이언트 | 파일 | 용도 |
+|-----------|------|------|
+| 브라우저 클라이언트 | `src/lib/supabase-auth.ts` | 클라이언트 컴포넌트에서 인증용 (anon key) |
+| 서버 클라이언트 | `src/lib/supabase.ts` | API 라우트에서 DB/Storage 접근용 (service role key) |
+
+### 인증 유틸리티 (`src/lib/auth-utils.ts`)
+
+- `requireAuth`: 인증 필수 API 라우트 보호
+- `requireAdmin`: 관리자 전용 API 라우트 보호
+- `isAdmin`: 관리자 이메일 확인
+- `AuthError`: 인증 오류 처리 클래스
+
+## 데이터베이스: Supabase PostgreSQL
+
+### 테이블 구조
+
+| 테이블 | 용도 |
+|--------|------|
+| `card_requests` | 명함 제작 요청 (사용자 정보, 카드 데이터, 상태) |
+| `card_request_status_history` | 요청 상태 변경 이력 추적 |
+
+### Storage 버킷
+
+| 버킷 | 용도 |
+|------|------|
+| `avatars` | 사용자 아바타 이미지 저장 |
+| `illustrations` | 관리자가 업로드하는 일러스트 이미지 저장 |
+
+### 데이터 접근 계층 (`src/lib/storage.ts`)
+
+- `saveRequest`: 명함 제작 요청 저장
+- `getRequest`: 요청 상세 조회
+- `updateRequest`: 요청 상태 업데이트
+- 기타 Supabase DB/Storage CRUD 함수
 
 ## 스타일링: Tailwind CSS 4
 
@@ -63,6 +116,11 @@
 - `cacheBust: true`로 캐시 무효화
 - 앞면(`#card-front`)과 뒷면(`#card-back`)을 각각 독립적으로 내보내기
 
+## ID 생성: uuid 13.0
+
+- `uuid` 패키지를 사용한 고유 식별자(UUID v4) 생성
+- 명함 제작 요청, 소셜 링크 등 엔티티 식별에 사용
+
 ## 테스트: Vitest 4.0 + Testing Library
 
 - Vitest: Vite 기반 고속 테스트 러너
@@ -78,29 +136,47 @@
 - 플랫 설정 파일 형식 (`eslint.config.mjs`)
 - 실행: `npm run lint`
 
-## 배포: Vercel
+## 배포: Cloudflare Pages
 
-- 정적 호스팅 (Static Hosting)
-- Next.js와 네이티브 통합
-- 자동 빌드 및 배포 (Git push 기반)
+- `@opennextjs/cloudflare` 어댑터를 통한 Next.js 빌드
+- Cloudflare 엣지 네트워크 기반 글로벌 배포
+- `opennextjs-cloudflare build` 명령으로 Cloudflare 호환 빌드 생성
+- 프리뷰 및 프로덕션 배포 지원
 
 ## 개발 환경
 
 - Node.js 22+ 권장
 - 패키지 매니저: npm
 - 개발 서버: `npm run dev` (Turbopack 기반 HMR)
-- 빌드: `npm run build`
+- 빌드: `npm run build` (Next.js 빌드)
 - 프로덕션 실행: `npm start`
+
+## 환경변수
+
+| 변수명 | 범위 | 설명 |
+|--------|------|------|
+| `NEXT_PUBLIC_SUPABASE_URL` | 클라이언트 + 서버 | Supabase 프로젝트 URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 클라이언트 + 서버 | Supabase anon 키 (공개) |
+| `SUPABASE_SERVICE_ROLE_KEY` | 서버 전용 | Supabase service role 키 (DB/Storage 관리자 접근) |
+| `ADMIN_EMAILS` | 서버 전용 | 관리자 이메일 목록 (쉼표 구분) |
 
 ## 아키텍처 결정 사항
 
-### 서버리스 아키텍처 (백엔드 없음)
+### 풀스택 아키텍처 (Supabase 백엔드)
 
-별도의 서버, 데이터베이스, API 없이 순수하게 브라우저에서 동작합니다. 사용자 인증, 데이터 동기화 등 서버 의존 기능이 필요하지 않은 도구형 애플리케이션에 적합한 아키텍처입니다.
+Supabase를 Backend-as-a-Service로 활용하여 인증, 데이터베이스, 파일 스토리지를 통합 관리합니다. Next.js API Routes를 통해 서버 사이드 비즈니스 로직(인증 검증, 권한 확인, 데이터 CRUD)을 처리하고, Supabase 클라이언트를 통해 PostgreSQL DB와 Storage에 접근합니다.
 
-### localStorage로 데이터 영속성
+### Supabase Auth로 인증 관리
 
-Zustand의 persist middleware를 활용하여 모든 명함 데이터를 `localStorage`에 자동 저장합니다. 서버 DB 없이도 브라우저를 닫았다가 다시 열면 이전 편집 상태가 복원됩니다. 이미지는 Base64 인코딩 문자열로 저장됩니다.
+`@supabase/ssr` 패키지를 사용하여 서버 사이드 세션 관리를 구현합니다. 이메일/비밀번호 인증과 Google OAuth를 지원하며, `proxy.ts`에서 모든 요청에 대해 Supabase 세션을 자동 갱신합니다. 관리자 역할은 `ADMIN_EMAILS` 환경변수 화이트리스트 방식으로 간단하게 관리합니다.
+
+### Cloudflare Pages로 엣지 배포
+
+`@opennextjs/cloudflare` 어댑터를 사용하여 Next.js 애플리케이션을 Cloudflare Pages에 배포합니다. 엣지 네트워크를 통한 글로벌 저지연 응답과 자동 확장을 제공합니다.
+
+### localStorage로 카드 편집기 데이터 영속성
+
+카드 편집기(/create/edit)에서 Zustand의 persist middleware를 활용하여 편집 중인 명함 데이터를 `localStorage`에 자동 저장합니다. 브라우저를 닫았다가 다시 열면 이전 편집 상태가 복원됩니다.
 
 ### html-to-image로 클라이언트 사이드 이미지 생성
 
@@ -121,6 +197,9 @@ react-color(약 14KB) 대신 react-colorful(약 2KB)을 선택하여 번들 크�
 | `dev` | `next dev` | 개발 서버 실행 (Turbopack HMR) |
 | `build` | `next build` | 프로덕션 빌드 |
 | `start` | `next start` | 프로덕션 서버 실행 |
+| `cf:build` | `opennextjs-cloudflare build` | Cloudflare Pages용 빌드 |
+| `preview` | `opennextjs-cloudflare build && preview` | Cloudflare 프리뷰 |
+| `deploy` | `opennextjs-cloudflare build && deploy` | Cloudflare 배포 |
 | `lint` | `eslint` | ESLint 코드 검사 |
 | `test` | `vitest run` | 테스트 단일 실행 |
 | `test:watch` | `vitest` | 테스트 감시 모드 |
