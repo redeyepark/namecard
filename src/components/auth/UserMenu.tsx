@@ -1,12 +1,12 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export function UserMenu() {
-  const { data: session, status } = useSession();
+  const { user, isLoading, isAdmin, signOut } = useAuth();
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
@@ -15,7 +15,7 @@ export function UserMenu() {
     );
   }
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <Link
         href="/login"
@@ -39,8 +39,6 @@ export function UserMenu() {
     );
   }
 
-  const { user } = session;
-
   return (
     <div className="flex items-center gap-3">
       {/* Avatar */}
@@ -62,7 +60,7 @@ export function UserMenu() {
       {/* Name and role badge */}
       <div className="hidden sm:flex items-center gap-2">
         <span className="text-sm font-medium text-gray-700">{user.name}</span>
-        {user.role === 'admin' && (
+        {isAdmin && (
           <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700 bg-red-100 rounded">
             관리자
           </span>
@@ -71,7 +69,7 @@ export function UserMenu() {
 
       {/* Logout button */}
       <button
-        onClick={() => signOut({ callbackUrl: '/' })}
+        onClick={() => signOut()}
         className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200 hover:text-gray-700 transition-all duration-200"
         aria-label="로그아웃"
       >

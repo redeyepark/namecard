@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRequest, updateRequest, saveImageFile } from '@/lib/storage';
 import { isValidStatusTransition } from '@/types/request';
-import { auth } from '@/auth';
+import { requireAuth, requireAdmin, AuthError } from '@/lib/auth-utils';
 import type { RequestStatus } from '@/types/request';
 
 export async function GET(
@@ -9,14 +9,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Authentication check
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    // Authentication check using Supabase Auth
+    await requireAuth();
 
     const { id } = await params;
     const cardRequest = await getRequest(id);
@@ -34,7 +28,13 @@ export async function GET(
       originalAvatarUrl: cardRequest.originalAvatarPath ?? null,
       illustrationUrl: cardRequest.illustrationPath ?? null,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode }
+      );
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -47,20 +47,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Authentication + admin role check
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    if (session.user.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    // Authentication + admin role check using Supabase Auth
+    await requireAdmin();
 
     const { id } = await params;
     const cardRequest = await getRequest(id);
@@ -125,7 +113,13 @@ export async function PATCH(
       status: updated.status,
       updatedAt: updated.updatedAt,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode }
+      );
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

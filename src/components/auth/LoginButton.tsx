@@ -1,16 +1,16 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export function LoginButton() {
-  const { data: session, status } = useSession();
+  const { user, isLoading, signOut } = useAuth();
 
-  if (status === 'loading') {
+  if (isLoading) {
     return <div className="w-16 h-8 rounded-lg bg-gray-200 animate-pulse" />;
   }
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <Link
         href="/login"
@@ -24,10 +24,10 @@ export function LoginButton() {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-white/90 hidden sm:inline">
-        {session.user.name}
+        {user.name}
       </span>
       <button
-        onClick={() => signOut({ callbackUrl: '/' })}
+        onClick={() => signOut()}
         className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white/80 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200"
         aria-label="로그아웃"
       >

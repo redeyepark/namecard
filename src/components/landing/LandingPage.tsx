@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginButton } from '@/components/auth/LoginButton';
 
 const features = [
@@ -70,8 +70,8 @@ const features = [
 ];
 
 export function LandingPage() {
-  const { data: session, status } = useSession();
-  const isAuthenticated = status === 'authenticated' && !!session;
+  const { user, isLoading } = useAuth();
+  const isAuthenticated = !isLoading && !!user;
 
   return (
     <div className="min-h-screen flex flex-col">

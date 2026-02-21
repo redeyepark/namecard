@@ -16,6 +16,7 @@ export interface CardRequest {
   submittedAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
   note?: string; // Optional user memo
+  createdBy?: string; // User email from NextAuth session
   statusHistory: StatusHistoryEntry[];
 }
 

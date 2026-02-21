@@ -35,6 +35,7 @@ export async function saveRequest(request: CardRequest): Promise<void> {
     submitted_at: request.submittedAt,
     updated_at: request.updatedAt,
     note: request.note || null,
+    created_by: request.createdBy || null,
   });
 
   if (insertError) {
@@ -104,6 +105,7 @@ export async function getRequest(id: string): Promise<CardRequest | null> {
     submittedAt: row.submitted_at,
     updatedAt: row.updated_at,
     note: row.note || undefined,
+    createdBy: row.created_by || undefined,
     statusHistory,
   };
 

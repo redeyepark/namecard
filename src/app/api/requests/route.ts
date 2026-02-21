@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { saveRequest, saveImageFile, getAllRequests } from '@/lib/storage';
-import { auth } from '@/auth';
+import { requireAuth, requireAdmin, AuthError } from '@/lib/auth-utils';
 import type { CardRequest } from '@/types/request';
 
 export async function POST(request: NextRequest) {
   try {
-    // Authentication check
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    // Authentication check using Supabase Auth
+    const user = await requireAuth();
 
     const body = await request.json();
     const { card, avatarImage, note } = body;
@@ -56,6 +50,7 @@ export async function POST(request: NextRequest) {
       submittedAt: now,
       updatedAt: now,
       note: note || undefined,
+      createdBy: user.email ?? undefined,
       statusHistory: [{ status: 'submitted', timestamp: now }],
     };
 
@@ -65,7 +60,13 @@ export async function POST(request: NextRequest) {
       { id, status: 'submitted', submittedAt: now },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode }
+      );
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -75,24 +76,18 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // Authentication + admin role check
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    if (session.user.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    // Authentication + admin role check using Supabase Auth
+    await requireAdmin();
 
     const requests = await getAllRequests();
     return NextResponse.json({ requests, total: requests.length });
-  } catch {
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode }
+      );
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

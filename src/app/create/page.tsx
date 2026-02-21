@@ -1,12 +1,12 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { WizardContainer } from '@/components/wizard/WizardContainer';
 import { UserMenu } from '@/components/auth/UserMenu';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function CreatePage() {
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10">
@@ -38,9 +38,9 @@ export default function CreatePage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            {session?.user?.name && (
+            {user?.name && (
               <span className="hidden sm:inline text-sm text-gray-500">
-                안녕하세요, <span className="font-medium text-gray-700">{session.user.name}</span>님
+                안녕하세요, <span className="font-medium text-gray-700">{user.name}</span>님
               </span>
             )}
             <UserMenu />

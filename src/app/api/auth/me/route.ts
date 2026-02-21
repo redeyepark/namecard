@@ -1,0 +1,60 @@
+import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+const adminEmails = (process.env.ADMIN_EMAILS ?? '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+export async function GET() {
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          for (const { name, value, options } of cookiesToSet) {
+            cookieStore.set(name, value, options);
+          }
+        },
+      },
+    }
+  );
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return NextResponse.json({ user: null, isAdmin: false }, { status: 401 });
+  }
+
+  const isAdmin = adminEmails.includes(
+    (user.email ?? '').toLowerCase()
+  );
+
+  return NextResponse.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      name:
+        user.user_metadata?.full_name ??
+        user.user_metadata?.name ??
+        user.email?.split('@')[0] ??
+        '',
+      image:
+        user.user_metadata?.avatar_url ??
+        user.user_metadata?.picture ??
+        null,
+      role: isAdmin ? 'admin' : 'user',
+    },
+    isAdmin,
+  });
+}
