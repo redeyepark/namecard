@@ -23,6 +23,10 @@ namecard/
 │   │   │   ├── page.tsx                   # 위저드 기반 명함 제작 (useAuth)
 │   │   │   └── edit/
 │   │   │       └── page.tsx               # 카드 편집기 (2-column 반응형 레이아웃)
+│   │   ├── dashboard/
+│   │   │   ├── page.tsx                   # 사용자 대시보드 (내 요청 목록)
+│   │   │   └── [id]/
+│   │   │       └── page.tsx               # 사용자 요청 상세 (읽기 전용)
 │   │   ├── admin/
 │   │   │   ├── layout.tsx                 # Admin 레이아웃 (UserMenu, 인증 확인)
 │   │   │   ├── page.tsx                   # 관리자 대시보드 (요청 목록)
@@ -34,8 +38,10 @@ namecard/
 │   │       │       └── route.ts           # 사용자 정보 + isAdmin 상태 API
 │   │       └── requests/
 │   │           ├── route.ts               # POST (요청 생성, requireAuth), GET (목록, requireAdmin)
+│   │           ├── my/
+│   │           │   └── route.ts           # GET (사용자 본인 요청 목록, requireAuth)
 │   │           └── [id]/
-│   │               └── route.ts           # GET (상세, requireAuth), PATCH (수정, requireAdmin)
+│   │               └── route.ts           # GET (상세, requireAuth + 소유권 검증), PATCH (수정, requireAdmin)
 │   ├── components/
 │   │   ├── auth/                          # 인증 관련 컴포넌트
 │   │   │   ├── AuthProvider.tsx           # Supabase onAuthStateChange 컨텍스트 (useAuth 훅)
@@ -71,6 +77,12 @@ namecard/
 │   │   │   ├── RequestSubmitStep.tsx      # Step 5: 제작 요청 제출
 │   │   │   ├── CompleteStep.tsx           # Step 6: 완료
 │   │   │   └── MiniPreview.tsx            # 위저드 내 미니 카드 미리보기
+│   │   ├── dashboard/                     # 사용자 대시보드 컴포넌트
+│   │   │   ├── ProgressStepper.tsx        # 3단계 진행 상태 인디케이터 (의뢰됨/작업중/확정)
+│   │   │   ├── MyRequestList.tsx          # 반응형 요청 목록 (모바일: 카드 / 데스크톱: 테이블)
+│   │   │   ├── RequestCard.tsx            # 모바일용 요청 카드 컴포넌트
+│   │   │   ├── EmptyState.tsx             # 요청 없음 안내 + "명함 만들기" CTA
+│   │   │   └── MyRequestDetail.tsx        # 요청 상세 뷰 (읽기 전용)
 │   │   └── admin/                         # 관리자 컴포넌트
 │   │       ├── RequestList.tsx            # 관리자 요청 목록 테이블
 │   │       ├── RequestDetail.tsx          # 요청 상세 뷰
@@ -99,7 +111,8 @@ namecard/
 │   │   └── sections/                      # 설정 섹션 (quality, user, language)
 │   ├── project/                           # 프로젝트 문서
 │   └── specs/                             # SPEC 문서
-│       └── SPEC-UI-001/                   # Namecard Editor SPEC
+│       ├── SPEC-UI-001/                   # Namecard Editor SPEC
+│       └── SPEC-DASHBOARD-001/            # User Dashboard SPEC
 ├── .claude/                               # Claude Code 설정
 │   ├── agents/                            # Sub-agent 정의
 │   ├── commands/                          # Slash commands
@@ -133,6 +146,10 @@ namecard/
 [사용자 입력 흐름]
 User Input -> Wizard Steps -> API POST /api/requests -> Supabase DB (card_requests 테이블)
                                                      -> Supabase Storage (avatars 버킷)
+
+[사용자 대시보드 흐름]
+User Login -> UserMenu "내 요청" -> /dashboard -> GET /api/requests/my -> Supabase DB (created_by 필터)
+User -> /dashboard/[id] -> GET /api/requests/[id] -> 소유권 검증 -> 상세 렌더링
 
 [관리자 흐름]
 Admin -> /admin 대시보드 -> API GET /api/requests -> Supabase DB
@@ -197,6 +214,20 @@ layout.tsx (Root - AuthProvider 래핑)
 │   ├── ExportButton               # PNG 내보내기
 │   └── ResetButton                # 초기화
 │
+├── dashboard/page.tsx (User Dashboard) # 사용자 대시보드
+│   ├── UserMenu                   # 사용자 메뉴 ("내 요청" 링크 포함)
+│   ├── MyRequestList              # 반응형 요청 목록
+│   │   ├── RequestCard            # 모바일 카드 뷰
+│   │   ├── ProgressStepper        # 3단계 진행 상태 (의뢰됨/작업중/확정)
+│   │   └── StatusBadge            # 상태 배지 (재사용)
+│   └── EmptyState                 # 요청 없음 안내 + CTA
+│
+├── dashboard/[id]/page.tsx (User Detail) # 사용자 요청 상세
+│   ├── MyRequestDetail            # 읽기 전용 요청 상세 뷰
+│   ├── ProgressStepper            # 진행 상태 시각화
+│   ├── StatusHistory              # 상태 변경 이력 (재사용)
+│   └── CardCompare                # 원본 vs 일러스트 비교 (재사용)
+│
 ├── admin/page.tsx (Dashboard)     # 관리자 대시보드
 │   ├── UserMenu                   # 사용자 메뉴 + 관리자 배지
 │   └── RequestList                # 요청 목록 테이블
@@ -218,6 +249,7 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/app/api/` | REST API 엔드포인트 (인증, 요청 CRUD) |
 | `src/app/login/`, `signup/`, `confirm/`, `callback/` | 인증 관련 페이지 |
 | `src/app/create/` | 명함 제작 위저드 및 카드 편집기 |
+| `src/app/dashboard/` | 사용자 대시보드 (내 요청 목록, 요청 상세) |
 | `src/app/admin/` | 관리자 대시보드 및 요청 상세 페이지 |
 | `src/components/auth/` | 인증 관련 컴포넌트 (AuthProvider, LoginButton, UserMenu) |
 | `src/components/landing/` | 랜딩 페이지 컴포넌트 |
@@ -226,10 +258,11 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/components/export/` | PNG 이미지 내보내기 관련 컴포넌트 |
 | `src/components/ui/` | 범용 UI 컴포넌트 (탭, 버튼) |
 | `src/components/wizard/` | 6단계 명함 제작 위저드 컴포넌트 |
+| `src/components/dashboard/` | 사용자 대시보드 컴포넌트 (ProgressStepper, MyRequestList, RequestCard, EmptyState, MyRequestDetail) |
 | `src/components/admin/` | 관리자 대시보드 컴포넌트 |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
 | `src/types/` | TypeScript 타입 정의 (카드, 요청) |
-| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증) |
+| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증). `storage.ts`에 `getRequestsByUser(email)` 함수 포함 |
 | `src/test/` | 테스트 환경 설정 |
 | `.github/workflows/` | GitHub Actions CI/CD 워크플로우 (Cloudflare Workers 배포) |
 
@@ -237,13 +270,13 @@ layout.tsx (Root - AuthProvider 래핑)
 
 | 카테고리 | 파일 수 |
 |---------|--------|
-| 페이지/레이아웃 (`.tsx` in `app/`) | 11 |
-| API 라우트 (`.ts` in `app/api/`) | 3 |
-| React 컴포넌트 (`.tsx` in `components/`) | 27 |
+| 페이지/레이아웃 (`.tsx` in `app/`) | 13 |
+| API 라우트 (`.ts` in `app/api/`) | 4 |
+| React 컴포넌트 (`.tsx` in `components/`) | 32 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
 | 타입 정의 (`.ts` in `types/`) | 2 |
 | 유틸리티 (`.ts` in `lib/`) | 6 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 54 |
+| 총 소스 파일 | 61 |

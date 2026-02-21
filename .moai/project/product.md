@@ -36,11 +36,20 @@
 - **Step 5 - 제작 요청**: 명함 제작 요청 제출 (Supabase DB에 저장)
 - **Step 6 - 완료**: 요청 완료 안내
 
+### 사용자 대시보드
+
+- 로그인한 사용자의 명함 제작 요청 목록 조회 (`GET /api/requests/my`)
+- 3단계 프로그레스 인디케이터로 진행 상태 시각화 (의뢰됨 -> 작업중 -> 확정)
+- 반응형 레이아웃: 모바일은 카드형, 데스크톱은 테이블형 리스트
+- 요청 상세 보기 (`/dashboard/[id]`): 상태 이력, 카드 비교, 명함 정보 읽기 전용 표시
+- 요청이 없는 경우 EmptyState에서 "명함 만들기" CTA 제공
+- 소유권 검증: 다른 사용자의 요청에 접근 시 403 반환
+
 ### 관리자 대시보드
 
 - 명함 제작 요청 목록 조회 및 관리
 - 요청 상세 정보 확인 (원본 카드 정보, 사용자 정보)
-- 요청 상태 관리: submitted -> in_review -> illustration -> completed / rejected
+- 요청 상태 관리: submitted -> processing -> confirmed / rejected
 - 상태 변경 이력 추적 (card_request_status_history 테이블)
 - 일러스트 이미지 업로드 (Supabase Storage illustrations 버킷)
 - 원본 카드와 일러스트 비교 뷰
@@ -101,22 +110,22 @@
 4. 제작 요청 제출 시 API POST /api/requests로 Supabase DB에 저장
 5. 아바타 이미지는 Supabase Storage(avatars 버킷)에 업로드
 6. 요청 완료 후 카드 편집기(/create/edit)에서 추가 편집 가능
+7. UserMenu의 "내 요청" 클릭으로 대시보드(/dashboard)에서 제작 진행 상태 확인
+8. 대시보드에서 요청 클릭 시 상세 페이지(/dashboard/[id])에서 상태 이력, 카드 비교 확인
 
 ### 관리자 흐름
 
 1. ADMIN_EMAILS에 등록된 계정으로 로그인
 2. 관리자 대시보드(/admin)에서 전체 요청 목록 확인
 3. 요청 상세 페이지(/admin/[id])에서 요청 내용 검토
-4. 상태 변경: submitted -> in_review -> illustration -> completed/rejected
+4. 상태 변경: submitted -> processing -> confirmed/rejected
 5. 일러스트 이미지를 Supabase Storage(illustrations 버킷)에 업로드
 6. 원본 카드와 일러스트 비교 확인
 
 ### 요청 상태 흐름
 
 ```
-submitted -> in_review -> illustration -> completed
-                 |                            |
-                 +----> rejected              +----> rejected
+submitted (의뢰됨) -> processing (작업중) -> confirmed (확정)
 ```
 
 ## 사용 사례
@@ -144,6 +153,8 @@ submitted -> in_review -> illustration -> completed
 | `/callback` | 공개 | OAuth 콜백 핸들러 |
 | `/create` | 인증 필요 | 명함 제작 위저드 |
 | `/create/edit` | 인증 필요 | 카드 편집기 |
+| `/dashboard` | 인증 필요 | 사용자 대시보드 (내 요청 목록) |
+| `/dashboard/[id]` | 인증 필요 | 사용자 요청 상세 (소유권 검증) |
 | `/admin` | 관리자 전용 | 관리자 대시보드 |
 | `/admin/[id]` | 관리자 전용 | 요청 상세 페이지 |
 

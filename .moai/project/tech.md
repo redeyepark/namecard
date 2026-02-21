@@ -61,6 +61,7 @@
 - `requireAdmin`: 관리자 전용 API 라우트 보호
 - `isAdmin`: 관리자 이메일 확인
 - `AuthError`: 인증 오류 처리 클래스
+- 소유권 검증 패턴: `GET /api/requests/[id]`에서 비관리자 사용자의 경우 `created_by`와 현재 사용자 이메일 일치 여부를 검증하여, 불일치 시 403 반환
 
 ## 데이터베이스: Supabase PostgreSQL
 
@@ -82,6 +83,8 @@
 
 - `saveRequest`: 명함 제작 요청 저장
 - `getRequest`: 요청 상세 조회
+- `getAllRequests`: 전체 요청 목록 조회 (관리자용)
+- `getRequestsByUser(email)`: 특정 사용자의 요청 목록 조회 (`created_by` 필터링)
 - `updateRequest`: 요청 상태 업데이트
 - 기타 Supabase DB/Storage CRUD 함수
 

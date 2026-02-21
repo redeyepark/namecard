@@ -14,6 +14,7 @@
 - 텍스트 편집 (이름, 직함, 해시태그, 소셜 링크)
 - PNG 이미지 고화질 내보내기 (2x 해상도)
 - 자동 저장 (브라우저 localStorage)
+- 사용자 대시보드 (내 요청 목록, 진행 상태 추적, 요청 상세 조회)
 - 반응형 디자인 (모바일/태블릿/데스크톱)
 
 ## 기술 스택
@@ -25,6 +26,8 @@
 | TypeScript | 5.9+ | 타입 안전성 |
 | Tailwind CSS | 4 | 유틸리티 기반 스타일링 |
 | Zustand | 5 | 상태 관리 + localStorage 영속성 |
+| Supabase Auth | - | 이메일/비밀번호 + Google OAuth 인증 |
+| Supabase | 2.97 | PostgreSQL DB + Storage (BaaS) |
 | react-colorful | 5.6 | 색상 선택기 |
 | html-to-image | 1.11 | PNG 이미지 내보내기 |
 
@@ -63,14 +66,18 @@ npm start
 2. **뒷면 편집**: "뒷면" 탭 클릭 후 이름, 직함, 해시태그, 소셜 링크 편집
 3. **미리보기**: 우측(데스크톱) 또는 상단(모바일)에서 실시간 확인
 4. **내보내기**: "Download PNG" 버튼으로 앞면/뒷면 이미지 다운로드
+5. **내 요청 확인**: 로그인 후 UserMenu의 "내 요청"을 클릭하여 `/dashboard`에서 제작 진행 상태 확인
 
 ## 프로젝트 구조
 
 ```
 src/
 ├── app/                 # Next.js App Router
+│   ├── dashboard/       # 사용자 대시보드 (내 요청 목록, 상세)
+│   └── api/requests/my/ # 사용자 본인 요청 목록 API
 ├── components/
 │   ├── card/            # 카드 미리보기 컴포넌트
+│   ├── dashboard/       # 대시보드 컴포넌트 (ProgressStepper, MyRequestList 등)
 │   ├── editor/          # 편집기 컴포넌트
 │   ├── export/          # 내보내기 기능
 │   └── ui/              # 공통 UI 컴포넌트

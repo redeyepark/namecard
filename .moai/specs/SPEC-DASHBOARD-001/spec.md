@@ -7,7 +7,7 @@
 | SPEC ID | SPEC-DASHBOARD-001 |
 | 제목 | User Dashboard - My Requests & Progress Tracking |
 | 생성일 | 2026-02-21 |
-| 상태 | Planned |
+| 상태 | Completed |
 | 우선순위 | High |
 | 관련 SPEC | SPEC-AUTH-001 (인증), SPEC-ADMIN-001 (관리자 대시보드), SPEC-FLOW-001 (명함 제작 플로우) |
 
