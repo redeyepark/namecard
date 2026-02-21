@@ -137,6 +137,31 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
 }
 
 /**
+ * Get all requests for a specific user, sorted by submittedAt descending.
+ */
+export async function getRequestsByUser(email: string): Promise<RequestSummary[]> {
+  const supabase = getSupabase();
+
+  const { data: rows, error } = await supabase
+    .from('card_requests')
+    .select('id, card_front, status, submitted_at, illustration_url')
+    .eq('created_by', email)
+    .order('submitted_at', { ascending: false });
+
+  if (error || !rows) {
+    return [];
+  }
+
+  return rows.map((row) => ({
+    id: row.id,
+    displayName: (row.card_front as { displayName?: string })?.displayName || '',
+    status: row.status,
+    submittedAt: row.submitted_at,
+    hasIllustration: row.illustration_url !== null,
+  }));
+}
+
+/**
  * Update a card request with partial data.
  * Optionally inserts a new status history entry if status changed.
  */

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRequest, updateRequest, saveImageFile } from '@/lib/storage';
 import { isValidStatusTransition } from '@/types/request';
-import { requireAuth, requireAdmin, AuthError } from '@/lib/auth-utils';
+import { requireAuth, requireAdmin, isAdmin, AuthError } from '@/lib/auth-utils';
 import type { RequestStatus } from '@/types/request';
 
 export async function GET(
@@ -9,8 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Authentication check using Supabase Auth
-    await requireAuth();
+    const user = await requireAuth();
 
     const { id } = await params;
     const cardRequest = await getRequest(id);
@@ -19,6 +18,14 @@ export async function GET(
       return NextResponse.json(
         { error: 'Request not found' },
         { status: 404 }
+      );
+    }
+
+    // Ownership verification: admin can access all, user can only access own
+    if (!isAdmin(user.email!) && cardRequest.createdBy !== user.email) {
+      return NextResponse.json(
+        { error: '접근 권한이 없습니다.' },
+        { status: 403 }
       );
     }
 

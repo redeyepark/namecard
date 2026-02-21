@@ -9,7 +9,7 @@ const publicPrefixes = ['/_next/', '/favicon.ico', '/api/auth/'];
 const adminPrefixes = ['/admin'];
 
 // Protected routes that require authentication
-const protectedRoutes = ['/create', '/create/edit'];
+const protectedRoutes = ['/create', '/create/edit', '/dashboard'];
 
 /**
  * Check if an email address is in the ADMIN_EMAILS whitelist.
