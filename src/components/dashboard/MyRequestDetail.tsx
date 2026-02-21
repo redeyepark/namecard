@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import type { CardRequest } from '@/types/request';
 import { ProgressStepper } from './ProgressStepper';
+import { ConfirmedCardPreview } from './ConfirmedCardPreview';
 import { CardCompare } from '@/components/admin/CardCompare';
 import { StatusHistory } from '@/components/admin/StatusHistory';
 
@@ -60,9 +61,17 @@ export function MyRequestDetail({ request }: MyRequestDetailProps) {
       {request.status === 'confirmed' && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-700 font-medium">
-            명함이 확정되었습니다.
+            명함이 확정되었습니다. 아래에서 완성된 명함을 확인하세요.
           </p>
         </div>
+      )}
+
+      {/* Confirmed card preview */}
+      {request.status === 'confirmed' && request.illustrationUrl && (
+        <ConfirmedCardPreview
+          card={request.card}
+          illustrationUrl={request.illustrationUrl}
+        />
       )}
 
       {/* Card info */}
