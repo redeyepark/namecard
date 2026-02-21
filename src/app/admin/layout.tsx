@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { UserMenu } from '@/components/auth/UserMenu';
 
 export default function AdminLayout({
   children,
@@ -15,12 +16,15 @@ export default function AdminLayout({
           >
             명함 의뢰 관리
           </Link>
-          <Link
-            href="/"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            사이트로 이동
-          </Link>
+          <div className="flex items-center gap-4">
+            <UserMenu />
+            <Link
+              href="/"
+              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              사이트로 이동
+            </Link>
+          </div>
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRequest, updateRequest, saveImageFile } from '@/lib/storage';
 import { isValidStatusTransition } from '@/types/request';
+import { auth } from '@/auth';
 import type { RequestStatus } from '@/types/request';
 
 export async function GET(
@@ -8,6 +9,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Authentication check
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const cardRequest = await getRequest(id);
 
@@ -40,6 +50,21 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Authentication + admin role check
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    if (session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const cardRequest = await getRequest(id);
 

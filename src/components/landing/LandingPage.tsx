@@ -1,4 +1,8 @@
+'use client';
+
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { LoginButton } from '@/components/auth/LoginButton';
 
 const features = [
   {
@@ -66,6 +70,9 @@ const features = [
 ];
 
 export function LandingPage() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated' && !!session;
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
@@ -77,7 +84,12 @@ export function LandingPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-white/[0.02]" />
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-4 py-20 sm:py-28 md:py-36 text-center">
+        {/* Top-right login area */}
+        <div className="relative max-w-5xl mx-auto px-4 pt-4 flex justify-end">
+          <LoginButton />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 py-16 sm:py-24 md:py-32 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
             나만의 명함을
             <br />
@@ -87,13 +99,23 @@ export function LandingPage() {
             간단한 5단계로 전문적인 디지털 명함을 완성하세요
           </p>
           <div className="mt-8 sm:mt-10">
-            <Link
-              href="/create"
-              className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-white text-red-700 text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:bg-red-50 hover:shadow-xl transition-all duration-200"
-            >
-              명함 만들기
-              <span aria-hidden="true">&rarr;</span>
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/create"
+                className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-white text-red-700 text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:bg-red-50 hover:shadow-xl transition-all duration-200"
+              >
+                명함 만들기
+                <span aria-hidden="true">&rarr;</span>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-white text-red-700 text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:bg-red-50 hover:shadow-xl transition-all duration-200"
+              >
+                로그인하여 시작하기
+                <span aria-hidden="true">&rarr;</span>
+              </Link>
+            )}
           </div>
         </div>
       </section>

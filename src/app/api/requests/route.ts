@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { saveRequest, saveImageFile, getAllRequests } from '@/lib/storage';
+import { auth } from '@/auth';
 import type { CardRequest } from '@/types/request';
 
 export async function POST(request: NextRequest) {
   try {
+    // Authentication check
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { card, avatarImage, note } = body;
 
@@ -65,6 +75,21 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    // Authentication + admin role check
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    if (session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      );
+    }
+
     const requests = await getAllRequests();
     return NextResponse.json({ requests, total: requests.length });
   } catch {

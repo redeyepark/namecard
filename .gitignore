@@ -222,3 +222,5 @@ next-env.d.ts
 
 # User data (request submissions)
 data/requests/
+
+.vercel
