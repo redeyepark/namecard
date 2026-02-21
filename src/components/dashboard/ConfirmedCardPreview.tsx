@@ -19,7 +19,7 @@ function ConfirmedFront({
 }) {
   return (
     <div
-      className="relative w-full aspect-[3/4] rounded-lg shadow-xl overflow-hidden flex flex-col"
+      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col"
       style={{ backgroundColor }}
     >
       <div className="p-4 sm:p-6 pt-6 sm:pt-8">
@@ -56,7 +56,7 @@ function ConfirmedBack({
 }) {
   return (
     <div
-      className="relative w-full aspect-[3/4] rounded-lg shadow-xl overflow-hidden flex flex-col p-4 sm:p-6"
+      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col p-4 sm:p-6"
       style={{ backgroundColor }}
     >
       <div className="flex-1 min-h-0">

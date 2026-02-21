@@ -8,7 +8,7 @@ export function CardBack() {
   return (
     <div
       id="card-back"
-      className="relative w-full aspect-[3/4] rounded-lg shadow-xl overflow-hidden flex flex-col p-4 sm:p-6"
+      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col p-4 sm:p-6"
       style={{ backgroundColor: back.backgroundColor }}
     >
       <div className="flex-1 min-h-0">

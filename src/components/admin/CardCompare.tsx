@@ -20,7 +20,7 @@ export function CardCompare({
         <p className="text-xs font-medium text-gray-500 mb-2 text-center">
           원본 사진
         </p>
-        <div className="aspect-[3/4] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+        <div className="aspect-[29/45] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
           {originalAvatarUrl ? (
             <img
               src={originalAvatarUrl}
@@ -40,7 +40,7 @@ export function CardCompare({
         <p className="text-xs font-medium text-gray-500 mb-2 text-center">
           일러스트
         </p>
-        <div className="aspect-[3/4] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+        <div className="aspect-[29/45] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
           {illustrationSrc ? (
             <img
               src={illustrationSrc}

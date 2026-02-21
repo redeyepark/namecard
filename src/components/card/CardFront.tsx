@@ -8,7 +8,7 @@ export function CardFront() {
   return (
     <div
       id="card-front"
-      className="relative w-full aspect-[3/4] rounded-lg shadow-xl overflow-hidden flex flex-col"
+      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col"
       style={{ backgroundColor: front.backgroundColor }}
     >
       <div className="p-4 sm:p-6 pt-6 sm:pt-8">

@@ -80,7 +80,7 @@ export function IllustrationUploader({
     <div className="space-y-2">
       {currentImage ? (
         <div className="space-y-2">
-          <div className="relative w-full aspect-[3/4] max-w-[200px] rounded-lg overflow-hidden border border-gray-200">
+          <div className="relative w-full aspect-[29/45] max-w-[200px] rounded-lg overflow-hidden border border-gray-200">
             <img
               src={currentImage}
               alt="Uploaded illustration"
@@ -113,7 +113,7 @@ export function IllustrationUploader({
               fileInputRef.current?.click();
             }
           }}
-          className={`w-full aspect-[3/4] max-w-[200px] border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition-all duration-200 ${
+          className={`w-full aspect-[29/45] max-w-[200px] border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition-all duration-200 ${
             disabled
               ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
               : isDragging
