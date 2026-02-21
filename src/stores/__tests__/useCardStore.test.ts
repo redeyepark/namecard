@@ -12,7 +12,7 @@ describe('useCardStore', () => {
   it('should have default card data', () => {
     const state = useCardStore.getState();
     expect(state.card.front.displayName).toBe('YOUR NAME');
-    expect(state.card.front.backgroundColor).toBe('#E53E3E');
+    expect(state.card.front.backgroundColor).toBe('#b21b3c');
     expect(state.card.back.fullName).toBe('FULL NAME');
     expect(state.activeSide).toBe('front');
   });
@@ -22,7 +22,7 @@ describe('useCardStore', () => {
     const state = useCardStore.getState();
     expect(state.card.front.displayName).toBe('John Doe');
     // Other fields should remain unchanged
-    expect(state.card.front.backgroundColor).toBe('#E53E3E');
+    expect(state.card.front.backgroundColor).toBe('#b21b3c');
   });
 
   it('should update back data', () => {

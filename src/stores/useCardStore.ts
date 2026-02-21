@@ -6,14 +6,14 @@ const DEFAULT_CARD: CardData = {
   front: {
     displayName: 'YOUR NAME',
     avatarImage: null,
-    backgroundColor: '#E53E3E',
+    backgroundColor: '#b21b3c',
   },
   back: {
     fullName: 'FULL NAME',
     title: 'Your Title',
     hashtags: ['#Keyword1', '#Keyword2'],
     socialLinks: [],
-    backgroundColor: '#9B2C2C',
+    backgroundColor: '#000000',
   },
 };
 
