@@ -2,13 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { saveRequest } from '@/lib/storage';
 import { requireAdminToken, AuthError } from '@/lib/auth-utils';
+import { getSupabase } from '@/lib/supabase';
 import type { CardRequest } from '@/types/request';
 import type { SocialLink } from '@/types/card';
 
 interface BulkUploadResult {
   success: number;
   failed: number;
+  autoRegistered: number;
   errors: Array<{ row: number; error: string }>;
+}
+
+/**
+ * Validate email format using RFC 5322 simplified pattern.
+ */
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 /**
@@ -93,9 +103,51 @@ function isEmptyRow(columns: string[]): boolean {
 }
 
 /**
+ * Fetch all existing user emails from Supabase Auth.
+ * Handles pagination to support more than 1000 users.
+ */
+async function fetchExistingUserEmails(): Promise<Set<string>> {
+  const supabase = getSupabase();
+  const emails = new Set<string>();
+  let page = 1;
+  const perPage = 1000;
+
+  while (true) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+    if (error) {
+      console.error(`[bulk-upload] Error listing users (page ${page}): ${error.message}`);
+      throw error;
+    }
+    for (const u of data.users) {
+      if (u.email) emails.add(u.email.toLowerCase());
+    }
+    if (data.users.length < perPage) break;
+    page++;
+  }
+
+  return emails;
+}
+
+/**
+ * Create a new user in Supabase Auth with default password '123456'.
+ */
+async function createUser(email: string): Promise<void> {
+  const supabase = getSupabase();
+  const { error } = await supabase.auth.admin.createUser({
+    email,
+    password: '123456',
+    email_confirm: true,
+  });
+  if (error) {
+    console.error(`[bulk-upload] Error creating user for ${email}: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
  * Build a CardRequest from parsed CSV columns.
  */
-function buildCardRequest(columns: string[]): CardRequest {
+function buildCardRequest(columns: string[], createdBy: string): CardRequest {
   const [
     photoUrl,
     frontName,
@@ -182,7 +234,7 @@ function buildCardRequest(columns: string[]): CardRequest {
     status: 'submitted',
     submittedAt: now,
     updatedAt: now,
-    createdBy: 'admin-bulk-upload',
+    createdBy,
     statusHistory: [{ status: 'submitted', timestamp: now }],
   };
 
@@ -219,8 +271,18 @@ export async function POST(request: NextRequest) {
     const result: BulkUploadResult = {
       success: 0,
       failed: 0,
+      autoRegistered: 0,
       errors: [],
     };
+
+    // Fetch existing user emails once before processing rows
+    let existingEmails: Set<string>;
+    try {
+      existingEmails = await fetchExistingUserEmails();
+    } catch {
+      existingEmails = new Set();
+      console.error('[bulk-upload] Failed to fetch existing users, all emails will attempt creation');
+    }
 
     for (let i = 0; i < dataLines.length; i++) {
       const rowNumber = i + 2; // 1-based, accounting for header
@@ -241,7 +303,41 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const cardRequest = buildCardRequest(columns);
+        // Determine createdBy based on email column
+        const email = columns[7]?.trim() || '';
+        let createdBy = 'admin-bulk-upload';
+
+        if (email && isValidEmail(email)) {
+          const emailLower = email.toLowerCase();
+          try {
+            if (!existingEmails.has(emailLower)) {
+              await createUser(emailLower);
+              existingEmails.add(emailLower);
+              result.autoRegistered++;
+              console.log(`[bulk-upload] Row ${rowNumber}: Auto-registered user ${emailLower}`);
+            } else {
+              console.log(`[bulk-upload] Row ${rowNumber}: User ${emailLower} already exists`);
+            }
+            createdBy = email;
+          } catch (authErr) {
+            // If user creation fails, log the error but still set createdBy to email for tracking
+            const errorMsg = authErr instanceof Error ? authErr.message : String(authErr);
+            console.error(
+              `[bulk-upload] Row ${rowNumber}: Failed to create user for ${email}. Will use email as createdBy anyway. Error: ${errorMsg}`
+            );
+            // Still set createdBy to email even if creation fails - this preserves the user's email
+            // and helps track which rows had auto-registration issues
+            createdBy = email;
+          }
+        } else if (email && !isValidEmail(email)) {
+          // Log invalid email format but still try to save the card with the invalid email
+          console.warn(
+            `[bulk-upload] Row ${rowNumber}: Invalid email format: "${email}". Using as-is for createdBy.`
+          );
+          createdBy = email;
+        }
+
+        const cardRequest = buildCardRequest(columns, createdBy);
         await saveRequest(cardRequest);
         result.success++;
       } catch (err) {
