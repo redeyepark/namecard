@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { saveRequest } from '@/lib/storage';
 import { requireAdminToken, AuthError } from '@/lib/auth-utils';
-import { getSupabase } from '@/lib/supabase';
 import type { CardRequest } from '@/types/request';
 import type { SocialLink } from '@/types/card';
 
@@ -103,16 +102,18 @@ function isEmptyRow(columns: string[]): boolean {
 }
 
 /**
- * Fetch all existing user emails from Supabase Auth.
+ * Fetch all existing user emails from Supabase Auth via REST API.
+ * Uses direct fetch() instead of Supabase SDK admin methods for
+ * Cloudflare Workers edge runtime compatibility.
  * Handles pagination to support more than 1000 users.
  * Returns null if the admin API is not available (graceful degradation).
  */
 async function fetchExistingUserEmails(): Promise<Set<string> | null> {
-  const supabase = getSupabase();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  // Check if admin API is available
-  if (!supabase.auth.admin) {
-    console.warn('[bulk-upload] Supabase auth.admin API not available - user deduplication disabled');
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.warn('[bulk-upload] Missing Supabase URL or service role key');
     return null;
   }
 
@@ -122,21 +123,36 @@ async function fetchExistingUserEmails(): Promise<Set<string> | null> {
 
   try {
     while (true) {
-      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-      if (error) {
-        console.error(`[bulk-upload] Error listing users (page ${page}): ${error.message}`);
-        throw error;
+      const response = await fetch(
+        `${supabaseUrl}/auth/v1/admin/users?page=${page}&per_page=${perPage}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${serviceRoleKey}`,
+            'apikey': serviceRoleKey,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[bulk-upload] Error listing users (page ${page}): ${response.status} ${errorText}`);
+        return null;
       }
-      for (const u of data.users) {
+
+      const data = await response.json();
+      const users = data.users || [];
+
+      for (const u of users) {
         if (u.email) emails.add(u.email.toLowerCase());
       }
-      if (data.users.length < perPage) break;
+
+      if (users.length < perPage) break;
       page++;
     }
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     console.error(`[bulk-upload] Failed to fetch existing users: ${errMsg}`);
-    // Return null on failure to indicate the admin API is not working
     return null;
   }
 
@@ -145,17 +161,36 @@ async function fetchExistingUserEmails(): Promise<Set<string> | null> {
 
 /**
  * Create a new user in Supabase Auth with default password '123456'.
+ * Uses direct fetch() instead of Supabase SDK admin methods for
+ * Cloudflare Workers edge runtime compatibility.
  */
 async function createUser(email: string): Promise<void> {
-  const supabase = getSupabase();
-  const { error } = await supabase.auth.admin.createUser({
-    email,
-    password: '123456',
-    email_confirm: true,
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Missing Supabase URL or service role key');
+  }
+
+  const response = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${serviceRoleKey}`,
+      'apikey': serviceRoleKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      password: '123456',
+      email_confirm: true,
+    }),
   });
-  if (error) {
-    console.error(`[bulk-upload] Error creating user for ${email}: ${error.message}`);
-    throw error;
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMsg = errorData.message || errorData.msg || `HTTP ${response.status}`;
+    console.error(`[bulk-upload] Error creating user for ${email}: ${errorMsg}`);
+    throw new Error(errorMsg);
   }
 }
 
