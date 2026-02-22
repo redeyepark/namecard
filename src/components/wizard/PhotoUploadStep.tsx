@@ -3,6 +3,7 @@
 import { useCardStore } from '@/stores/useCardStore';
 import { ImageUploader } from '@/components/editor/ImageUploader';
 import { ColorPicker } from '@/components/editor/ColorPicker';
+import { TextColorPicker } from '@/components/editor/TextColorPicker';
 
 export function PhotoUploadStep() {
   const card = useCardStore((state) => state.card);
@@ -28,12 +29,28 @@ export function PhotoUploadStep() {
           />
         </div>
 
+        {/* Front text color */}
+        <div>
+          <TextColorPicker
+            color={card.front.textColor || '#FFFFFF'}
+            onChange={(c) => updateFront({ textColor: c })}
+          />
+        </div>
+
         {/* Back background color */}
         <div>
           <ColorPicker
             color={card.back.backgroundColor}
             onChange={(c) => updateBack({ backgroundColor: c })}
             label="뒷면 배경색"
+          />
+        </div>
+
+        {/* Back text color */}
+        <div>
+          <TextColorPicker
+            color={card.back.textColor || '#000000'}
+            onChange={(c) => updateBack({ textColor: c })}
           />
         </div>
       </div>
