@@ -34,6 +34,7 @@ export interface RequestSummary {
   status: RequestStatus;
   submittedAt: string;
   hasIllustration: boolean;
+  originalAvatarUrl?: string | null;
 }
 
 // Valid status transitions

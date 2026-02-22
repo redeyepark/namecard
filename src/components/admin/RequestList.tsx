@@ -66,6 +66,7 @@ export function RequestList() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-200">
+            <th className="text-left py-3 px-4 font-medium text-gray-500">사진</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">요청 ID</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">이름</th>
             <th className="text-left py-3 px-4 font-medium text-gray-500">제출일</th>
@@ -96,6 +97,24 @@ export function RequestList() {
                   }
                 }}
               >
+                <td className="py-3 px-4">
+                  <div className="w-10 h-12 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {req.originalAvatarUrl ? (
+                      <img
+                        src={req.originalAvatarUrl}
+                        alt="Avatar thumbnail"
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <p className="text-xs text-gray-300">없음</p>
+                    )}
+                  </div>
+                </td>
                 <td className="py-3 px-4 font-mono text-xs text-gray-600">
                   {req.id.slice(0, 8)}...
                 </td>

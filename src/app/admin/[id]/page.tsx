@@ -91,6 +91,13 @@ export default function AdminDetailPage({
           &larr; 목록으로
         </Link>
       </div>
+      {data.originalAvatarUrl && (
+        <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-xs text-blue-700">
+            <span className="font-medium">원본 사진 URL 감지됨:</span> {data.originalAvatarUrl.substring(0, 60)}...
+          </p>
+        </div>
+      )}
       <RequestDetail
         request={data.request}
         originalAvatarUrl={data.originalAvatarUrl}

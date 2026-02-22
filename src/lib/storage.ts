@@ -122,7 +122,7 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
 
   const { data: rows, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, status, submitted_at, illustration_url')
+    .select('id, card_front, status, submitted_at, illustration_url, original_avatar_url')
     .order('submitted_at', { ascending: false });
 
   if (error || !rows) {
@@ -135,6 +135,7 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
     status: row.status,
     submittedAt: row.submitted_at,
     hasIllustration: row.illustration_url !== null,
+    originalAvatarUrl: row.original_avatar_url || null,
   }));
 }
 

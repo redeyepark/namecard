@@ -33,11 +33,18 @@ export async function GET(
       }
     }
 
-    // originalAvatarPath and illustrationPath now contain Supabase Storage public URLs
+    // originalAvatarPath and illustrationPath now contain Supabase Storage public URLs or external URLs
+    // Extract the object and rename fields for the API response
+    const {
+      originalAvatarPath,
+      illustrationPath,
+      ...requestWithoutPaths
+    } = cardRequest;
+
     return NextResponse.json({
-      ...cardRequest,
-      originalAvatarUrl: cardRequest.originalAvatarPath ?? null,
-      illustrationUrl: cardRequest.illustrationPath ?? null,
+      ...requestWithoutPaths,
+      originalAvatarUrl: originalAvatarPath ?? null,
+      illustrationUrl: illustrationPath ?? null,
     });
   } catch (error) {
     if (error instanceof AuthError) {
