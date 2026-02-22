@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { saveRequest } from '@/lib/storage';
+import { getSupabase } from '@/lib/supabase';
 import { requireAdminToken, AuthError } from '@/lib/auth-utils';
 import type { CardRequest } from '@/types/request';
 import type { SocialLink } from '@/types/card';
@@ -94,6 +94,28 @@ function normalizeHashtag(tag: string): string {
   return trimmed.startsWith('#') ? trimmed : `#${trimmed}`;
 }
 
+/**
+ * Convert Google Drive sharing URLs to direct image URLs.
+ * Transforms viewer/sharing links to lh3.googleusercontent.com format
+ * that serves image data directly, allowing <img> tags to render them.
+ */
+function convertGoogleDriveUrl(url: string): string {
+  if (!url) return url;
+
+  // Pattern 1: drive.google.com/open?id=FILE_ID
+  let match = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+
+  // Pattern 2: drive.google.com/file/d/FILE_ID/...
+  match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+
+  // Pattern 3: docs.google.com/uc?id=FILE_ID
+  match = url.match(/docs\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+
+  return url;
+}
 /**
  * Check if a row is entirely empty (all columns are blank).
  */
@@ -281,7 +303,7 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
         textColor: '#000000',
       },
     },
-    originalAvatarPath: photoUrl && photoUrl.trim() ? photoUrl.trim() : null,
+    originalAvatarPath: photoUrl && photoUrl.trim() ? convertGoogleDriveUrl(photoUrl.trim()) : null,
     illustrationPath: null,
     status: 'processing',
     submittedAt: now,
@@ -339,6 +361,18 @@ export async function POST(request: NextRequest) {
       console.error('[bulk-upload] Failed to fetch existing users, all emails will attempt creation');
     }
 
+    // =========================================================================
+    // Phase 1: Parse and validate all CSV rows (synchronous, fast)
+    // =========================================================================
+    interface ValidRow {
+      rowNumber: number;
+      columns: string[];
+      email: string;
+      createdBy: string;
+    }
+
+    const validRows: ValidRow[] = [];
+
     for (let i = 0; i < dataLines.length; i++) {
       const rowNumber = i + 2; // 1-based, accounting for header
       const line = dataLines[i];
@@ -353,70 +387,199 @@ export async function POST(request: NextRequest) {
 
         // Validate column count
         if (columns.length < 12) {
-          throw new Error(
-            `Expected 12 columns but got ${columns.length}`
-          );
+          result.failed++;
+          result.errors.push({
+            row: rowNumber,
+            error: `Expected 12 columns but got ${columns.length}`,
+          });
+          continue;
         }
 
-        // Determine createdBy based on email column
+        // Validate required field: displayName (column 2)
+        const frontName = columns[1]?.trim();
+        if (!frontName) {
+          result.failed++;
+          result.errors.push({
+            row: rowNumber,
+            error: 'displayName (column 2) is required',
+          });
+          continue;
+        }
+
         const email = columns[7]?.trim() || '';
-        let createdBy = 'admin-bulk-upload';
-
-        if (email && isValidEmail(email)) {
-          const emailLower = email.toLowerCase();
-          try {
-            // Only attempt to auto-register if we have access to existing emails list
-            if (existingEmails) {
-              if (!existingEmails.has(emailLower)) {
-                await createUser(emailLower);
-                existingEmails.add(emailLower);
-                result.autoRegistered++;
-                console.log(`[bulk-upload] Row ${rowNumber}: Auto-registered user ${emailLower}`);
-              } else {
-                console.log(`[bulk-upload] Row ${rowNumber}: User ${emailLower} already exists`);
-              }
-            } else {
-              // Admin API not available, attempt to create anyway
-              try {
-                await createUser(emailLower);
-                result.autoRegistered++;
-                console.log(`[bulk-upload] Row ${rowNumber}: Auto-registered user ${emailLower} (no deduplication)`);
-              } catch (createErr) {
-                const createErrMsg = createErr instanceof Error ? createErr.message : String(createErr);
-                // If creation fails when admin API is down, log but continue
-                console.warn(
-                  `[bulk-upload] Row ${rowNumber}: Could not create user ${emailLower}: ${createErrMsg}`
-                );
-              }
-            }
-            createdBy = email;
-          } catch (authErr) {
-            // If user creation fails, log the error but still set createdBy to email for tracking
-            const errorMsg = authErr instanceof Error ? authErr.message : String(authErr);
-            console.error(
-              `[bulk-upload] Row ${rowNumber}: Failed to create user for ${email}. Will use email as createdBy anyway. Error: ${errorMsg}`
-            );
-            // Still set createdBy to email even if creation fails - this preserves the user's email
-            // and helps track which rows had auto-registration issues
-            createdBy = email;
-          }
-        } else if (email && !isValidEmail(email)) {
-          // Log invalid email format but still try to save the card with the invalid email
-          console.warn(
-            `[bulk-upload] Row ${rowNumber}: Invalid email format: "${email}". Using as-is for createdBy.`
-          );
-          createdBy = email;
-        }
-
-        const cardRequest = buildCardRequest(columns, createdBy);
-        await saveRequest(cardRequest);
-        result.success++;
+        validRows.push({ rowNumber, columns, email, createdBy: 'admin-bulk-upload' });
       } catch (err) {
         result.failed++;
         result.errors.push({
           row: rowNumber,
           error: err instanceof Error ? err.message : String(err),
         });
+      }
+    }
+
+    // =========================================================================
+    // Phase 2: Handle user creation for valid rows (sequential, before batch)
+    // =========================================================================
+    for (const row of validRows) {
+      const { email, rowNumber } = row;
+
+      if (email && isValidEmail(email)) {
+        const emailLower = email.toLowerCase();
+        try {
+          if (existingEmails) {
+            if (!existingEmails.has(emailLower)) {
+              await createUser(emailLower);
+              existingEmails.add(emailLower);
+              result.autoRegistered++;
+              console.log(`[bulk-upload] Row ${rowNumber}: Auto-registered user ${emailLower}`);
+            } else {
+              console.log(`[bulk-upload] Row ${rowNumber}: User ${emailLower} already exists`);
+            }
+          } else {
+            // Admin API not available, attempt to create anyway
+            try {
+              await createUser(emailLower);
+              result.autoRegistered++;
+              console.log(`[bulk-upload] Row ${rowNumber}: Auto-registered user ${emailLower} (no deduplication)`);
+            } catch (createErr) {
+              const createErrMsg = createErr instanceof Error ? createErr.message : String(createErr);
+              console.warn(
+                `[bulk-upload] Row ${rowNumber}: Could not create user ${emailLower}: ${createErrMsg}`
+              );
+            }
+          }
+          row.createdBy = email;
+        } catch (authErr) {
+          const errorMsg = authErr instanceof Error ? authErr.message : String(authErr);
+          console.error(
+            `[bulk-upload] Row ${rowNumber}: Failed to create user for ${email}. Will use email as createdBy anyway. Error: ${errorMsg}`
+          );
+          row.createdBy = email;
+        }
+      } else if (email && !isValidEmail(email)) {
+        console.warn(
+          `[bulk-upload] Row ${rowNumber}: Invalid email format: "${email}". Using as-is for createdBy.`
+        );
+        row.createdBy = email;
+      }
+    }
+
+    // =========================================================================
+    // Phase 3: Build card requests and batch insert (1-2 API calls total)
+    // =========================================================================
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cardDbRows: Array<Record<string, any>> = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const historyDbRows: Array<Record<string, any>> = [];
+    const rowIndexMap: Map<number, ValidRow> = new Map();
+
+    for (let idx = 0; idx < validRows.length; idx++) {
+      const row = validRows[idx];
+      try {
+        const cardRequest = buildCardRequest(row.columns, row.createdBy);
+
+        // Strip avatarImage from card.front (same as saveRequest in storage.ts)
+        const { avatarImage: _avatarImage, ...cardFrontWithoutAvatar } = cardRequest.card.front;
+
+        cardDbRows.push({
+          id: cardRequest.id,
+          card_front: cardFrontWithoutAvatar,
+          card_back: cardRequest.card.back,
+          original_avatar_url: cardRequest.originalAvatarPath,
+          illustration_url: cardRequest.illustrationPath,
+          status: cardRequest.status,
+          submitted_at: cardRequest.submittedAt,
+          updated_at: cardRequest.updatedAt,
+          note: cardRequest.note || null,
+          created_by: cardRequest.createdBy || null,
+        });
+
+        for (const entry of cardRequest.statusHistory) {
+          historyDbRows.push({
+            request_id: cardRequest.id,
+            status: entry.status,
+            created_at: entry.timestamp,
+            admin_feedback: entry.adminFeedback || null,
+          });
+        }
+
+        rowIndexMap.set(cardDbRows.length - 1, row);
+      } catch (err) {
+        result.failed++;
+        result.errors.push({
+          row: row.rowNumber,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
+    // Batch insert card_requests
+    if (cardDbRows.length > 0) {
+      const supabase = getSupabase();
+
+      const { error: batchCardError } = await supabase
+        .from('card_requests')
+        .insert(cardDbRows);
+
+      if (batchCardError) {
+        console.error(
+          `[bulk-upload] Batch card_requests insert failed: ${batchCardError.message}. Falling back to individual inserts.`
+        );
+
+        // Fallback: insert individually to identify which rows fail
+        for (let idx = 0; idx < cardDbRows.length; idx++) {
+          const cardRow = cardDbRows[idx];
+          const validRow = rowIndexMap.get(idx);
+
+          const { error: individualError } = await supabase
+            .from('card_requests')
+            .insert(cardRow);
+
+          if (individualError) {
+            result.failed++;
+            result.errors.push({
+              row: validRow?.rowNumber ?? -1,
+              error: `Failed to save request: ${individualError.message}`,
+            });
+          } else {
+            result.success++;
+          }
+        }
+
+        // For fallback path, also insert history rows individually per request
+        for (const historyRow of historyDbRows) {
+          await supabase
+            .from('card_request_status_history')
+            .insert(historyRow);
+        }
+      } else {
+        // Batch card insert succeeded, now batch insert status history
+        result.success = cardDbRows.length;
+
+        if (historyDbRows.length > 0) {
+          const { error: batchHistoryError } = await supabase
+            .from('card_request_status_history')
+            .insert(historyDbRows);
+
+          if (batchHistoryError) {
+            // History insert failure is non-fatal; cards were saved
+            console.error(
+              `[bulk-upload] Batch status_history insert failed: ${batchHistoryError.message}. Attempting individual inserts.`
+            );
+
+            for (const historyRow of historyDbRows) {
+              const { error: histErr } = await supabase
+                .from('card_request_status_history')
+                .insert(historyRow);
+
+              if (histErr) {
+                console.warn(
+                  `[bulk-upload] Failed to insert status history for request ${historyRow.request_id}: ${histErr.message}`
+                );
+              }
+            }
+          }
+        }
       }
     }
 

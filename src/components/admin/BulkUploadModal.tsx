@@ -246,11 +246,25 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
     if (!rawCsv) return;
     setStep('uploading');
 
+    // Clean CSV: keep header + non-empty data rows only
+    const cleanCsv = (() => {
+      const lines = rawCsv.split(/\r?\n/);
+      if (lines.length < 2) return rawCsv;
+      const header = lines[0];
+      const dataLines = lines.slice(1).filter((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return false;
+        const cols = parseCsvLine(trimmed);
+        return !cols.every((col) => col === '');
+      });
+      return [header, ...dataLines].join('\n');
+    })();
+
     try {
       const res = await fetch('/api/admin/bulk-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ csv: rawCsv }),
+        body: JSON.stringify({ csv: cleanCsv }),
       });
 
       if (!res.ok) {

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { CardRequest } from '@/types/request';
+import type { CardFrontData, CardBackData } from '@/types/card';
 import { isTerminalStatus, requiresFeedback } from '@/types/request';
 import { StatusBadge } from './StatusBadge';
 import { CardCompare } from './CardCompare';
@@ -29,6 +30,9 @@ export function RequestDetail({
   const [error, setError] = useState<string | null>(null);
   const [feedbackText, setFeedbackText] = useState('');
   const [activeAction, setActiveAction] = useState<ActiveAction>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFront, setEditFront] = useState<CardFrontData>(request.card.front);
+  const [editBack, setEditBack] = useState<CardBackData>(request.card.back);
 
   const { status } = request;
   const isTerminal = isTerminalStatus(status);
@@ -188,6 +192,55 @@ export function RequestDetail({
     setFeedbackText('');
   }, []);
 
+  const handleSaveCardEdit = useCallback(async () => {
+    setActionLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/requests/${request.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardFront: {
+            displayName: editFront.displayName,
+            backgroundColor: editFront.backgroundColor,
+            textColor: editFront.textColor,
+          },
+          cardBack: {
+            fullName: editBack.fullName,
+            title: editBack.title,
+            hashtags: editBack.hashtags,
+            socialLinks: editBack.socialLinks,
+            backgroundColor: editBack.backgroundColor,
+            textColor: editBack.textColor,
+          },
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.details || data.error || '수정에 실패했습니다.');
+      }
+      setIsEditing(false);
+      onUpdate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '수정에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [request.id, editFront, editBack, onUpdate]);
+
+  const handleCancelEdit = useCallback(() => {
+    setEditFront(request.card.front);
+    setEditBack(request.card.back);
+    setIsEditing(false);
+  }, [request.card]);
+
+  // Reset edit state when request prop changes
+  useEffect(() => {
+    setEditFront(request.card.front);
+    setEditBack(request.card.back);
+    setIsEditing(false);
+  }, [request.card]);
+
   const submittedDate = new Date(request.submittedAt).toLocaleString('ko-KR', {
     year: 'numeric',
     month: 'long',
@@ -268,65 +321,254 @@ export function RequestDetail({
 
       {/* Card data */}
       <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">카드 정보</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div>
-            <span className="text-gray-500">표시 이름</span>
-            <p className="font-medium text-gray-900">{request.card.front.displayName}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">전체 이름</span>
-            <p className="font-medium text-gray-900">{request.card.back.fullName}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">직함</span>
-            <p className="font-medium text-gray-900">{request.card.back.title || '-'}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">해시태그</span>
-            <p className="font-medium text-gray-900">
-              {request.card.back.hashtags.length > 0
-                ? request.card.back.hashtags.join(', ')
-                : '-'}
-            </p>
-          </div>
-          {request.card.back.socialLinks.length > 0 && (
-            <div className="sm:col-span-2">
-              <span className="text-gray-500">소셜 링크</span>
-              <div className="mt-1 space-y-1">
-                {request.card.back.socialLinks.map((link, i) => (
-                  <p key={i} className="text-gray-900 text-xs">
-                    <span className="font-medium">{link.platform}</span>: {link.url}
-                  </p>
-                ))}
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-medium text-gray-700">카드 정보</h2>
+          {!isTerminal && !isEditing && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="px-3 py-1 text-xs font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors"
+            >
+              수정
+            </button>
+          )}
+        </div>
+        {isEditing ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">표시 이름</label>
+                <input
+                  type="text"
+                  value={editFront.displayName}
+                  onChange={(e) => setEditFront({ ...editFront, displayName: e.target.value })}
+                  className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                />
+              </div>
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">전체 이름</label>
+                <input
+                  type="text"
+                  value={editBack.fullName}
+                  onChange={(e) => setEditBack({ ...editBack, fullName: e.target.value })}
+                  className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                />
+              </div>
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">직함</label>
+                <input
+                  type="text"
+                  value={editBack.title}
+                  onChange={(e) => setEditBack({ ...editBack, title: e.target.value })}
+                  className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                />
+              </div>
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">해시태그 (쉼표로 구분)</label>
+                <input
+                  type="text"
+                  value={editBack.hashtags.join(', ')}
+                  onChange={(e) => setEditBack({ ...editBack, hashtags: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                  className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                />
+              </div>
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">앞면 배경색</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={editFront.backgroundColor}
+                    onChange={(e) => setEditFront({ ...editFront, backgroundColor: e.target.value })}
+                    className="w-8 h-8 border border-gray-200 cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={editFront.backgroundColor}
+                    onChange={(e) => setEditFront({ ...editFront, backgroundColor: e.target.value })}
+                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">뒷면 배경색</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={editBack.backgroundColor}
+                    onChange={(e) => setEditBack({ ...editBack, backgroundColor: e.target.value })}
+                    className="w-8 h-8 border border-gray-200 cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={editBack.backgroundColor}
+                    onChange={(e) => setEditBack({ ...editBack, backgroundColor: e.target.value })}
+                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">앞면 텍스트 색상</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={editFront.textColor}
+                    onChange={(e) => setEditFront({ ...editFront, textColor: e.target.value })}
+                    className="w-8 h-8 border border-gray-200 cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={editFront.textColor}
+                    onChange={(e) => setEditFront({ ...editFront, textColor: e.target.value })}
+                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">뒷면 텍스트 색상</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={editBack.textColor}
+                    onChange={(e) => setEditBack({ ...editBack, textColor: e.target.value })}
+                    className="w-8 h-8 border border-gray-200 cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={editBack.textColor}
+                    onChange={(e) => setEditBack({ ...editBack, textColor: e.target.value })}
+                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  />
+                </div>
               </div>
             </div>
-          )}
-          <div>
-            <span className="text-gray-500">앞면 배경색</span>
-            <div className="flex items-center gap-2 mt-1">
-              <div
-                className="w-5 h-5 rounded border border-gray-200"
-                style={{ backgroundColor: request.card.front.backgroundColor }}
-              />
-              <span className="text-xs font-mono text-gray-600">
-                {request.card.front.backgroundColor}
-              </span>
+            {/* Social links editing */}
+            {editBack.socialLinks.length > 0 && (
+              <div>
+                <label className="text-gray-500 text-xs block mb-1">소셜 링크</label>
+                <div className="space-y-2">
+                  {editBack.socialLinks.map((link, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-gray-500 w-16">{link.platform}</span>
+                      <input
+                        type="text"
+                        value={link.url}
+                        onChange={(e) => {
+                          const newLinks = [...editBack.socialLinks];
+                          newLinks[i] = { ...newLinks[i], url: e.target.value };
+                          setEditBack({ ...editBack, socialLinks: newLinks });
+                        }}
+                        className="flex-1 px-2 py-1.5 text-xs border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                        placeholder="URL"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Save/Cancel buttons */}
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleSaveCardEdit}
+                disabled={actionLoading}
+                className="px-5 py-2 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50"
+              >
+                {actionLoading ? '저장 중...' : '저장'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                disabled={actionLoading}
+                className="px-5 py-2 text-sm font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors min-h-[44px] disabled:opacity-50"
+              >
+                취소
+              </button>
             </div>
           </div>
-          <div>
-            <span className="text-gray-500">뒷면 배경색</span>
-            <div className="flex items-center gap-2 mt-1">
-              <div
-                className="w-5 h-5 rounded border border-gray-200"
-                style={{ backgroundColor: request.card.back.backgroundColor }}
-              />
-              <span className="text-xs font-mono text-gray-600">
-                {request.card.back.backgroundColor}
-              </span>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <span className="text-gray-500">표시 이름</span>
+              <p className="font-medium text-gray-900">{request.card.front.displayName}</p>
+            </div>
+            <div>
+              <span className="text-gray-500">전체 이름</span>
+              <p className="font-medium text-gray-900">{request.card.back.fullName}</p>
+            </div>
+            <div>
+              <span className="text-gray-500">직함</span>
+              <p className="font-medium text-gray-900">{request.card.back.title || '-'}</p>
+            </div>
+            <div>
+              <span className="text-gray-500">해시태그</span>
+              <p className="font-medium text-gray-900">
+                {request.card.back.hashtags.length > 0
+                  ? request.card.back.hashtags.join(', ')
+                  : '-'}
+              </p>
+            </div>
+            {request.card.back.socialLinks.length > 0 && (
+              <div className="sm:col-span-2">
+                <span className="text-gray-500">소셜 링크</span>
+                <div className="mt-1 space-y-1">
+                  {request.card.back.socialLinks.map((link, i) => (
+                    <p key={i} className="text-gray-900 text-xs">
+                      <span className="font-medium">{link.platform}</span>: {link.url}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div>
+              <span className="text-gray-500">앞면 배경색</span>
+              <div className="flex items-center gap-2 mt-1">
+                <div
+                  className="w-5 h-5 rounded border border-gray-200"
+                  style={{ backgroundColor: request.card.front.backgroundColor }}
+                />
+                <span className="text-xs font-mono text-gray-600">
+                  {request.card.front.backgroundColor}
+                </span>
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">뒷면 배경색</span>
+              <div className="flex items-center gap-2 mt-1">
+                <div
+                  className="w-5 h-5 rounded border border-gray-200"
+                  style={{ backgroundColor: request.card.back.backgroundColor }}
+                />
+                <span className="text-xs font-mono text-gray-600">
+                  {request.card.back.backgroundColor}
+                </span>
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">앞면 텍스트 색상</span>
+              <div className="flex items-center gap-2 mt-1">
+                <div
+                  className="w-5 h-5 rounded border border-gray-200"
+                  style={{ backgroundColor: request.card.front.textColor }}
+                />
+                <span className="text-xs font-mono text-gray-600">
+                  {request.card.front.textColor}
+                </span>
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">뒷면 텍스트 색상</span>
+              <div className="flex items-center gap-2 mt-1">
+                <div
+                  className="w-5 h-5 rounded border border-gray-200"
+                  style={{ backgroundColor: request.card.back.textColor }}
+                />
+                <span className="text-xs font-mono text-gray-600">
+                  {request.card.back.textColor}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Image comparison */}

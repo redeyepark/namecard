@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRequest, updateRequest, saveImageFile } from '@/lib/storage';
-import { isValidStatusTransition, requiresFeedback } from '@/types/request';
+import { isValidStatusTransition, requiresFeedback, isAdminEditableStatus } from '@/types/request';
 import { requireAuth, requireAdminToken, isAdminTokenValid, AuthError } from '@/lib/auth-utils';
 import type { RequestStatus } from '@/types/request';
+import type { CardData } from '@/types/card';
 
 export async function GET(
   _request: NextRequest,
@@ -79,7 +80,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status, illustrationImage, illustrationUrl, adminFeedback } = body;
+    const { status, illustrationImage, illustrationUrl, adminFeedback, cardFront, cardBack } = body;
 
     // Validate status transition
     if (status) {
@@ -141,10 +142,29 @@ export async function PATCH(
       });
     }
 
+    // Build card data update if provided
+    let cardUpdate: { front?: CardData['front']; back?: CardData['back'] } | undefined;
+    if (cardFront || cardBack) {
+      if (!isAdminEditableStatus(cardRequest.status)) {
+        return NextResponse.json(
+          { error: 'Cannot edit card data', details: 'Card data cannot be edited in terminal status' },
+          { status: 400 }
+        );
+      }
+      cardUpdate = {};
+      if (cardFront) {
+        cardUpdate.front = { ...cardRequest.card.front, ...cardFront, avatarImage: null };
+      }
+      if (cardBack) {
+        cardUpdate.back = { ...cardRequest.card.back, ...cardBack };
+      }
+    }
+
     const updated = await updateRequest(id, {
       ...(status ? { status: status as RequestStatus } : {}),
       illustrationPath,
       statusHistory,
+      ...(cardUpdate ? { card: cardUpdate as CardData } : {}),
     });
 
     if (!updated) {

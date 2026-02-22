@@ -79,6 +79,15 @@ export function isTerminalStatus(status: RequestStatus): boolean {
 }
 
 /**
+ * Returns true if the admin can edit card content (displayName, fullName, title,
+ * hashtags, socialLinks, backgroundColor, textColor) before delivery.
+ * Editable in all non-terminal statuses: submitted, processing, revision_requested, confirmed.
+ */
+export function isAdminEditableStatus(status: RequestStatus): boolean {
+  return !isTerminalStatus(status);
+}
+
+/**
  * Returns true if the status transition requires admin feedback text.
  * 'revision_requested' and 'rejected' require an explanation.
  */

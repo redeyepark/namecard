@@ -2,6 +2,24 @@
 
 import { useState } from 'react';
 
+/**
+ * Convert Google Drive sharing URLs to direct image URLs.
+ */
+function convertGoogleDriveUrl(url: string): string {
+  if (!url) return url;
+
+  let match = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+
+  match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+
+  match = url.match(/docs\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+
+  return url;
+}
+
 interface CardCompareProps {
   originalAvatarUrl: string | null;
   illustrationUrl: string | null;
@@ -14,6 +32,7 @@ export function CardCompare({
   illustrationPreview,
 }: CardCompareProps) {
   const illustrationSrc = illustrationPreview || illustrationUrl;
+  const transformedAvatarUrl = originalAvatarUrl ? convertGoogleDriveUrl(originalAvatarUrl) : null;
   const [avatarLoadError, setAvatarLoadError] = useState(false);
   const [illustrationLoadError, setIllustrationLoadError] = useState(false);
   const [showDebugInfo, setShowDebugInfo] = useState(false);
@@ -27,7 +46,7 @@ export function CardCompare({
             원본 사진
           </p>
           <div className="aspect-[29/45] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
-            {originalAvatarUrl ? (
+            {transformedAvatarUrl ? (
               avatarLoadError ? (
                 <div className="text-center px-2">
                   <p className="text-xs text-red-500 font-medium mb-1">이미지 로드 실패</p>
@@ -35,7 +54,7 @@ export function CardCompare({
                 </div>
               ) : (
                 <img
-                  src={originalAvatarUrl}
+                  src={transformedAvatarUrl}
                   alt="Original avatar"
                   className="w-full h-full object-cover"
                   onError={() => setAvatarLoadError(true)}
