@@ -114,6 +114,26 @@ function parseCsv(text: string): ParsedRow[] {
   return rows;
 }
 
+function downloadSampleCSV() {
+  const header =
+    '사진 (정면 상반신까지 사진),이름 (명함 앞쪽),이름 (명함 뒤쪽),관심사,좋아하는 키워드 (1),좋아하는 키워드 (2),좋아하는 키워드 (3),이메일,SNS (Facebook),SNS (Instagram),SNS (Linkedin),좋아하는 컬러 (배경색)';
+  const row1 =
+    'https://example.com/photo1.jpg,홍길동,Gildong HONG,스타트업 컨설턴트,#스타트업,#AI,#혁신,gildong@example.com,facebook.com/gildong,@gildong,linkedin.com/in/gildong,블랙 #000000';
+  const row2 =
+    'https://example.com/photo2.jpg,김영희,Younghee KIM,디자이너,#UX,#브랜딩,#크리에이티브,younghee@example.com,,,linkedin.com/in/younghee,블루 #8db8da';
+
+  const csvContent = '\uFEFF' + [header, row1, row2].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'namecard_bulk_sample.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModalProps) {
   const [step, setStep] = useState<ModalStep>('select');
   const [fileName, setFileName] = useState<string>('');
@@ -264,6 +284,18 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {step === 'select' && (
             <div>
+              <div className="mb-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={downloadSampleCSV}
+                  className="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 underline transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" />
+                  </svg>
+                  샘플 CSV 다운로드
+                </button>
+              </div>
               <div
                 className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
                   dragOver ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-amber-300 hover:bg-gray-50'
