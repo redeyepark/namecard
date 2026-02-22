@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Convert Google Drive sharing URLs to direct image URLs.
@@ -37,6 +37,15 @@ export function CardCompare({
   const [illustrationLoadError, setIllustrationLoadError] = useState(false);
   const [showDebugInfo, setShowDebugInfo] = useState(false);
 
+  // Reset load error states when image sources change
+  useEffect(() => {
+    setAvatarLoadError(false);
+  }, [transformedAvatarUrl]);
+
+  useEffect(() => {
+    setIllustrationLoadError(false);
+  }, [illustrationSrc]);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -59,7 +68,6 @@ export function CardCompare({
                   className="w-full h-full object-cover"
                   onError={() => setAvatarLoadError(true)}
                   referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
                 />
               )
             ) : (
@@ -89,7 +97,6 @@ export function CardCompare({
                   className="w-full h-full object-cover"
                   onError={() => setIllustrationLoadError(true)}
                   referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
                 />
               )
             ) : (

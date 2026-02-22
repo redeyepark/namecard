@@ -609,7 +609,7 @@ export function RequestDetail({
             <CardCompare
               originalAvatarUrl={originalAvatarUrl}
               illustrationUrl={illustrationUrl}
-              illustrationPreview={illustrationPreview}
+              illustrationPreview={illustrationPreview || illustrationUrlInput || null}
             />
           </div>
           {showIllustrationUploader && (
