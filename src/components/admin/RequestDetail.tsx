@@ -38,7 +38,7 @@ export function RequestDetail({
   const isTerminal = isTerminalStatus(status);
   const canRegister = status === 'submitted' && (illustrationPreview || illustrationUrl || illustrationUrlInput);
   const canConfirm = status === 'processing';
-  const showIllustrationUploader = status === 'submitted';
+  const showIllustrationUploader = !isTerminal;
 
   // Find the latest admin feedback from status history
   const latestFeedbackEntry = [...request.statusHistory]
@@ -233,6 +233,36 @@ export function RequestDetail({
     setEditBack(request.card.back);
     setIsEditing(false);
   }, [request.card]);
+
+  const handleSaveIllustration = useCallback(async () => {
+    if (!illustrationPreview && !illustrationUrlInput) return;
+    setActionLoading(true);
+    setError(null);
+    try {
+      const body: Record<string, string> = {};
+      if (illustrationUrlInput) {
+        body.illustrationUrl = illustrationUrlInput;
+      } else if (illustrationPreview) {
+        body.illustrationImage = illustrationPreview;
+      }
+      const res = await fetch(`/api/requests/${request.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.details || data.error || '일러스트 저장에 실패했습니다.');
+      }
+      setIllustrationPreview(null);
+      setIllustrationUrlInput('');
+      onUpdate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '일러스트 저장에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [request.id, illustrationPreview, illustrationUrlInput, onUpdate]);
 
   // Reset edit state when request prop changes
   useEffect(() => {
@@ -591,6 +621,16 @@ export function RequestDetail({
                 onUrlInput={setIllustrationUrlInput}
                 disabled={false}
               />
+              {status !== 'submitted' && (illustrationPreview || illustrationUrlInput) && (
+                <button
+                  type="button"
+                  onClick={handleSaveIllustration}
+                  disabled={actionLoading}
+                  className="mt-2 w-full px-3 py-2 text-xs font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50"
+                >
+                  {actionLoading ? '저장 중...' : '일러스트 저장'}
+                </button>
+              )}
             </div>
           )}
         </div>

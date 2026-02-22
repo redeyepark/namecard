@@ -133,8 +133,9 @@ export async function PATCH(
     }
 
     const now = new Date().toISOString();
+    const statusChanged = status && status !== cardRequest.status;
     const statusHistory = [...cardRequest.statusHistory];
-    if (status && status !== cardRequest.status) {
+    if (statusChanged) {
       statusHistory.push({
         status: status as RequestStatus,
         timestamp: now,
@@ -163,7 +164,7 @@ export async function PATCH(
     const updated = await updateRequest(id, {
       ...(status ? { status: status as RequestStatus } : {}),
       illustrationPath,
-      statusHistory,
+      ...(statusChanged ? { statusHistory } : {}),
       ...(cardUpdate ? { card: cardUpdate as CardData } : {}),
     });
 
