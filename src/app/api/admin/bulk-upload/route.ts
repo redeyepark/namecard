@@ -105,24 +105,39 @@ function isEmptyRow(columns: string[]): boolean {
 /**
  * Fetch all existing user emails from Supabase Auth.
  * Handles pagination to support more than 1000 users.
+ * Returns null if the admin API is not available (graceful degradation).
  */
-async function fetchExistingUserEmails(): Promise<Set<string>> {
+async function fetchExistingUserEmails(): Promise<Set<string> | null> {
   const supabase = getSupabase();
+
+  // Check if admin API is available
+  if (!supabase.auth.admin) {
+    console.warn('[bulk-upload] Supabase auth.admin API not available - user deduplication disabled');
+    return null;
+  }
+
   const emails = new Set<string>();
   let page = 1;
   const perPage = 1000;
 
-  while (true) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-    if (error) {
-      console.error(`[bulk-upload] Error listing users (page ${page}): ${error.message}`);
-      throw error;
+  try {
+    while (true) {
+      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+      if (error) {
+        console.error(`[bulk-upload] Error listing users (page ${page}): ${error.message}`);
+        throw error;
+      }
+      for (const u of data.users) {
+        if (u.email) emails.add(u.email.toLowerCase());
+      }
+      if (data.users.length < perPage) break;
+      page++;
     }
-    for (const u of data.users) {
-      if (u.email) emails.add(u.email.toLowerCase());
-    }
-    if (data.users.length < perPage) break;
-    page++;
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error(`[bulk-upload] Failed to fetch existing users: ${errMsg}`);
+    // Return null on failure to indicate the admin API is not working
+    return null;
   }
 
   return emails;
@@ -276,11 +291,11 @@ export async function POST(request: NextRequest) {
     };
 
     // Fetch existing user emails once before processing rows
-    let existingEmails: Set<string>;
+    let existingEmails: Set<string> | null;
     try {
       existingEmails = await fetchExistingUserEmails();
     } catch {
-      existingEmails = new Set();
+      existingEmails = null;
       console.error('[bulk-upload] Failed to fetch existing users, all emails will attempt creation');
     }
 
@@ -310,13 +325,29 @@ export async function POST(request: NextRequest) {
         if (email && isValidEmail(email)) {
           const emailLower = email.toLowerCase();
           try {
-            if (!existingEmails.has(emailLower)) {
-              await createUser(emailLower);
-              existingEmails.add(emailLower);
-              result.autoRegistered++;
-              console.log(`[bulk-upload] Row ${rowNumber}: Auto-registered user ${emailLower}`);
+            // Only attempt to auto-register if we have access to existing emails list
+            if (existingEmails) {
+              if (!existingEmails.has(emailLower)) {
+                await createUser(emailLower);
+                existingEmails.add(emailLower);
+                result.autoRegistered++;
+                console.log(`[bulk-upload] Row ${rowNumber}: Auto-registered user ${emailLower}`);
+              } else {
+                console.log(`[bulk-upload] Row ${rowNumber}: User ${emailLower} already exists`);
+              }
             } else {
-              console.log(`[bulk-upload] Row ${rowNumber}: User ${emailLower} already exists`);
+              // Admin API not available, attempt to create anyway
+              try {
+                await createUser(emailLower);
+                result.autoRegistered++;
+                console.log(`[bulk-upload] Row ${rowNumber}: Auto-registered user ${emailLower} (no deduplication)`);
+              } catch (createErr) {
+                const createErrMsg = createErr instanceof Error ? createErr.message : String(createErr);
+                // If creation fails when admin API is down, log but continue
+                console.warn(
+                  `[bulk-upload] Row ${rowNumber}: Could not create user ${emailLower}: ${createErrMsg}`
+                );
+              }
             }
             createdBy = email;
           } catch (authErr) {

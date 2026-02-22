@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 interface CardCompareProps {
   originalAvatarUrl: string | null;
   illustrationUrl: string | null;
@@ -12,6 +14,8 @@ export function CardCompare({
   illustrationPreview,
 }: CardCompareProps) {
   const illustrationSrc = illustrationPreview || illustrationUrl;
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
+  const [illustrationLoadError, setIllustrationLoadError] = useState(false);
 
   return (
     <div className="grid grid-cols-2 gap-4">
@@ -22,11 +26,19 @@ export function CardCompare({
         </p>
         <div className="aspect-[29/45] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
           {originalAvatarUrl ? (
-            <img
-              src={originalAvatarUrl}
-              alt="Original avatar"
-              className="w-full h-full object-cover"
-            />
+            avatarLoadError ? (
+              <div className="text-center px-2">
+                <p className="text-xs text-red-500 font-medium mb-1">이미지 로드 실패</p>
+                <p className="text-xs text-gray-400 break-all">{originalAvatarUrl}</p>
+              </div>
+            ) : (
+              <img
+                src={originalAvatarUrl}
+                alt="Original avatar"
+                className="w-full h-full object-cover"
+                onError={() => setAvatarLoadError(true)}
+              />
+            )
           ) : (
             <p className="text-xs text-gray-400 text-center px-2">
               업로드된 사진 없음
@@ -42,11 +54,19 @@ export function CardCompare({
         </p>
         <div className="aspect-[29/45] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
           {illustrationSrc ? (
-            <img
-              src={illustrationSrc}
-              alt="Illustration"
-              className="w-full h-full object-cover"
-            />
+            illustrationLoadError ? (
+              <div className="text-center px-2">
+                <p className="text-xs text-red-500 font-medium mb-1">이미지 로드 실패</p>
+                <p className="text-xs text-gray-400 break-all">{illustrationSrc}</p>
+              </div>
+            ) : (
+              <img
+                src={illustrationSrc}
+                alt="Illustration"
+                className="w-full h-full object-cover"
+                onError={() => setIllustrationLoadError(true)}
+              />
+            )
           ) : (
             <p className="text-xs text-gray-400 text-center px-2">
               아직 없음

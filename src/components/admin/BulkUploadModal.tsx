@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import * as XLSX from 'xlsx';
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -165,22 +166,49 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
     const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
     if (!validExtensions.includes(ext)) {
-      alert('CSV 파일만 업로드할 수 있습니다.');
+      alert('CSV 또는 Excel 파일만 업로드할 수 있습니다.');
       return;
     }
 
     setFileName(file.name);
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (!text) return;
-      setRawCsv(text);
-      const rows = parseCsv(text);
-      setParsedRows(rows);
-      setStep('preview');
-    };
-    reader.readAsText(file, 'UTF-8');
+    const isExcel = ext === '.xlsx' || ext === '.xls';
+
+    if (isExcel) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const arrayBuffer = e.target?.result as ArrayBuffer;
+        if (!arrayBuffer) return;
+        try {
+          const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          if (!firstSheetName) {
+            alert('Excel 파일에 시트가 없습니다.');
+            return;
+          }
+          const sheet = workbook.Sheets[firstSheetName];
+          const csvText = XLSX.utils.sheet_to_csv(sheet);
+          setRawCsv(csvText);
+          const rows = parseCsv(csvText);
+          setParsedRows(rows);
+          setStep('preview');
+        } catch {
+          alert('Excel 파일을 파싱할 수 없습니다. 파일 형식을 확인해 주세요.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        if (!text) return;
+        setRawCsv(text);
+        const rows = parseCsv(text);
+        setParsedRows(rows);
+        setStep('preview');
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
   }, []);
 
   const handleFileSelect = useCallback(
@@ -230,6 +258,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
         setResult({
           success: 0,
           failed: parsedRows.length,
+          autoRegistered: 0,
           errors: [{ row: 0, error: errorData.error || 'Upload failed' }],
         });
         setStep('result');
@@ -247,6 +276,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
       setResult({
         success: 0,
         failed: parsedRows.length,
+        autoRegistered: 0,
         errors: [{ row: 0, error: 'Network error' }],
       });
       setStep('result');
@@ -263,14 +293,14 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
-      aria-label="CSV bulk upload"
+      aria-label="CSV and Excel bulk upload"
     >
       <div
         className="bg-white rounded-xl shadow-xl border border-gray-100 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">CSV 대량 등록</h2>
+          <h2 className="text-lg font-semibold text-gray-900">CSV / Excel 대량 등록</h2>
           <button
             onClick={handleClose}
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -313,13 +343,13 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
                     fileInputRef.current?.click();
                   }
                 }}
-                aria-label="Drop CSV file here or click to browse"
+                aria-label="Drop CSV or Excel file here or click to browse"
               >
                 <svg className="w-10 h-10 mx-auto mb-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
-                <p className="text-sm text-gray-600 mb-1">CSV 파일을 드래그하거나 클릭하여 선택하세요</p>
-                <p className="text-xs text-gray-400">.csv 파일 지원</p>
+                <p className="text-sm text-gray-600 mb-1">파일을 드래그하거나 클릭하여 선택하세요</p>
+                <p className="text-xs text-gray-400">.csv, .xlsx, .xls 파일 지원</p>
               </div>
               <input
                 ref={fileInputRef}
@@ -330,7 +360,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
                 aria-hidden="true"
               />
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <p className="text-xs font-medium text-gray-500 mb-2">CSV 컬럼 형식:</p>
+                <p className="text-xs font-medium text-gray-500 mb-2">컬럼 형식 (CSV / Excel 동일):</p>
                 <p className="text-xs text-gray-400 font-mono">
                   사진URL, 이름(앞), 이름(뒤), 관심사, 키워드1, 키워드2, 키워드3, 이메일, 페이스북, 인스타그램, 링크드인, 배경색
                 </p>
