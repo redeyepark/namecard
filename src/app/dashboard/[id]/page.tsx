@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { MyRequestDetail } from '@/components/dashboard/MyRequestDetail';
+import { EditRequestForm } from '@/components/dashboard/EditRequestForm';
 import type { CardRequest } from '@/types/request';
 
 type DetailResponse = CardRequest & {
@@ -18,6 +19,7 @@ export default function DashboardDetailPage() {
   const [request, setRequest] = useState<DetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -27,31 +29,32 @@ export default function DashboardDetailPage() {
   }, [authLoading, user, router]);
 
   // Fetch request detail
-  useEffect(() => {
+  const fetchDetail = useCallback(async () => {
     if (!user || !params.id) return;
 
-    async function fetchDetail() {
-      try {
-        const res = await fetch(`/api/requests/${params.id}`);
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/requests/${params.id}`);
 
-        if (res.status === 403) {
-          router.replace('/dashboard');
-          return;
-        }
-
-        if (!res.ok) throw new Error('Failed to fetch');
-
-        const data = await res.json();
-        setRequest(data);
-      } catch {
-        setError('요청 정보를 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
+      if (res.status === 403) {
+        router.replace('/dashboard');
+        return;
       }
-    }
 
-    fetchDetail();
+      if (!res.ok) throw new Error('Failed to fetch');
+
+      const data = await res.json();
+      setRequest(data);
+    } catch {
+      setError('요청 정보를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
   }, [user, params.id, router]);
+
+  useEffect(() => {
+    fetchDetail();
+  }, [fetchDetail]);
 
   // Show nothing while checking auth
   if (authLoading) {
@@ -123,7 +126,22 @@ export default function DashboardDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <MyRequestDetail request={request} />
+      {isEditing ? (
+        <EditRequestForm
+          request={request}
+          onSave={() => {
+            setIsEditing(false);
+            fetchDetail();
+          }}
+          onCancel={() => setIsEditing(false)}
+        />
+      ) : (
+        <MyRequestDetail
+          request={request}
+          onEdit={() => setIsEditing(true)}
+          onRefresh={fetchDetail}
+        />
+      )}
     </div>
   );
 }

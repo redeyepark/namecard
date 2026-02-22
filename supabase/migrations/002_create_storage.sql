@@ -10,3 +10,4 @@ CREATE POLICY "Service role update avatars" ON storage.objects FOR UPDATE USING 
 CREATE POLICY "Public read illustrations" ON storage.objects FOR SELECT USING (bucket_id = 'illustrations');
 CREATE POLICY "Service role upload illustrations" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'illustrations');
 CREATE POLICY "Service role update illustrations" ON storage.objects FOR UPDATE USING (bucket_id = 'illustrations');
+

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRequest, updateRequest, saveImageFile } from '@/lib/storage';
-import { isValidStatusTransition } from '@/types/request';
-import { requireAuth, requireAdmin, isAdmin, AuthError } from '@/lib/auth-utils';
+import { isValidStatusTransition, requiresFeedback } from '@/types/request';
+import { requireAuth, requireAdminToken, isAdminTokenValid, AuthError } from '@/lib/auth-utils';
 import type { RequestStatus } from '@/types/request';
 
 export async function GET(
@@ -9,8 +9,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
-
     const { id } = await params;
     const cardRequest = await getRequest(id);
 
@@ -21,12 +19,18 @@ export async function GET(
       );
     }
 
-    // Ownership verification: admin can access all, user can only access own
-    if (!isAdmin(user.email!) && cardRequest.createdBy !== user.email) {
-      return NextResponse.json(
-        { error: '접근 권한이 없습니다.' },
-        { status: 403 }
-      );
+    // Try admin token first
+    const isAdminUser = await isAdminTokenValid();
+
+    if (!isAdminUser) {
+      // Fall back to regular user auth
+      const user = await requireAuth();
+      if (cardRequest.createdBy !== user.email) {
+        return NextResponse.json(
+          { error: '접근 권한이 없습니다.' },
+          { status: 403 }
+        );
+      }
     }
 
     // originalAvatarPath and illustrationPath now contain Supabase Storage public URLs
@@ -54,8 +58,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Authentication + admin role check using Supabase Auth
-    await requireAdmin();
+    // Admin role check using cookie-based auth
+    await requireAdminToken();
 
     const { id } = await params;
     const cardRequest = await getRequest(id);
@@ -68,7 +72,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status, illustrationImage } = body;
+    const { status, illustrationImage, adminFeedback } = body;
 
     // Validate status transition
     if (status) {
@@ -80,6 +84,19 @@ export async function PATCH(
           },
           { status: 400 }
         );
+      }
+
+      // Validate adminFeedback is required for revision_requested and rejected
+      if (requiresFeedback(status as RequestStatus)) {
+        if (!adminFeedback || typeof adminFeedback !== 'string' || adminFeedback.trim().length === 0) {
+          return NextResponse.json(
+            {
+              error: 'Admin feedback required',
+              details: `Status '${status}' requires a non-empty adminFeedback message.`,
+            },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -99,7 +116,11 @@ export async function PATCH(
     const now = new Date().toISOString();
     const statusHistory = [...cardRequest.statusHistory];
     if (status && status !== cardRequest.status) {
-      statusHistory.push({ status: status as RequestStatus, timestamp: now });
+      statusHistory.push({
+        status: status as RequestStatus,
+        timestamp: now,
+        adminFeedback: adminFeedback?.trim() || undefined,
+      });
     }
 
     const updated = await updateRequest(id, {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { saveRequest, saveImageFile, getAllRequests } from '@/lib/storage';
-import { requireAuth, requireAdmin, AuthError } from '@/lib/auth-utils';
+import { requireAuth, requireAdminToken, AuthError } from '@/lib/auth-utils';
 import type { CardRequest } from '@/types/request';
 
 export async function POST(request: NextRequest) {
@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // Authentication + admin role check using Supabase Auth
-    await requireAdmin();
+    // Admin role check using cookie-based auth
+    await requireAdminToken();
 
     const requests = await getAllRequests();
     return NextResponse.json({ requests, total: requests.length });

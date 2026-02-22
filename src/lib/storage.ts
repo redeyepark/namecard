@@ -48,6 +48,7 @@ export async function saveRequest(request: CardRequest): Promise<void> {
       request_id: request.id,
       status: entry.status,
       created_at: entry.timestamp,
+      admin_feedback: entry.adminFeedback || null,
     }));
 
     const { error: historyError } = await supabase
@@ -80,13 +81,14 @@ export async function getRequest(id: string): Promise<CardRequest | null> {
   // Fetch status history
   const { data: historyRows } = await supabase
     .from('card_request_status_history')
-    .select('status, created_at')
+    .select('status, created_at, admin_feedback')
     .eq('request_id', id)
     .order('created_at', { ascending: true });
 
   const statusHistory: StatusHistoryEntry[] = (historyRows || []).map((h) => ({
     status: h.status,
     timestamp: h.created_at,
+    adminFeedback: h.admin_feedback || undefined,
   }));
 
   // Reconstruct CardRequest from DB row
@@ -216,6 +218,7 @@ export async function updateRequest(
       request_id: id,
       status: latestEntry.status,
       created_at: latestEntry.timestamp,
+      admin_feedback: latestEntry.adminFeedback || null,
     });
   }
 

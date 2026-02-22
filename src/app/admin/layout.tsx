@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { UserMenu } from '@/components/auth/UserMenu';
+import { AdminLogoutButton } from '@/components/admin/AdminLogoutButton';
 
 export default function AdminLayout({
   children,
@@ -17,7 +17,7 @@ export default function AdminLayout({
             명함 의뢰 관리
           </Link>
           <div className="flex items-center gap-4">
-            <UserMenu />
+            <AdminLogoutButton />
             <Link
               href="/"
               className="text-sm text-gray-500 hover:text-gray-700 transition-colors"

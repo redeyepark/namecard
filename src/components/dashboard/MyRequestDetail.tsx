@@ -1,7 +1,9 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import type { CardRequest } from '@/types/request';
+import { isEditableStatus, isCancellableStatus } from '@/types/request';
 import { ProgressStepper } from './ProgressStepper';
 import { ConfirmedCardPreview } from './ConfirmedCardPreview';
 import { CardCompare } from '@/components/admin/CardCompare';
@@ -12,9 +14,15 @@ interface MyRequestDetailProps {
     originalAvatarUrl: string | null;
     illustrationUrl: string | null;
   };
+  onEdit?: () => void;
+  onRefresh?: () => void;
 }
 
-export function MyRequestDetail({ request }: MyRequestDetailProps) {
+export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailProps) {
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
   const submittedDate = new Date(request.submittedAt).toLocaleString('ko-KR', {
     year: 'numeric',
     month: 'long',
@@ -30,6 +38,34 @@ export function MyRequestDetail({ request }: MyRequestDetailProps) {
     hour: '2-digit',
     minute: '2-digit',
   });
+
+  // Find the latest admin feedback from status history
+  const latestFeedback = [...request.statusHistory]
+    .reverse()
+    .find((entry) => entry.adminFeedback);
+
+  const handleCancel = useCallback(async () => {
+    setCancelLoading(true);
+    setCancelError(null);
+
+    try {
+      const res = await fetch(`/api/requests/my/${request.id}/cancel`, {
+        method: 'POST',
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '취소에 실패했습니다.');
+      }
+
+      setShowCancelConfirm(false);
+      onRefresh?.();
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : '취소에 실패했습니다.');
+    } finally {
+      setCancelLoading(false);
+    }
+  }, [request.id, onRefresh]);
 
   return (
     <div className="space-y-6">
@@ -57,6 +93,22 @@ export function MyRequestDetail({ request }: MyRequestDetailProps) {
         <ProgressStepper currentStatus={request.status} />
       </div>
 
+      {/* Admin feedback banner - revision_requested */}
+      {request.status === 'revision_requested' && latestFeedback?.adminFeedback && (
+        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg" role="alert">
+          <h3 className="text-sm font-semibold text-purple-700 mb-1">관리자 수정 요청</h3>
+          <p className="text-sm text-purple-700 whitespace-pre-wrap">{latestFeedback.adminFeedback}</p>
+        </div>
+      )}
+
+      {/* Admin feedback banner - rejected */}
+      {request.status === 'rejected' && latestFeedback?.adminFeedback && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg" role="alert">
+          <h3 className="text-sm font-semibold text-red-700 mb-1">반려 사유</h3>
+          <p className="text-sm text-red-700 whitespace-pre-wrap">{latestFeedback.adminFeedback}</p>
+        </div>
+      )}
+
       {/* Confirmed banner */}
       {request.status === 'confirmed' && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -66,8 +118,26 @@ export function MyRequestDetail({ request }: MyRequestDetailProps) {
         </div>
       )}
 
+      {/* Delivered banner */}
+      {request.status === 'delivered' && (
+        <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+          <p className="text-sm text-indigo-700 font-medium">
+            명함이 배송 완료되었습니다.
+          </p>
+        </div>
+      )}
+
+      {/* Cancelled banner */}
+      {request.status === 'cancelled' && (
+        <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="text-sm text-gray-600 font-medium">
+            이 요청은 취소되었습니다.
+          </p>
+        </div>
+      )}
+
       {/* Confirmed card preview */}
-      {request.status === 'confirmed' && request.illustrationUrl && (
+      {(request.status === 'confirmed' || request.status === 'delivered') && request.illustrationUrl && (
         <ConfirmedCardPreview
           card={request.card}
           illustrationUrl={request.illustrationUrl}
@@ -173,6 +243,67 @@ export function MyRequestDetail({ request }: MyRequestDetailProps) {
       {request.statusHistory.length > 0 && (
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <StatusHistory history={request.statusHistory} />
+        </div>
+      )}
+
+      {/* Cancel error */}
+      {cancelError && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
+          <p className="text-sm text-red-700">{cancelError}</p>
+        </div>
+      )}
+
+      {/* Cancel confirmation dialog */}
+      {showCancelConfirm && (
+        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800 font-medium mb-3">
+            정말 취소하시겠습니까? 취소하면 되돌릴 수 없습니다.
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={cancelLoading}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {cancelLoading ? '처리 중...' : '확인'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCancelConfirm(false);
+                setCancelError(null);
+              }}
+              disabled={cancelLoading}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors min-h-[40px] disabled:opacity-50"
+            >
+              돌아가기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit / Cancel buttons */}
+      {(isEditableStatus(request.status) || isCancellableStatus(request.status)) && !showCancelConfirm && (
+        <div className="flex gap-3">
+          {isEditableStatus(request.status) && onEdit && (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors min-h-[44px]"
+            >
+              편집
+            </button>
+          )}
+          {isCancellableStatus(request.status) && (
+            <button
+              type="button"
+              onClick={() => setShowCancelConfirm(true)}
+              className="px-6 py-2.5 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors min-h-[44px]"
+            >
+              취소
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -16,6 +16,22 @@ const STATUS_CONFIG: Record<
     label: '확정',
     className: 'bg-green-100 text-green-800',
   },
+  revision_requested: {
+    label: '수정요청',
+    className: 'bg-orange-100 text-orange-800',
+  },
+  rejected: {
+    label: '반려',
+    className: 'bg-red-100 text-red-800',
+  },
+  delivered: {
+    label: '전달완료',
+    className: 'bg-emerald-100 text-emerald-800',
+  },
+  cancelled: {
+    label: '취소',
+    className: 'bg-gray-100 text-gray-800',
+  },
 };
 
 interface StatusBadgeProps {

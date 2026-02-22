@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { CardRequest } from '@/types/request';
+import { isTerminalStatus, requiresFeedback } from '@/types/request';
 import { StatusBadge } from './StatusBadge';
 import { CardCompare } from './CardCompare';
 import { IllustrationUploader } from './IllustrationUploader';
@@ -14,6 +15,8 @@ interface RequestDetailProps {
   onUpdate: () => void;
 }
 
+type ActiveAction = 'reject' | 'revision_request' | null;
+
 export function RequestDetail({
   request,
   originalAvatarUrl,
@@ -23,10 +26,19 @@ export function RequestDetail({
   const [illustrationPreview, setIllustrationPreview] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [activeAction, setActiveAction] = useState<ActiveAction>(null);
 
-  const isConfirmed = request.status === 'confirmed';
-  const canRegister = request.status === 'submitted' && (illustrationPreview || illustrationUrl);
-  const canConfirm = request.status === 'processing';
+  const { status } = request;
+  const isTerminal = isTerminalStatus(status);
+  const canRegister = status === 'submitted' && (illustrationPreview || illustrationUrl);
+  const canConfirm = status === 'processing';
+  const showIllustrationUploader = status === 'submitted';
+
+  // Find the latest admin feedback from status history
+  const latestFeedbackEntry = [...request.statusHistory]
+    .reverse()
+    .find((entry) => entry.adminFeedback);
 
   const handleRegister = useCallback(async () => {
     if (!illustrationPreview && !illustrationUrl) return;
@@ -83,6 +95,95 @@ export function RequestDetail({
     }
   }, [request.id, onUpdate]);
 
+  const handleReject = useCallback(async () => {
+    if (!feedbackText.trim()) return;
+    setActionLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/requests/${request.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'rejected',
+          adminFeedback: feedbackText.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.details || data.error || '반려에 실패했습니다.');
+      }
+
+      setFeedbackText('');
+      setActiveAction(null);
+      onUpdate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '반려에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [request.id, feedbackText, onUpdate]);
+
+  const handleRevisionRequest = useCallback(async () => {
+    if (!feedbackText.trim()) return;
+    setActionLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/requests/${request.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'revision_requested',
+          adminFeedback: feedbackText.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.details || data.error || '수정 요청에 실패했습니다.');
+      }
+
+      setFeedbackText('');
+      setActiveAction(null);
+      onUpdate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '수정 요청에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [request.id, feedbackText, onUpdate]);
+
+  const handleDeliver = useCallback(async () => {
+    setActionLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/requests/${request.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'delivered' }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.details || data.error || '배송 완료 처리에 실패했습니다.');
+      }
+
+      onUpdate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '배송 완료 처리에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [request.id, onUpdate]);
+
+  const handleCancelAction = useCallback(() => {
+    setActiveAction(null);
+    setFeedbackText('');
+  }, []);
+
   const submittedDate = new Date(request.submittedAt).toLocaleString('ko-KR', {
     year: 'numeric',
     month: 'long',
@@ -114,12 +215,50 @@ export function RequestDetail({
         </div>
       </div>
 
-      {/* Confirmed banner */}
-      {isConfirmed && (
+      {/* Status banners */}
+      {status === 'confirmed' && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-700 font-medium">
             이 의뢰는 확정 완료되었습니다.
           </p>
+        </div>
+      )}
+      {status === 'rejected' && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-700 font-medium">
+            이 의뢰는 반려되었습니다.
+          </p>
+          {latestFeedbackEntry?.adminFeedback && (
+            <p className="text-sm text-red-600 mt-1">
+              사유: {latestFeedbackEntry.adminFeedback}
+            </p>
+          )}
+        </div>
+      )}
+      {status === 'delivered' && (
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+          <p className="text-sm text-emerald-700 font-medium">
+            이 의뢰는 배송 완료되었습니다.
+          </p>
+        </div>
+      )}
+      {status === 'cancelled' && (
+        <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="text-sm text-gray-700 font-medium">
+            이 의뢰는 사용자에 의해 취소되었습니다.
+          </p>
+        </div>
+      )}
+      {status === 'revision_requested' && (
+        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+          <p className="text-sm text-orange-700 font-medium">
+            사용자에게 수정을 요청한 상태입니다.
+          </p>
+          {latestFeedbackEntry?.adminFeedback && (
+            <p className="text-sm text-orange-600 mt-1">
+              요청 내용: {latestFeedbackEntry.adminFeedback}
+            </p>
+          )}
         </div>
       )}
 
@@ -197,13 +336,13 @@ export function RequestDetail({
               illustrationPreview={illustrationPreview}
             />
           </div>
-          {!isConfirmed && (
+          {showIllustrationUploader && (
             <div className="sm:w-[200px] shrink-0">
               <p className="text-xs font-medium text-gray-500 mb-2">일러스트 업로드</p>
               <IllustrationUploader
                 currentImage={illustrationPreview}
                 onImageSelect={setIllustrationPreview}
-                disabled={isConfirmed}
+                disabled={false}
               />
             </div>
           )}
@@ -246,27 +385,104 @@ export function RequestDetail({
         </div>
       )}
 
-      {/* Actions */}
-      {!isConfirmed && (
-        <div className="flex gap-3">
-          {request.status === 'submitted' && (
+      {/* Feedback textarea (shown when activeAction is set) */}
+      {activeAction && (
+        <div className="bg-white rounded-xl p-4 border border-gray-100 space-y-3">
+          <h3 className="text-sm font-medium text-gray-700">
+            {activeAction === 'reject' ? '반려 사유' : '수정 요청 내용'}
+          </h3>
+          <textarea
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+            placeholder={
+              activeAction === 'reject'
+                ? '반려 사유를 입력해 주세요...'
+                : '수정이 필요한 내용을 입력해 주세요...'
+            }
+            className="w-full min-h-[100px] p-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-y"
+            disabled={actionLoading}
+            aria-label={activeAction === 'reject' ? '반려 사유' : '수정 요청 내용'}
+          />
+          <div className="flex gap-2">
             <button
               type="button"
-              onClick={handleRegister}
-              disabled={!canRegister || actionLoading}
-              className="px-6 py-2.5 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={activeAction === 'reject' ? handleReject : handleRevisionRequest}
+              disabled={!feedbackText.trim() || actionLoading}
+              className={`px-5 py-2 text-sm font-medium text-white rounded-lg transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed ${
+                activeAction === 'reject'
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-orange-600 hover:bg-orange-700'
+              }`}
             >
-              {actionLoading ? '처리 중...' : '등록'}
+              {actionLoading
+                ? '처리 중...'
+                : activeAction === 'reject'
+                  ? '반려 확인'
+                  : '수정 요청 확인'}
             </button>
+            <button
+              type="button"
+              onClick={handleCancelAction}
+              disabled={actionLoading}
+              className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors min-h-[44px] disabled:opacity-50"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Actions */}
+      {!isTerminal && status !== 'revision_requested' && !activeAction && (
+        <div className="flex gap-3">
+          {status === 'submitted' && (
+            <>
+              <button
+                type="button"
+                onClick={handleRegister}
+                disabled={!canRegister || actionLoading}
+                className="px-6 py-2.5 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {actionLoading ? '처리 중...' : '등록'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveAction('reject')}
+                disabled={actionLoading}
+                className="px-6 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                반려
+              </button>
+            </>
           )}
           {canConfirm && (
+            <>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                disabled={actionLoading}
+                className="px-6 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {actionLoading ? '처리 중...' : '확정'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveAction('revision_request')}
+                disabled={actionLoading}
+                className="px-6 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                수정 요청
+              </button>
+            </>
+          )}
+          {status === 'confirmed' && (
             <button
               type="button"
-              onClick={handleConfirm}
+              onClick={handleDeliver}
               disabled={actionLoading}
-              className="px-6 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {actionLoading ? '처리 중...' : '확정'}
+              {actionLoading ? '처리 중...' : '배송 완료'}
             </button>
           )}
         </div>

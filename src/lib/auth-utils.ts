@@ -100,6 +100,32 @@ export function isAdmin(email: string): boolean {
 }
 
 /**
+ * Expected value for the admin-token cookie.
+ */
+const ADMIN_TOKEN_VALUE = 'admin_authenticated_a12345';
+
+/**
+ * Check if the admin-token cookie is valid.
+ * Returns true if the cookie exists and has the correct value.
+ */
+export async function isAdminTokenValid(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('admin-token');
+  return token?.value === ADMIN_TOKEN_VALUE;
+}
+
+/**
+ * Require a valid admin token cookie. Throws AuthError if missing/invalid.
+ * Use in API routes that require admin access via password-based auth.
+ */
+export async function requireAdminToken(): Promise<void> {
+  const valid = await isAdminTokenValid();
+  if (!valid) {
+    throw new AuthError(AUTH_ERRORS.FORBIDDEN, 403);
+  }
+}
+
+/**
  * Custom error class for authentication/authorization failures.
  * Carries an HTTP status code for use in API route error responses.
  */

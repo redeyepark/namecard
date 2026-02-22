@@ -5,29 +5,56 @@ import { NextResponse, type NextRequest } from 'next/server';
 const publicRoutes = ['/', '/login', '/signup', '/callback', '/confirm'];
 const publicPrefixes = ['/_next/', '/favicon.ico', '/api/auth/'];
 
-// Routes that require admin role
+// Routes that require admin role (cookie-based auth)
 const adminPrefixes = ['/admin'];
+// Admin routes that do not require admin cookie
+const adminPublicRoutes = ['/admin/login'];
+// Admin API routes that handle their own auth
+const adminApiPrefixes = ['/api/admin/'];
 
-// Protected routes that require authentication
+// Protected routes that require Supabase authentication
 const protectedRoutes = ['/create', '/create/edit', '/dashboard'];
 
-/**
- * Check if an email address is in the ADMIN_EMAILS whitelist.
- */
-function isAdmin(email: string): boolean {
-  const adminEmails = (process.env.ADMIN_EMAILS ?? '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-
-  return adminEmails.includes(email.toLowerCase());
-}
+// Expected admin token cookie value
+const ADMIN_TOKEN_VALUE = 'admin_authenticated_a12345';
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   let response = NextResponse.next({
     request: req,
   });
+
+  // Allow admin API routes (they handle their own auth)
+  for (const prefix of adminApiPrefixes) {
+    if (pathname.startsWith(prefix)) {
+      return response;
+    }
+  }
+
+  // Check if this is an admin route
+  const isAdminRoute = adminPrefixes.some((prefix) =>
+    pathname.startsWith(prefix)
+  );
+
+  // Handle admin routes with cookie-based auth (no Supabase needed)
+  if (isAdminRoute) {
+    // Allow admin login page without cookie
+    if (adminPublicRoutes.includes(pathname)) {
+      return response;
+    }
+
+    // Check admin-token cookie
+    const adminToken = req.cookies.get('admin-token');
+    if (!adminToken || adminToken.value !== ADMIN_TOKEN_VALUE) {
+      return NextResponse.redirect(
+        new URL('/admin/login', req.nextUrl.origin)
+      );
+    }
+
+    return response;
+  }
+
+  // --- Below: Supabase auth for non-admin routes (unchanged) ---
 
   // Create a Supabase client for the middleware.
   // This refreshes the auth token on every request via cookie management.
@@ -77,22 +104,12 @@ export default async function middleware(req: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(route + '/')
   );
-  const isAdminRoute = adminPrefixes.some((prefix) =>
-    pathname.startsWith(prefix)
-  );
 
   // Redirect unauthenticated users to login
-  if (!user && (isProtectedRoute || isAdminRoute)) {
+  if (!user && isProtectedRoute) {
     const loginUrl = new URL('/login', req.nextUrl.origin);
     loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  // Check admin-only routes
-  if (isAdminRoute && user) {
-    if (!user.email || !isAdmin(user.email)) {
-      return NextResponse.redirect(new URL('/', req.nextUrl.origin));
-    }
   }
 
   return response;
