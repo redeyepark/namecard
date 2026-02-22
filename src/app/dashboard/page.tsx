@@ -67,14 +67,14 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">내 요청</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-[#020912]">내 요청</h1>
+          <p className="mt-1 text-sm text-[#020912]/50">
             명함 제작 요청 현황을 확인하세요.
           </p>
         </div>
         <Link
           href="/create"
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors"
         >
           <svg
             className="w-4 h-4"

@@ -1,7 +1,43 @@
 @import "tailwindcss";
 
+/* Design tokens */
+:root {
+  --color-primary: #020912;
+  --color-secondary: #fcfcfc;
+  --color-accent-blue: #e4f6ff;
+  --color-accent-green: #dbe9e0;
+  --color-accent-peach: #ffdfc8;
+  --color-accent-orange: #ffa639;
+  --color-border-light: rgba(2, 9, 18, 0.15);
+  --color-border-dark: rgba(252, 252, 252, 0.15);
+  --font-heading: 'Figtree', sans-serif;
+  --font-body: 'Anonymous Pro', monospace;
+  --radius: 0px;
+}
+
 body {
-  font-family: 'NanumMyeongjo', serif;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  background-color: var(--color-secondary);
+  letter-spacing: 0.06rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings use Figtree weight 500 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+}
+
+/* Body/mono text uses Anonymous Pro */
+code, pre, .font-mono {
+  font-family: var(--font-body);
+}
+
+/* Sharp corners globally */
+*, *::before, *::after {
+  border-radius: var(--radius);
 }
 
 /* Card flip animation */
@@ -39,9 +75,9 @@ body {
 
 /* Focus visible styles for all interactive elements */
 *:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 0px;
 }
 
 /* Ensure minimum touch target size */
@@ -67,7 +103,7 @@ button,
 [role="button"],
 a,
 select {
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 button:active:not(:disabled),

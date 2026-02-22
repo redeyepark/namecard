@@ -66,11 +66,11 @@ export function RequestList() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="text-left py-3 px-4 font-medium text-gray-500">사진</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">요청 ID</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">이름</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">제출일</th>
-            <th className="text-left py-3 px-4 font-medium text-gray-500">상태</th>
+            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">사진</th>
+            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">요청 ID</th>
+            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">이름</th>
+            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">제출일</th>
+            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">상태</th>
           </tr>
         </thead>
         <tbody>
@@ -87,7 +87,7 @@ export function RequestList() {
               <tr
                 key={req.id}
                 onClick={() => router.push(`/admin/${req.id}`)}
-                className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                className="border-b border-[rgba(2,9,18,0.08)] hover:bg-[#e4f6ff] cursor-pointer transition-colors"
                 role="link"
                 tabIndex={0}
                 onKeyDown={(e) => {
@@ -118,10 +118,10 @@ export function RequestList() {
                 <td className="py-3 px-4 font-mono text-xs text-gray-600">
                   {req.id.slice(0, 8)}...
                 </td>
-                <td className="py-3 px-4 text-gray-900 font-medium">
+                <td className="py-3 px-4 text-[#020912] font-medium">
                   {req.displayName}
                 </td>
-                <td className="py-3 px-4 text-gray-500">{formatted}</td>
+                <td className="py-3 px-4 text-[#020912]/50">{formatted}</td>
                 <td className="py-3 px-4">
                   <StatusBadge status={req.status} />
                 </td>

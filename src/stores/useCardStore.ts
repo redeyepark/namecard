@@ -6,7 +6,7 @@ const DEFAULT_CARD: CardData = {
   front: {
     displayName: 'YOUR NAME',
     avatarImage: null,
-    backgroundColor: '#b21b3c',
+    backgroundColor: '#020912',
   },
   back: {
     fullName: 'FULL NAME',

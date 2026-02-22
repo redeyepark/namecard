@@ -8,7 +8,7 @@ export function CardBack() {
   return (
     <div
       id="card-back"
-      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col p-4 sm:p-6"
+      className="relative w-full aspect-[29/45] overflow-hidden flex flex-col p-4 sm:p-6"
       style={{ backgroundColor: back.backgroundColor }}
     >
       {/* Upper area (~80%): Name, title, hashtags */}
@@ -39,14 +39,14 @@ export function CardBack() {
         <div className="mt-2">
           {back.socialLinks.map((link, i) => (
             <div key={i}>
-              <div className="border-t border-black/30" />
+              <div className="border-t border-white/20" />
               <p className="text-black/80 text-xs py-1.5 truncate text-left">
                 {link.label || link.url}
               </p>
             </div>
           ))}
           {/* Final bottom divider */}
-          <div className="border-t border-black/30" />
+          <div className="border-t border-white/20" />
         </div>
       )}
     </div>

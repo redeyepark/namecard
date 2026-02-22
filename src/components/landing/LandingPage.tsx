@@ -10,7 +10,7 @@ const features = [
     description: '단계별 위저드로 쉽게 정보를 입력하세요',
     icon: (
       <svg
-        className="w-8 h-8 text-red-600"
+        className="w-8 h-8 text-[#020912]"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -29,7 +29,7 @@ const features = [
     description: '입력하는 동안 명함이 어떻게 보이는지 즉시 확인',
     icon: (
       <svg
-        className="w-8 h-8 text-red-600"
+        className="w-8 h-8 text-[#020912]"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -53,7 +53,7 @@ const features = [
     description: '완성된 명함을 고화질 이미지로 다운로드',
     icon: (
       <svg
-        className="w-8 h-8 text-red-600"
+        className="w-8 h-8 text-[#020912]"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -76,58 +76,59 @@ export function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-600 via-red-700 to-red-900 text-white">
-        {/* Decorative background shapes */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/5" />
-          <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full bg-white/5" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-white/[0.02]" />
-        </div>
-
+      <section className="relative overflow-hidden bg-[#020912] text-[#fcfcfc]">
         {/* Top-right login area */}
         <div className="relative max-w-5xl mx-auto px-4 pt-4 flex justify-end">
           <LoginButton />
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 py-16 sm:py-24 md:py-32 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+          <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
             나만의 명함을
             <br />
             만들어보세요
           </h1>
-          <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-red-100 max-w-2xl mx-auto leading-relaxed">
+          <p className="font-[family-name:var(--font-anonymous-pro),monospace] mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-[#fcfcfc]/70 max-w-2xl mx-auto leading-relaxed">
             간단한 5단계로 전문적인 디지털 명함을 완성하세요
           </p>
-          <div className="mt-8 sm:mt-10">
+          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             {isAuthenticated ? (
               <Link
                 href="/create"
-                className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-white text-red-700 text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:bg-red-50 hover:shadow-xl transition-all duration-200"
+                className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 border border-[#fcfcfc] text-[#fcfcfc] text-base sm:text-lg font-semibold hover:bg-[#fcfcfc] hover:text-[#020912] transition-all duration-200"
               >
                 명함 만들기
                 <span aria-hidden="true">&rarr;</span>
               </Link>
             ) : (
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-white text-red-700 text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:bg-red-50 hover:shadow-xl transition-all duration-200"
-              >
-                로그인하여 시작하기
-                <span aria-hidden="true">&rarr;</span>
-              </Link>
+              <>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 border border-[#fcfcfc] text-[#fcfcfc] text-base sm:text-lg font-semibold hover:bg-[#fcfcfc] hover:text-[#020912] transition-all duration-200"
+                >
+                  로그인하여 시작하기
+                  <span aria-hidden="true">&rarr;</span>
+                </Link>
+                <Link
+                  href="/create"
+                  className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-[#ffa639] text-[#020912] text-base sm:text-lg font-semibold hover:bg-[#ffa639]/90 transition-all duration-200"
+                >
+                  둘러보기
+                </Link>
+              </>
             )}
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="flex-1 bg-gray-50 py-16 sm:py-20 md:py-24">
+      <section className="flex-1 bg-[#fcfcfc] py-16 sm:py-20 md:py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+            <h2 className="font-[family-name:var(--font-figtree),sans-serif] text-xl sm:text-2xl md:text-3xl font-bold text-[#020912]">
               주요 기능
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-gray-500">
+            <p className="font-[family-name:var(--font-anonymous-pro),monospace] mt-2 text-sm sm:text-base text-[#020912]/50">
               누구나 쉽게 사용할 수 있는 명함 편집기
             </p>
           </div>
@@ -136,13 +137,13 @@ export function LandingPage() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="bg-white rounded-xl p-6 sm:p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
+                className="bg-[#fcfcfc] p-6 sm:p-8 border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] transition-colors duration-200"
               >
                 <div className="mb-4">{feature.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-semibold text-[#020912] mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-sm sm:text-base text-gray-500 leading-relaxed">
+                <p className="font-[family-name:var(--font-anonymous-pro),monospace] text-sm sm:text-base text-[#020912]/50 leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -152,9 +153,9 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 py-8">
+      <footer className="bg-[#020912] border-t border-[rgba(2,9,18,0.15)] py-8">
         <div className="max-w-5xl mx-auto px-4 text-center">
-          <p className="text-sm text-gray-400">Namecard Editor</p>
+          <p className="font-[family-name:var(--font-anonymous-pro),monospace] text-sm text-[#fcfcfc]/40">Namecard Editor</p>
         </div>
       </footer>
     </div>

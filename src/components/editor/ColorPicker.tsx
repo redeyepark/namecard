@@ -1,16 +1,16 @@
 'use client';
 
 const PRESET_COLORS = [
-  { label: '퍼플', hex: '#bf7ca7' },
-  { label: '블루', hex: '#8db8da' },
-  { label: '그린', hex: '#238457' },
-  { label: '엘로우', hex: '#f5dc4c' },
-  { label: '오렌지', hex: '#f4a53e' },
-  { label: '레드', hex: '#b21b3c' },
-  { label: '블랙', hex: '#000000' },
-  { label: '그레이', hex: '#757575' },
-  { label: '엘로우그린', hex: '#85d150' },
-  { label: '핑크', hex: '#eb9596' },
+  { label: 'Navy', hex: '#020912' },
+  { label: 'Cream', hex: '#fcfcfc' },
+  { label: 'Sage', hex: '#4a7c6f' },
+  { label: 'Blue', hex: '#5b8fa8' },
+  { label: 'Orange', hex: '#ffa639' },
+  { label: 'Peach', hex: '#e8a87c' },
+  { label: 'Charcoal', hex: '#2d3436' },
+  { label: 'Gray', hex: '#757575' },
+  { label: 'Slate', hex: '#4a5568' },
+  { label: 'Black', hex: '#000000' },
 ] as const;
 
 interface ColorPickerProps {
@@ -40,9 +40,9 @@ export function ColorPicker({ color, onChange, label }: ColorPickerProps) {
               className="flex flex-col items-center gap-1.5 group"
             >
               <div
-                className={`w-10 h-10 rounded-full border-2 transition-all ${
+                className={`w-10 h-10 border-2 transition-all ${
                   isSelected
-                    ? 'ring-2 ring-offset-2 ring-blue-500 border-blue-500 scale-110'
+                    ? 'ring-2 ring-offset-2 ring-[#020912] border-[#020912] scale-110'
                     : 'border-gray-200 hover:border-gray-400 hover:scale-105'
                 }`}
                 style={{ backgroundColor: preset.hex }}
@@ -50,7 +50,7 @@ export function ColorPicker({ color, onChange, label }: ColorPickerProps) {
               <span
                 className={`text-xs leading-tight text-center ${
                   isSelected
-                    ? 'font-semibold text-blue-600'
+                    ? 'font-semibold text-[#020912]'
                     : 'text-gray-500 group-hover:text-gray-700'
                 }`}
               >

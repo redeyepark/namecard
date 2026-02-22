@@ -14,7 +14,7 @@ export function TabSwitch() {
 
   return (
     <div
-      className="flex gap-1 bg-gray-200 p-1 rounded-lg"
+      className="flex gap-1 bg-[#e4f6ff] p-1 border border-[rgba(2,9,18,0.15)]"
       role="tablist"
       aria-label="Card side selection"
     >
@@ -26,10 +26,10 @@ export function TabSwitch() {
           aria-controls={`panel-${side}`}
           id={`tab-${side}`}
           onClick={() => setActiveSide(side)}
-          className={`flex-1 px-4 py-2.5 rounded-md text-sm font-medium transition-all duration-200 min-h-[44px] ${
+          className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-200 min-h-[44px] ${
             activeSide === side
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              ? 'bg-[#020912] text-[#fcfcfc]'
+              : 'text-gray-600 hover:text-gray-900'
           }`}
         >
           {label}

@@ -8,7 +8,7 @@ export function CardFront() {
   return (
     <div
       id="card-front"
-      className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden"
+      className="relative w-full aspect-[29/45] overflow-hidden"
       style={{ backgroundColor: front.backgroundColor }}
     >
       {/* Layer 2: Illustration image - full card cover */}

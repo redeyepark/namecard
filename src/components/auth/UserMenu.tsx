@@ -19,7 +19,7 @@ export function UserMenu() {
     return (
       <Link
         href="/login"
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-all duration-200"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-all duration-200"
       >
         <svg
           className="w-4 h-4"
@@ -46,12 +46,12 @@ export function UserMenu() {
         <img
           src={user.image}
           alt={user.name ?? 'User avatar'}
-          className="w-8 h-8 rounded-full ring-2 ring-red-100"
+          className="w-8 h-8 ring-2 ring-[#e4f6ff]"
           referrerPolicy="no-referrer"
         />
       ) : (
-        <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-          <span className="text-sm font-semibold text-red-700">
+        <div className="w-8 h-8 bg-[#e4f6ff] flex items-center justify-center">
+          <span className="text-sm font-semibold text-[#020912]">
             {user.name?.charAt(0)?.toUpperCase() ?? 'U'}
           </span>
         </div>
@@ -59,9 +59,9 @@ export function UserMenu() {
 
       {/* Name and role badge */}
       <div className="hidden sm:flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-700">{user.name}</span>
+        <span className="text-sm font-medium text-[#020912]">{user.name}</span>
         {isAdmin && (
-          <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700 bg-red-100 rounded">
+          <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#fcfcfc] bg-[#020912]">
             관리자
           </span>
         )}
@@ -70,7 +70,7 @@ export function UserMenu() {
       {/* My requests link */}
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 hover:text-red-700 transition-all duration-200"
+        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#020912] bg-[#e4f6ff] hover:bg-[#e4f6ff]/70 transition-all duration-200"
         aria-label="내 요청"
       >
         <svg
@@ -92,7 +92,7 @@ export function UserMenu() {
       {/* Logout button */}
       <button
         onClick={() => signOut()}
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200 hover:text-gray-700 transition-all duration-200"
+        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#020912]/60 bg-[#020912]/5 hover:bg-[#020912]/10 hover:text-[#020912] transition-all duration-200"
         aria-label="로그아웃"
       >
         <svg

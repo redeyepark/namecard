@@ -14,16 +14,16 @@ interface StepConfig {
 }
 
 const BASE_STEPS: StepConfig[] = [
-  { key: 'submitted', label: '의뢰됨', color: 'text-blue-600', bgColor: 'bg-blue-600' },
-  { key: 'processing', label: '작업중', color: 'text-amber-600', bgColor: 'bg-amber-600' },
-  { key: 'confirmed', label: '확정', color: 'text-green-600', bgColor: 'bg-green-600' },
+  { key: 'submitted', label: '의뢰됨', color: 'text-[#020912]', bgColor: 'bg-[#020912]' },
+  { key: 'processing', label: '작업중', color: 'text-[#020912]/70', bgColor: 'bg-[#020912]' },
+  { key: 'confirmed', label: '확정', color: 'text-[#020912]', bgColor: 'bg-[#020912]' },
 ];
 
 const DELIVERED_STEP: StepConfig = {
   key: 'delivered',
   label: '배송 완료',
-  color: 'text-indigo-600',
-  bgColor: 'bg-indigo-600',
+  color: 'text-[#020912]',
+  bgColor: 'bg-[#020912]',
 };
 
 function getStepsForStatus(status: RequestStatus): StepConfig[] {
@@ -101,8 +101,8 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
             circleBg = 'bg-gray-300';
             labelColor = 'text-gray-400';
           } else if (isRevisionRequested && index === 0) {
-            circleBg = 'bg-purple-600';
-            labelColor = 'text-purple-600';
+            circleBg = 'bg-[#ffa639]';
+            labelColor = 'text-[#ffa639]';
           }
 
           // Override label for special statuses
@@ -188,7 +188,7 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
                           ? 'bg-red-300'
                           : index < currentIndex
                             ? steps[index + 1]
-                              ? (isRevisionRequested && index === 0 ? 'bg-purple-300' : steps[index + 1].bgColor)
+                              ? (isRevisionRequested && index === 0 ? 'bg-[#ffa639]/50' : steps[index + 1].bgColor)
                               : 'bg-gray-200'
                             : 'bg-gray-200'
                     }`}
@@ -202,7 +202,7 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
 
       {/* Status note below stepper */}
       {isRevisionRequested && (
-        <p className="mt-2 text-xs text-purple-600 text-center font-medium">
+        <p className="mt-2 text-xs text-[#ffa639] text-center font-medium">
           관리자가 수정을 요청했습니다. 내용을 수정 후 다시 제출해주세요.
         </p>
       )}

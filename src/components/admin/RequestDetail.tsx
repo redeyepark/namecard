@@ -210,7 +210,7 @@ export function RequestDetail({
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-xl font-bold text-[#020912]">
               {request.card.front.displayName}
             </h1>
             <StatusBadge status={request.status} />
@@ -221,14 +221,14 @@ export function RequestDetail({
 
       {/* Status banners */}
       {status === 'confirmed' && (
-        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-sm text-green-700 font-medium">
+        <div className="p-3 bg-[#dbe9e0]/50 border border-[#dbe9e0]">
+          <p className="text-sm text-[#020912] font-medium">
             이 의뢰는 확정 완료되었습니다.
           </p>
         </div>
       )}
       {status === 'rejected' && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div className="p-3 bg-red-50 border border-red-200">
           <p className="text-sm text-red-700 font-medium">
             이 의뢰는 반려되었습니다.
           </p>
@@ -240,26 +240,26 @@ export function RequestDetail({
         </div>
       )}
       {status === 'delivered' && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-          <p className="text-sm text-emerald-700 font-medium">
+        <div className="p-3 bg-[#e4f6ff]/50 border border-[#e4f6ff]">
+          <p className="text-sm text-[#020912] font-medium">
             이 의뢰는 배송 완료되었습니다.
           </p>
         </div>
       )}
       {status === 'cancelled' && (
-        <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-          <p className="text-sm text-gray-700 font-medium">
+        <div className="p-3 bg-gray-50 border border-gray-200">
+          <p className="text-sm text-[#020912]/60 font-medium">
             이 의뢰는 사용자에 의해 취소되었습니다.
           </p>
         </div>
       )}
       {status === 'revision_requested' && (
-        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-          <p className="text-sm text-orange-700 font-medium">
+        <div className="p-3 bg-[#ffdfc8]/50 border border-[#ffdfc8]">
+          <p className="text-sm text-[#020912] font-medium">
             사용자에게 수정을 요청한 상태입니다.
           </p>
           {latestFeedbackEntry?.adminFeedback && (
-            <p className="text-sm text-orange-600 mt-1">
+            <p className="text-sm text-[#020912]/70 mt-1">
               요청 내용: {latestFeedbackEntry.adminFeedback}
             </p>
           )}
@@ -267,7 +267,7 @@ export function RequestDetail({
       )}
 
       {/* Card data */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
         <h2 className="text-sm font-medium text-gray-700 mb-3">카드 정보</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
@@ -330,7 +330,7 @@ export function RequestDetail({
       </div>
 
       {/* Image comparison */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
         <h2 className="text-sm font-medium text-gray-700 mb-3">이미지 비교</h2>
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1">
@@ -356,14 +356,14 @@ export function RequestDetail({
 
       {/* User note */}
       {request.note && (
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
           <h2 className="text-sm font-medium text-gray-700 mb-2">사용자 메모</h2>
           <p className="text-sm text-gray-600 whitespace-pre-wrap">{request.note}</p>
         </div>
       )}
 
       {/* Dates */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
             <span className="text-gray-500">제출일</span>
@@ -378,14 +378,14 @@ export function RequestDetail({
 
       {/* Status history */}
       {request.statusHistory.length > 0 && (
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
           <StatusHistory history={request.statusHistory} />
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
+        <div className="p-3 bg-red-50 border border-red-200" role="alert">
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
@@ -404,7 +404,7 @@ export function RequestDetail({
                 ? '반려 사유를 입력해 주세요...'
                 : '수정이 필요한 내용을 입력해 주세요...'
             }
-            className="w-full min-h-[100px] p-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-y"
+            className="w-full min-h-[100px] p-3 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent resize-y"
             disabled={actionLoading}
             aria-label={activeAction === 'reject' ? '반려 사유' : '수정 요청 내용'}
           />
@@ -413,10 +413,10 @@ export function RequestDetail({
               type="button"
               onClick={activeAction === 'reject' ? handleReject : handleRevisionRequest}
               disabled={!feedbackText.trim() || actionLoading}
-              className={`px-5 py-2 text-sm font-medium text-white rounded-lg transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`px-5 py-2 text-sm font-medium text-[#fcfcfc] transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed ${
                 activeAction === 'reject'
                   ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-orange-600 hover:bg-orange-700'
+                  : 'bg-[#020912] hover:bg-[#020912]/90'
               }`}
             >
               {actionLoading
@@ -429,7 +429,7 @@ export function RequestDetail({
               type="button"
               onClick={handleCancelAction}
               disabled={actionLoading}
-              className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors min-h-[44px] disabled:opacity-50"
+              className="px-5 py-2 text-sm font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors min-h-[44px] disabled:opacity-50"
             >
               취소
             </button>
@@ -446,7 +446,7 @@ export function RequestDetail({
                 type="button"
                 onClick={handleRegister}
                 disabled={!canRegister || actionLoading}
-                className="px-6 py-2.5 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? '처리 중...' : '등록'}
               </button>
@@ -454,7 +454,7 @@ export function RequestDetail({
                 type="button"
                 onClick={() => setActiveAction('reject')}
                 disabled={actionLoading}
-                className="px-6 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 text-sm font-medium text-red-600 bg-white border border-red-300 hover:bg-red-50 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 반려
               </button>
@@ -466,7 +466,7 @@ export function RequestDetail({
                 type="button"
                 onClick={handleConfirm}
                 disabled={actionLoading}
-                className="px-6 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? '처리 중...' : '확정'}
               </button>
@@ -474,7 +474,7 @@ export function RequestDetail({
                 type="button"
                 onClick={() => setActiveAction('revision_request')}
                 disabled={actionLoading}
-                className="px-6 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 text-sm font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#ffdfc8]/50 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 수정 요청
               </button>
@@ -485,7 +485,7 @@ export function RequestDetail({
               type="button"
               onClick={handleDeliver}
               disabled={actionLoading}
-              className="px-6 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {actionLoading ? '처리 중...' : '배송 완료'}
             </button>

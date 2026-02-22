@@ -72,7 +72,7 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
       {/* Back button */}
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-[#020912]/60 hover:text-[#ffa639] transition-colors"
       >
         <svg
           className="w-4 h-4"
@@ -88,22 +88,22 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
       </Link>
 
       {/* Progress stepper */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">진행 상태</h2>
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+        <h2 className="text-sm font-medium text-[#020912]/70 mb-3">진행 상태</h2>
         <ProgressStepper currentStatus={request.status} />
       </div>
 
       {/* Admin feedback banner - revision_requested */}
       {request.status === 'revision_requested' && latestFeedback?.adminFeedback && (
-        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg" role="alert">
-          <h3 className="text-sm font-semibold text-purple-700 mb-1">관리자 수정 요청</h3>
-          <p className="text-sm text-purple-700 whitespace-pre-wrap">{latestFeedback.adminFeedback}</p>
+        <div className="p-4 bg-[#ffdfc8]/50 border border-[#ffa639]/30" role="alert">
+          <h3 className="text-sm font-semibold text-[#020912] mb-1">관리자 수정 요청</h3>
+          <p className="text-sm text-[#020912]/70 whitespace-pre-wrap">{latestFeedback.adminFeedback}</p>
         </div>
       )}
 
       {/* Admin feedback banner - rejected */}
       {request.status === 'rejected' && latestFeedback?.adminFeedback && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg" role="alert">
+        <div className="p-4 bg-red-50 border border-red-200" role="alert">
           <h3 className="text-sm font-semibold text-red-700 mb-1">반려 사유</h3>
           <p className="text-sm text-red-700 whitespace-pre-wrap">{latestFeedback.adminFeedback}</p>
         </div>
@@ -111,8 +111,8 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
 
       {/* Confirmed banner */}
       {request.status === 'confirmed' && (
-        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-sm text-green-700 font-medium">
+        <div className="p-3 bg-[#dbe9e0]/50 border border-[#dbe9e0]">
+          <p className="text-sm text-[#020912] font-medium">
             명함이 확정되었습니다. 아래에서 완성된 명함을 확인하세요.
           </p>
         </div>
@@ -120,8 +120,8 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
 
       {/* Delivered banner */}
       {request.status === 'delivered' && (
-        <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
-          <p className="text-sm text-indigo-700 font-medium">
+        <div className="p-3 bg-[#e4f6ff]/50 border border-[#e4f6ff]">
+          <p className="text-sm text-[#020912] font-medium">
             명함이 배송 완료되었습니다.
           </p>
         </div>
@@ -129,8 +129,8 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
 
       {/* Cancelled banner */}
       {request.status === 'cancelled' && (
-        <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-          <p className="text-sm text-gray-600 font-medium">
+        <div className="p-3 bg-gray-50 border border-gray-200">
+          <p className="text-sm text-[#020912]/60 font-medium">
             이 요청은 취소되었습니다.
           </p>
         </div>
@@ -145,8 +145,8 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
       )}
 
       {/* Card info */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">카드 정보</h2>
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+        <h2 className="text-sm font-medium text-[#020912]/70 mb-3">카드 정보</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
             <span className="text-gray-500">표시 이름</span>
@@ -209,15 +209,15 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
 
       {/* User note */}
       {request.note && (
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <h2 className="text-sm font-medium text-gray-700 mb-2">메모</h2>
+        <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+          <h2 className="text-sm font-medium text-[#020912]/70 mb-2">메모</h2>
           <p className="text-sm text-gray-600 whitespace-pre-wrap">{request.note}</p>
         </div>
       )}
 
       {/* Image comparison */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">이미지 비교</h2>
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+        <h2 className="text-sm font-medium text-[#020912]/70 mb-3">이미지 비교</h2>
         <CardCompare
           originalAvatarUrl={request.originalAvatarUrl}
           illustrationUrl={request.illustrationUrl}
@@ -226,7 +226,7 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
       </div>
 
       {/* Dates */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
             <span className="text-gray-500">제출일</span>
@@ -241,22 +241,22 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
 
       {/* Status history */}
       {request.statusHistory.length > 0 && (
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
           <StatusHistory history={request.statusHistory} />
         </div>
       )}
 
       {/* Cancel error */}
       {cancelError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
+        <div className="p-3 bg-red-50 border border-red-200" role="alert">
           <p className="text-sm text-red-700">{cancelError}</p>
         </div>
       )}
 
       {/* Cancel confirmation dialog */}
       {showCancelConfirm && (
-        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800 font-medium mb-3">
+        <div className="p-4 bg-[#ffa639]/10 border border-[#ffa639]/30">
+          <p className="text-sm text-[#020912] font-medium mb-3">
             정말 취소하시겠습니까? 취소하면 되돌릴 수 없습니다.
           </p>
           <div className="flex gap-2">
@@ -264,7 +264,7 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
               type="button"
               onClick={handleCancel}
               disabled={cancelLoading}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {cancelLoading ? '처리 중...' : '확인'}
             </button>
@@ -275,7 +275,7 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
                 setCancelError(null);
               }}
               disabled={cancelLoading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors min-h-[40px] disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors min-h-[40px] disabled:opacity-50"
             >
               돌아가기
             </button>
@@ -290,7 +290,7 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
             <button
               type="button"
               onClick={onEdit}
-              className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors min-h-[44px]"
+              className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px]"
             >
               편집
             </button>
@@ -299,7 +299,7 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
             <button
               type="button"
               onClick={() => setShowCancelConfirm(true)}
-              className="px-6 py-2.5 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors min-h-[44px]"
+              className="px-6 py-2.5 text-sm font-medium text-red-600 bg-white border border-red-300 hover:bg-red-50 transition-colors min-h-[44px]"
             >
               취소
             </button>

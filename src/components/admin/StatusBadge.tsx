@@ -6,19 +6,19 @@ const STATUS_CONFIG: Record<
 > = {
   submitted: {
     label: '의뢰됨',
-    className: 'bg-blue-100 text-blue-800',
+    className: 'bg-[#e4f6ff] text-[#020912]',
   },
   processing: {
     label: '작업중',
-    className: 'bg-amber-100 text-amber-800',
+    className: 'bg-[#ffa639]/20 text-[#020912]',
   },
   confirmed: {
     label: '확정',
-    className: 'bg-green-100 text-green-800',
+    className: 'bg-[#dbe9e0] text-[#020912]',
   },
   revision_requested: {
     label: '수정요청',
-    className: 'bg-orange-100 text-orange-800',
+    className: 'bg-[#ffdfc8] text-[#020912]',
   },
   rejected: {
     label: '반려',
@@ -26,7 +26,7 @@ const STATUS_CONFIG: Record<
   },
   delivered: {
     label: '전달완료',
-    className: 'bg-emerald-100 text-emerald-800',
+    className: 'bg-[#020912] text-[#fcfcfc]',
   },
   cancelled: {
     label: '취소',
@@ -42,7 +42,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   const config = STATUS_CONFIG[status];
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.className}`}
+      className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium ${config.className}`}
     >
       {config.label}
     </span>
