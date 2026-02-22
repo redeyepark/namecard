@@ -281,11 +281,14 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
     },
     originalAvatarPath: photoUrl && photoUrl.trim() ? photoUrl.trim() : null,
     illustrationPath: null,
-    status: 'submitted',
+    status: 'processing',
     submittedAt: now,
     updatedAt: now,
     createdBy,
-    statusHistory: [{ status: 'submitted', timestamp: now }],
+    statusHistory: [
+      { status: 'submitted', timestamp: now },
+      { status: 'processing', timestamp: now },
+    ],
   };
 
   return cardRequest;
