@@ -8,6 +8,7 @@ import { StatusBadge } from './StatusBadge';
 import { CardCompare } from './CardCompare';
 import { IllustrationUploader } from './IllustrationUploader';
 import { StatusHistory } from './StatusHistory';
+import { AdminCardPreview } from './AdminCardPreview';
 
 interface RequestDetailProps {
   request: CardRequest;
@@ -634,6 +635,15 @@ export function RequestDetail({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Card preview */}
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+        <h2 className="text-sm font-medium text-gray-700 mb-3">명함 미리보기</h2>
+        <AdminCardPreview
+          card={isEditing ? { front: editFront, back: editBack } : request.card}
+          illustrationUrl={illustrationPreview || illustrationUrlInput || illustrationUrl}
+        />
       </div>
 
       {/* User note */}
