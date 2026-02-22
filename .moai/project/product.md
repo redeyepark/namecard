@@ -4,6 +4,10 @@
 
 명함 디자인부터 제작 요청, 관리자 검수, 일러스트 제작까지 전체 워크플로우를 지원하는 풀스택 웹 애플리케이션입니다. 사용자는 Supabase Auth를 통해 이메일/비밀번호 또는 Google OAuth로 로그인한 후, 6단계 위저드를 통해 명함 정보를 입력하고 제작을 요청합니다. 관리자는 요청을 검토하고 일러스트를 업로드하여 최종 명함을 완성합니다. 별도로 카드 편집기를 통해 명함의 앞면과 뒷면을 실시간으로 편집하고, 고화질 PNG 이미지로 내보낼 수 있습니다.
 
+### UI 디자인 스타일
+
+미니멀리스트/모던 갤러리 스타일의 디자인을 채택하고 있습니다. 딥 네이비(`#020912`)와 오프 화이트(`#fcfcfc`) 색상 조합으로 세련된 대비를 구현하며, 모든 요소에 날카로운 모서리(0px border-radius)를 적용하여 샤프한 인상을 줍니다. Google Fonts의 Figtree(제목/헤딩)와 Anonymous Pro(본문/모노) 폰트를 사용합니다.
+
 ## 대상 사용자
 
 ### 일반 사용자
@@ -30,7 +34,7 @@
 ### 명함 제작 위저드 (6단계)
 
 - **Step 1 - 개인 정보**: 이름, 직함, 회사명 입력
-- **Step 2 - 사진 업로드**: 아바타 이미지 업로드 (드래그 앤 드롭, 5MB 제한)
+- **Step 2 - 사진 업로드**: 아바타 이미지 업로드 (드래그 앤 드롭, 5MB 제한), 배경색 선택, 텍스트 컬러 선택 (화이트/블랙)
 - **Step 3 - 소셜/태그**: 소셜 링크 추가, 해시태그 입력
 - **Step 4 - 미리보기**: 입력 정보 기반 명함 미리보기
 - **Step 5 - 제작 요청**: 명함 제작 요청 제출 (Supabase DB에 저장)
@@ -60,14 +64,14 @@
   - Excel 파일은 브라우저에서 SheetJS(xlsx) 라이브러리로 CSV 변환 후 처리
   - API 엔드포인트: POST /api/admin/bulk-upload
 - 이메일 자동 회원가입: 대량 등록 시 존재하지 않는 이메일은 Supabase Auth에 자동으로 사용자 생성 (기본 비밀번호: 123456)
-  - `supabase.auth.admin.createUser()`로 이메일 확인 완료 상태로 생성
-  - Cloudflare Workers 런타임에서 Supabase Admin API 미사용 시 graceful degradation 처리
+  - Supabase Auth REST API를 통한 직접 HTTP 요청으로 사용자 생성 (`POST ${supabaseUrl}/auth/v1/admin/users`)
+  - Cloudflare Workers 엣지 런타임 호환: SDK admin 메서드 대신 REST API fetch() 호출 사용
   - 응답에 자동 등록된 사용자 수(`autoRegistered`) 포함
 
 ### 명함 앞면/뒷면 실시간 편집 및 미리보기
 
-- 앞면(Front): Display Name, Avatar Image 편집
-- 뒷면(Back): Full Name, Title/Role, Hashtags, Social Links 편집
+- 앞면(Front): Display Name, Avatar Image, 텍스트 컬러 편집
+- 뒷면(Back): Full Name, Title/Role, Hashtags, Social Links, 텍스트 컬러 편집
 - 탭 전환으로 앞면/뒷면 즉시 전환 (카드 플립 애니메이션 포함)
 - 데스크톱에서는 오른쪽에 sticky preview, 모바일에서는 상단에 preview 표시
 
@@ -86,7 +90,16 @@
 - 앞면/뒷면 개별 배경색 설정
 - react-colorful 기반 시각적 색상 선택기
 - Hex 값 직접 입력 지원
+- 10가지 한국어 프리셋 색상: 퍼플, 블루, 그린, 엘로우, 오렌지, 레드, 블랙(#131313), 그레이, 엘로우그린, 핑크
 - 실시간 색상 미리보기
+
+### 텍스트 컬러 커스터마이징
+
+- 앞면/뒷면 개별 텍스트 색상 설정
+- 화이트(#FFFFFF) / 블랙(#000000) 2가지 옵션 선택
+- `TextColorPicker` 컴포넌트로 간편한 선택 UI 제공
+- 앞면 기본값: 화이트(#FFFFFF), 뒷면 기본값: 블랙(#000000)
+- 앞면에서는 배경 대비를 위한 적응형 텍스트 스트로크(text stroke) 적용
 
 ### 텍스트 편집
 

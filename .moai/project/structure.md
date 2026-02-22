@@ -62,6 +62,7 @@ namecard/
 │   │   │   ├── BackEditor.tsx             # 뒷면 편집 필드
 │   │   │   ├── ImageUploader.tsx          # 이미지 업로드 (드래그 앤 드롭, 5MB 제한)
 │   │   │   ├── ColorPicker.tsx            # react-colorful 래퍼
+│   │   │   ├── TextColorPicker.tsx        # 텍스트 색상 선택기 (화이트/블랙 2옵션)
 │   │   │   ├── HashtagEditor.tsx          # 해시태그 태그 관리
 │   │   │   └── SocialLinkEditor.tsx       # 소셜 링크 CRUD
 │   │   ├── export/                        # 내보내기 컴포넌트
@@ -74,7 +75,7 @@ namecard/
 │   │   │   ├── ProgressBar.tsx            # 단계 진행률 표시기
 │   │   │   ├── StepNavigation.tsx         # 이전/다음 네비게이션
 │   │   │   ├── PersonalInfoStep.tsx       # Step 1: 이름, 직함, 회사
-│   │   │   ├── PhotoUploadStep.tsx        # Step 2: 아바타 업로드
+│   │   │   ├── PhotoUploadStep.tsx        # Step 2: 아바타 업로드, 배경색/텍스트 색상 선택
 │   │   │   ├── SocialTagStep.tsx          # Step 3: 소셜 링크, 해시태그
 │   │   │   ├── PreviewStep.tsx            # Step 4: 카드 미리보기
 │   │   │   ├── RequestSubmitStep.tsx      # Step 5: 제작 요청 제출
@@ -211,11 +212,13 @@ layout.tsx (Root - AuthProvider 래핑)
 │   ├── EditorPanel
 │   │   ├── FrontEditor            # 앞면 편집
 │   │   │   ├── ImageUploader      # 이미지 업로드
-│   │   │   └── ColorPicker        # 배경색 선택
+│   │   │   ├── ColorPicker        # 배경색 선택
+│   │   │   └── TextColorPicker    # 텍스트 색상 선택
 │   │   └── BackEditor             # 뒷면 편집
 │   │       ├── HashtagEditor      # 해시태그 관리
 │   │       ├── SocialLinkEditor   # 소셜 링크 관리
-│   │       └── ColorPicker        # 배경색 선택
+│   │       ├── ColorPicker        # 배경색 선택
+│   │       └── TextColorPicker    # 텍스트 색상 선택
 │   ├── ExportButton               # PNG 내보내기
 │   └── ResetButton                # 초기화
 │
@@ -278,11 +281,11 @@ layout.tsx (Root - AuthProvider 래핑)
 |---------|--------|
 | 페이지/레이아웃 (`.tsx` in `app/`) | 13 |
 | API 라우트 (`.ts` in `app/api/`) | 5 |
-| React 컴포넌트 (`.tsx` in `components/`) | 33 |
+| React 컴포넌트 (`.tsx` in `components/`) | 34 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
 | 타입 정의 (`.ts` in `types/`) | 2 |
 | 유틸리티 (`.ts` in `lib/`) | 6 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 63 |
+| 총 소스 파일 | 64 |

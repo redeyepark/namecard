@@ -75,8 +75,11 @@
 - 지원 형식: `.csv`, `.xlsx`, `.xls`
 - CSV 12개 컬럼: 사진URL, 앞면이름, 뒷면이름, 관심사, 키워드1-3, 이메일, Facebook, Instagram, LinkedIn, 배경색
 - Excel 파일은 클라이언트(BulkUploadModal)에서 SheetJS(xlsx)로 CSV 변환 후 전송
-- 이메일 자동 회원가입: 존재하지 않는 이메일은 `supabase.auth.admin.createUser()`로 자동 생성 (기본 비밀번호: 123456, `email_confirm: true`)
-- Cloudflare Workers 런타임에서 Supabase Admin API 미사용 시 graceful degradation
+- 이메일 자동 회원가입: 존재하지 않는 이메일은 Supabase Auth REST API 직접 호출로 자동 생성 (기본 비밀번호: 123456, `email_confirm: true`)
+  - 기존 사용자 조회: `GET ${supabaseUrl}/auth/v1/admin/users` (service_role 키 인증)
+  - 신규 사용자 생성: `POST ${supabaseUrl}/auth/v1/admin/users` (service_role 키 인증)
+  - Supabase SDK의 `auth.admin` 메서드는 Cloudflare Workers 엣지 런타임과 호환되지 않아 REST API fetch()로 전환
+- CSV 대량 등록 시 초기 상태: `processing` (작업중) - statusHistory에 submitted와 processing 두 건의 이력이 동시 기록됨
 - 응답 필드: `success`, `total`, `created`, `errors`, `autoRegistered`
 
 ## 데이터베이스: Supabase PostgreSQL
@@ -112,12 +115,15 @@
 - 반응형 디자인: `sm:`, `md:`, `lg:` breakpoints 활용
 - 커스텀 CSS: 카드 플립 애니메이션, 탭 전환 애니메이션, focus-visible 스타일
 - 터치 디바이스 최소 타겟 크기(44px) 보장을 위한 `@media (pointer: coarse)` 규칙
+- 미니멀리스트 갤러리 스타일: 딥 네이비(`#020912`) + 오프 화이트(`#fcfcfc`) 색상 조합
+- 날카로운 모서리(0px border-radius) 일관 적용
+- 폰트: Google Fonts - Figtree(제목/헤딩) + Anonymous Pro(본문/모노)
 
 ## 상태 관리: Zustand 5
 
 - persist middleware를 통한 localStorage 자동 저장
 - Storage key: `namecard-storage`
-- 상태 구조: `CardData` (front + back) + `activeSide`
+- 상태 구조: `CardData` (front + back) + `activeSide` - front/back 각각 `textColor: string` 필드 포함 (앞면 기본: #FFFFFF, 뒷면 기본: #000000)
 - 액션: `updateFront`, `updateBack`, `setActiveSide`, `addSocialLink`, `removeSocialLink`, `updateSocialLink`, `addHashtag`, `removeHashtag`, `resetCard`
 - Redux 대비 보일러플레이트 최소화, 간결한 API
 
@@ -127,6 +133,14 @@
 - 외부 의존성 없음 (zero-dependency)
 - `HexColorPicker` 컴포넌트 사용
 - Hex 값 직접 입력 기능과 결합하여 사용
+- 10가지 한국어 프리셋 색상 제공 (퍼플, 블루, 그린, 엘로우, 오렌지, 레드, 블랙(#131313), 그레이, 엘로우그린, 핑크)
+
+## 텍스트 색상 선택: TextColorPicker
+
+- 화이트(#FFFFFF) / 블랙(#000000) 2가지 옵션의 간단한 선택기
+- FrontEditor, BackEditor, PhotoUploadStep(위저드) 컴포넌트에서 사용
+- CardFront: 선택된 텍스트 색상 + 적응형 텍스트 스트로크(text stroke) 적용
+- CardBack: 모든 텍스트 요소에 동적 textColor 적용 (기존 하드코딩된 text-black 대체)
 
 ## 이미지 내보내기: html-to-image 1.11
 
