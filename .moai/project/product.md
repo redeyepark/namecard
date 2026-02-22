@@ -128,6 +128,8 @@
 submitted (의뢰됨) -> processing (작업중) -> confirmed (확정)
 ```
 
+> **개선 예정**: 개선 로드맵 Phase 2에서 확장 상태 워크플로우 도입 계획 - `revision_requested` (수정 요청), `rejected` (반려), `delivered` (배송 완료) 상태 추가 예정. 관리자-사용자 간 수정 피드백 및 진행 상태 추적 강화 목적.
+
 ## 사용 사례
 
 ### 개인 사용자가 명함 제작 요청
@@ -165,3 +167,75 @@ submitted (의뢰됨) -> processing (작업중) -> confirmed (확정)
 - focus-visible 스타일 전역 적용
 - 터치 디바이스 최소 터치 영역 44px 보장
 - 반응형 레이아웃 (모바일, 태블릿, 데스크톱)
+
+## 보안 현황 (Security Status)
+
+> 2026-02-22 서비스 분석 리포트 기준
+
+**전체 위험 수준: HIGH**
+
+### 보안 이슈 요약
+
+| 심각도 | 건수 |
+|--------|------|
+| CRITICAL | 2 |
+| HIGH | 4 |
+| MEDIUM | 5 |
+| LOW | 4 |
+| **합계** | **15** |
+
+### 주요 Critical 이슈
+
+- **C-01. Supabase RLS 정책 사실상 비활성화** (OWASP A01, CWE-862): RLS가 활성화되어 있으나 `USING (true)` 정책으로 인해 anon 키를 가진 누구든 모든 card_requests 데이터에 접근/수정 가능. 24시간 이내 수정 필요.
+- **C-02. Storage 버킷 업로드 정책 미제한** (OWASP A01, CWE-284): INSERT/UPDATE 정책이 인증 여부를 확인하지 않아, 공개 anon 키로 임의 파일 업로드 및 기존 파일 덮어쓰기 가능. 24시간 이내 수정 필요.
+
+### 긍정적 보안 구현 사항
+
+- 모든 API 라우트에 `requireAuth()`/`requireAdmin()` 서버 측 인증 적용
+- 미들웨어 및 API 라우트에서 `getUser()`를 통한 토큰 재검증
+- 요청 상세 엔드포인트에서 소유권 검증 구현
+- 유효한 상태 전환 규칙 적용
+- React 자동 이스케이프 적용 (`dangerouslySetInnerHTML` 미사용)
+- 10MB 이미지 크기 제한 및 일반적 에러 메시지 사용
+- 이중 관리자 검증 (미들웨어 + API 라우트)
+
+## 개선 로드맵 (Improvement Roadmap)
+
+> 2026-02-22 서비스 분석 리포트 기반. 보안 15건, UX 6건, 성능 5건, 아키텍처 5건, 비즈니스 기능 4건, 인프라 3건 총 38건 개선 사항 도출.
+
+### Phase 1: 보안 강화 (긴급 - 1-2주)
+
+- [ ] RLS 정책 수정 - `USING (true)` 제거, `service_role` 전용으로 변경 (Critical)
+- [ ] Storage 버킷 정책 수정 - 업로드/수정 시 인증 검증 추가 (Critical)
+- [ ] API Rate Limiting 추가 - Cloudflare Rate Limiting 또는 `@upstash/ratelimit` 도입 (High)
+- [ ] 서버 측 이미지 콘텐츠 검증 - magic bytes 검증으로 악성 파일 차단 (High)
+- [ ] 비밀번호 정책 강화 - 최소 8자 이상 (NIST 권장 12자) (High)
+- [ ] 보안 헤더 추가 - CSP, X-Frame-Options, HSTS 등 (Medium)
+- [ ] Open Redirect 취약점 수정 - callbackUrl 검증 로직 추가 (Medium)
+
+### Phase 2: 핵심 UX 개선 (단기 - 2-4주)
+
+- [ ] Base64 -> Direct Upload 전환 - presigned URL 기반 직접 업로드로 33% 페이로드 절감
+- [ ] 상태 변경 알림 시스템 - Supabase Edge Functions + 이메일 알림
+- [ ] 요청 편집/취소 기능 - submitted 상태에서 수정 및 취소 허용
+- [ ] 확장 상태 워크플로우 - `revision_requested`, `rejected`, `delivered` 상태 추가
+- [ ] Zod 스키마 검증 - 모든 API 입력에 대한 일관된 런타임 검증
+- [ ] Error Boundary 컴포넌트 - 레이아웃 레벨 에러 경계 처리
+
+### Phase 3: 아키텍처 강화 (중기 - 1-2개월)
+
+- [ ] 데이터베이스 기반 RBAC - `user_roles` 테이블로 역할 관리 전환
+- [ ] 이미지 최적화 파이프라인 - `sharp` 기반 리사이즈 + WebP 변환
+- [ ] 관리자 목록 페이지네이션 - 커서 기반 페이지네이션 + 상태/날짜 필터
+- [ ] Sentry 에러 모니터링 - `@sentry/nextjs` 통합
+- [ ] 미들웨어 인증 통합 - API 라우트 인가를 미들웨어로 중앙 집중화
+- [ ] 한국어 폰트 로딩 최적화 - `next/font` 기반 프리로딩 + 서브셋
+
+### Phase 4: 기능 확장 (장기 - 2-3개월)
+
+- [ ] 카드 공유 + QR 코드 - 공개 카드 페이지 및 QR 코드 생성
+- [ ] 사용자-관리자 메시징 - 요청별 코멘트/메시지 스레드
+- [ ] 관리자 분석 대시보드 - 요청 수/평균 처리 시간/전환율 통계
+- [ ] 포트폴리오 갤러리 - 완성된 일러스트 작품 갤러리 (랜딩 페이지)
+- [ ] 클라우드 초안 자동 저장 - Supabase에 드래프트 자동 저장 (교차 기기 지원)
+- [ ] 카드 버전 이력 - 디자인 변경 이력 관리 및 롤백

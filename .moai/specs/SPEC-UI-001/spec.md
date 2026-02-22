@@ -38,7 +38,7 @@ priority: high
 | 항목             | 설명                                                    |
 | ---------------- | ------------------------------------------------------- |
 | 플랫폼           | 웹 브라우저 (Chrome, Firefox, Safari, Edge 최신 버전)   |
-| 배포 환경        | Vercel (정적 호스팅)                                    |
+| 배포 환경        | Cloudflare Workers (@opennextjs/cloudflare)             |
 | 디바이스         | 데스크톱, 태블릿, 모바일 (320px 이상 뷰포트)           |
 | 네트워크         | 초기 로딩 후 오프라인 사용 가능 (클라이언트 사이드 전용)|
 | 데이터 저장소    | 브라우저 localStorage                                   |
@@ -110,8 +110,8 @@ priority: high
 | State Management   | Zustand 5 (localStorage persist middleware 포함)  |
 | Color Picker       | react-colorful                                    |
 | Image Export       | html-to-image                                     |
-| Deployment         | Vercel (정적 배포)                                |
-| Backend            | 없음 (순수 클라이언트 사이드 애플리케이션)        |
+| Deployment         | Cloudflare Workers (@opennextjs/cloudflare)       |
+| Backend            | Supabase (Auth + DB + Storage) - 의뢰 시스템 연동 |
 
 ### Architecture Overview
 

@@ -1,9 +1,9 @@
 ---
 id: SPEC-FLOW-001
 version: "1.0.0"
-status: draft
+status: completed
 created: "2026-02-21"
-updated: "2026-02-21"
+updated: "2026-02-22"
 author: MoAI
 priority: high
 ---
@@ -13,6 +13,7 @@ priority: high
 | Version | Date       | Author | Changes               |
 | ------- | ---------- | ------ | --------------------- |
 | 1.0.0   | 2026-02-21 | MoAI   | Initial SPEC creation |
+| 1.1.0 | 2026-02-22 | MoAI | Status updated to completed - 6-step wizard with Supabase backend fully implemented |
 
 ---
 
@@ -36,11 +37,11 @@ priority: high
 | 항목             | 설명                                                    |
 | ---------------- | ------------------------------------------------------- |
 | 플랫폼           | 웹 브라우저 (Chrome, Firefox, Safari, Edge 최신 버전)   |
-| 배포 환경        | Vercel (정적 호스팅)                                    |
+| 배포 환경        | Cloudflare Workers (@opennextjs/cloudflare)             |
 | 디바이스         | 데스크톱, 태블릿, 모바일 (320px 이상 뷰포트)           |
-| 네트워크         | 초기 로딩 후 오프라인 사용 가능 (클라이언트 사이드 전용)|
-| 데이터 저장소    | 브라우저 localStorage                                   |
-| 기존 구현        | SPEC-UI-001 명함 편집기 (순수 클라이언트 SPA)           |
+| 네트워크         | Supabase 백엔드 연동 (온라인 필수)                      |
+| 데이터 저장소    | Supabase PostgreSQL + localStorage                      |
+| 기존 구현        | SPEC-UI-001 명함 편집기, SPEC-AUTH-001 인증 시스템, SPEC-DEPLOY-001 Cloudflare Workers 배포 |
 
 ---
 
@@ -51,7 +52,7 @@ priority: high
 3. 기존 `namecard-storage` localStorage 키와의 호환성을 유지한다.
 4. 위저드는 순방향/역방향 탐색이 모두 가능하며, 각 단계의 입력 데이터는 즉시 저장된다.
 5. 참조 디자인은 세로형(Portrait) 명함이며, 앞면은 빨간색 배경(#E53E3E), 뒷면은 진한 빨간색 배경(#9B2C2C)을 기본값으로 사용한다.
-6. 클라이언트 사이드 전용으로 백엔드 API는 사용하지 않는다.
+6. Supabase 백엔드를 사용하며, 의뢰 데이터는 서버에 저장된다.
 
 ---
 
@@ -180,7 +181,7 @@ interface CardStore {
 | State Management   | Zustand 5 (localStorage persist middleware 포함)   |
 | Routing            | Next.js App Router (파일 시스템 기반 라우팅)       |
 | Animation          | Tailwind CSS 4 Transitions + CSS Keyframes         |
-| Backend            | 없음 (순수 클라이언트 사이드 애플리케이션)         |
+| Backend            | Supabase (PostgreSQL + Auth + Storage)             |
 | localStorage 호환  | 기존 `namecard-storage` 키와 하위 호환성 유지      |
 
 ### Performance Requirements

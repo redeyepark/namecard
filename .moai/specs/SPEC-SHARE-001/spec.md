@@ -31,8 +31,8 @@ priority: medium
 - **상태 관리**: Zustand 5.0.11 (persist middleware)
 - **기존 내보내기**: html-to-image 1.11.13 (`toPng()`, pixelRatio: 2)
 - **대상 브라우저**: Chrome 90+, Firefox 90+, Safari 15+, Edge 90+
-- **배포**: Vercel (정적 호스팅)
-- **아키텍처**: 서버리스 (백엔드 없음, 클라이언트 사이드 전용)
+- **배포**: Cloudflare Workers (@opennextjs/cloudflare)
+- **아키텍처**: Cloudflare Workers + Supabase 백엔드
 
 ## Assumptions (가정)
 

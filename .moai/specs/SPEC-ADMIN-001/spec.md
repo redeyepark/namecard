@@ -3,9 +3,9 @@
 ---
 id: SPEC-ADMIN-001
 version: 1.0.0
-status: Planned
+status: Implemented
 created: 2026-02-21
-updated: 2026-02-21
+updated: 2026-02-22
 author: manager-spec
 priority: High
 related-specs: SPEC-FLOW-001, SPEC-UI-001
@@ -18,6 +18,7 @@ tags: admin, request, workflow, api-routes, file-storage
 | 버전 | 날짜 | 작성자 | 변경 내용 |
 |------|------|--------|-----------|
 | 1.0.0 | 2026-02-21 | manager-spec | 초기 SPEC 작성 |
+| 1.1.0 | 2026-02-22 | MoAI | Status updated to Implemented - Supabase 기반 관리자 대시보드 구현 완료 |
 
 ---
 
@@ -56,8 +57,8 @@ tags: admin, request, workflow, api-routes, file-storage
 | 상태 관리 | Zustand 5.0.11 (persist middleware) |
 | 현재 라우트 | `/` (랜딩), `/create` (위저드), `/create/edit` (상세 편집) |
 | 데이터 저장 | 브라우저 localStorage (`namecard-storage`) |
-| 백엔드 | 없음 (100% 클라이언트 사이드) |
-| 배포 | Vercel |
+| 백엔드 | Supabase (PostgreSQL + Auth + Storage) |
+| 배포 | Cloudflare Workers (@opennextjs/cloudflare) |
 
 ### 2.2 변경 후 환경
 
@@ -65,7 +66,7 @@ tags: admin, request, workflow, api-routes, file-storage
 |------|------|
 | 추가 라우트 | `/admin` (대시보드), `/admin/[id]` (상세) |
 | API Routes | `src/app/api/requests/` (Next.js Route Handlers) |
-| 서버 스토리지 | `data/requests/` (JSON + 이미지 파일) |
+| 서버 스토리지 | Supabase PostgreSQL + Storage |
 | 새 의존성 | `uuid` (요청 ID 생성) |
 
 ---
@@ -78,12 +79,12 @@ tags: admin, request, workflow, api-routes, file-storage
 - **ASM-T-002**: `data/requests/` 디렉토리에 대한 읽기/쓰기 권한이 서버 프로세스에 있다
 - **ASM-T-003**: Base64 인코딩된 이미지를 디코딩하여 파일로 저장할 수 있다
 - **ASM-T-004**: JSON 파일 기반 스토리지는 프로토타입 수준에서 충분한 성능을 제공한다
-- **ASM-T-005**: Vercel 배포 환경에서는 파일 시스템 스토리지가 영속적이지 않으므로, 로컬 개발 환경에서만 동작한다
+- **ASM-T-005**: Cloudflare Workers + Supabase 조합으로 영속적 데이터 저장이 해결되었다
 
 ### 3.2 비즈니스 가정
 
 - **ASM-B-001**: 동시 의뢰 수는 소규모(100건 이하)로, 파일 시스템 스토리지로 충분하다
-- **ASM-B-002**: 어드민 인증은 프로토타입 단계에서 불필요하다 (누구나 `/admin` 접근 가능)
+- **ASM-B-002**: 어드민 인증은 ADMIN_EMAILS 환경변수 기반으로 구현되었다 (Supabase Auth 연동)
 - **ASM-B-003**: 의뢰 상태 흐름은 단방향이다: 의뢰됨 -> 작업중 -> 확정
 - **ASM-B-004**: 사용자는 의뢰 제출 후 의뢰 내용을 수정할 수 없다
 
