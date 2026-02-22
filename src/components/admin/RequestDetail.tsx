@@ -24,6 +24,7 @@ export function RequestDetail({
   onUpdate,
 }: RequestDetailProps) {
   const [illustrationPreview, setIllustrationPreview] = useState<string | null>(null);
+  const [illustrationUrlInput, setIllustrationUrlInput] = useState<string>('');
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feedbackText, setFeedbackText] = useState('');
@@ -31,7 +32,7 @@ export function RequestDetail({
 
   const { status } = request;
   const isTerminal = isTerminalStatus(status);
-  const canRegister = status === 'submitted' && (illustrationPreview || illustrationUrl);
+  const canRegister = status === 'submitted' && (illustrationPreview || illustrationUrl || illustrationUrlInput);
   const canConfirm = status === 'processing';
   const showIllustrationUploader = status === 'submitted';
 
@@ -41,13 +42,16 @@ export function RequestDetail({
     .find((entry) => entry.adminFeedback);
 
   const handleRegister = useCallback(async () => {
-    if (!illustrationPreview && !illustrationUrl) return;
+    if (!illustrationPreview && !illustrationUrl && !illustrationUrlInput) return;
     setActionLoading(true);
     setError(null);
 
     try {
       const body: Record<string, string> = { status: 'processing' };
-      if (illustrationPreview) {
+      // URL takes precedence over file upload if both exist
+      if (illustrationUrlInput) {
+        body.illustrationUrl = illustrationUrlInput;
+      } else if (illustrationPreview) {
         body.illustrationImage = illustrationPreview;
       }
 
@@ -69,7 +73,7 @@ export function RequestDetail({
     } finally {
       setActionLoading(false);
     }
-  }, [request.id, illustrationPreview, illustrationUrl, onUpdate]);
+  }, [request.id, illustrationPreview, illustrationUrl, illustrationUrlInput, onUpdate]);
 
   const handleConfirm = useCallback(async () => {
     setActionLoading(true);
@@ -342,6 +346,7 @@ export function RequestDetail({
               <IllustrationUploader
                 currentImage={illustrationPreview}
                 onImageSelect={setIllustrationPreview}
+                onUrlInput={setIllustrationUrlInput}
                 disabled={false}
               />
             </div>

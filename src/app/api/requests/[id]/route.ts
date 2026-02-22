@@ -72,7 +72,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status, illustrationImage, adminFeedback } = body;
+    const { status, illustrationImage, illustrationUrl, adminFeedback } = body;
 
     // Validate status transition
     if (status) {
@@ -100,9 +100,20 @@ export async function PATCH(
       }
     }
 
-    // Upload illustration image to Supabase Storage if provided
+    // Determine illustration path: URL takes precedence over base64 image
     let illustrationPath = cardRequest.illustrationPath;
-    if (illustrationImage && typeof illustrationImage === 'string') {
+    if (illustrationUrl && typeof illustrationUrl === 'string') {
+      // Validate URL format
+      if (!illustrationUrl.startsWith('http://') && !illustrationUrl.startsWith('https://')) {
+        return NextResponse.json(
+          { error: 'Invalid illustration URL', details: 'URL must start with http:// or https://' },
+          { status: 400 }
+        );
+      }
+      // Use URL directly without uploading to Supabase Storage
+      illustrationPath = illustrationUrl;
+    } else if (illustrationImage && typeof illustrationImage === 'string') {
+      // Upload base64 image to Supabase Storage
       const estimatedSize = (illustrationImage.length * 3) / 4;
       if (estimatedSize > 10 * 1024 * 1024) {
         return NextResponse.json(
