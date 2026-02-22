@@ -14,6 +14,7 @@
 | 색상 선택 | react-colorful | 5.6.1 | 경량 색상 선택기 (2KB, zero-dependency) |
 | 이미지 내보내기 | html-to-image | 1.11.13 | DOM 요소를 PNG 이미지로 변환 |
 | ID 생성 | uuid | 13.0.0 | 고유 식별자 생성 |
+| 파일 파싱 | xlsx (SheetJS) | 0.18.5 | Excel/CSV 파일 파싱 (브라우저 내 변환) |
 | 테스트 | Vitest | 4.0.18 | 단위 테스트 프레임워크 |
 | 테스트 유틸 | Testing Library | 16.3.2 | React 컴포넌트 테스트 유틸리티 |
 | 린터 | ESLint | 9.x | 코드 정적 분석 및 스타일 검사 |
@@ -63,6 +64,21 @@
 - `AuthError`: 인증 오류 처리 클래스
 - 소유권 검증 패턴: `GET /api/requests/[id]`에서 비관리자 사용자의 경우 `created_by`와 현재 사용자 이메일 일치 여부를 검증하여, 불일치 시 403 반환
 
+## 관리자 API: 대량 등록
+
+### CSV/Excel 대량 업로드 API
+
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| POST | `/api/admin/bulk-upload` | CSV/Excel 파일 기반 명함 제작 요청 대량 등록 (requireAdmin) |
+
+- 지원 형식: `.csv`, `.xlsx`, `.xls`
+- CSV 12개 컬럼: 사진URL, 앞면이름, 뒷면이름, 관심사, 키워드1-3, 이메일, Facebook, Instagram, LinkedIn, 배경색
+- Excel 파일은 클라이언트(BulkUploadModal)에서 SheetJS(xlsx)로 CSV 변환 후 전송
+- 이메일 자동 회원가입: 존재하지 않는 이메일은 `supabase.auth.admin.createUser()`로 자동 생성 (기본 비밀번호: 123456, `email_confirm: true`)
+- Cloudflare Workers 런타임에서 Supabase Admin API 미사용 시 graceful degradation
+- 응답 필드: `success`, `total`, `created`, `errors`, `autoRegistered`
+
 ## 데이터베이스: Supabase PostgreSQL
 
 ### 테이블 구조
@@ -86,6 +102,7 @@
 - `getAllRequests`: 전체 요청 목록 조회 (관리자용)
 - `getRequestsByUser(email)`: 특정 사용자의 요청 목록 조회 (`created_by` 필터링)
 - `updateRequest`: 요청 상태 업데이트
+- 대량 등록 관련: `POST /api/admin/bulk-upload` 라우트에서 CSV 파싱 후 개별 요청 저장 처리
 - 기타 Supabase DB/Storage CRUD 함수
 
 ## 스타일링: Tailwind CSS 4
@@ -146,6 +163,7 @@
 - 배포 URL: https://namecard.redeyepark.workers.dev
 - 설정 파일: `wrangler.jsonc` (Cloudflare Workers 설정)
 - `next.config.ts`에서 `images: { unoptimized: true }` 설정 (Workers 호환)
+- `next.config.ts`에서 외부 이미지 URL 지원을 위한 CORS 헤더 및 referrer policy 설정 (CSV 대량 등록의 외부 이미지 URL 호환)
 
 ### CI/CD: GitHub Actions
 

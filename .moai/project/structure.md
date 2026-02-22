@@ -36,6 +36,9 @@ namecard/
 │   │       ├── auth/
 │   │       │   └── me/
 │   │       │       └── route.ts           # 사용자 정보 + isAdmin 상태 API
+│   │       ├── admin/
+│   │       │   └── bulk-upload/
+│   │       │       └── route.ts           # POST (CSV 대량 등록, requireAdmin, 이메일 자동 회원가입)
 │   │       └── requests/
 │   │           ├── route.ts               # POST (요청 생성, requireAuth), GET (목록, requireAdmin)
 │   │           ├── my/
@@ -88,8 +91,9 @@ namecard/
 │   │       ├── RequestDetail.tsx          # 요청 상세 뷰
 │   │       ├── StatusBadge.tsx            # 상태 배지 컴포넌트
 │   │       ├── StatusHistory.tsx          # 상태 변경 이력
-│   │       ├── CardCompare.tsx            # 원본 vs 일러스트 비교
-│   │       └── IllustrationUploader.tsx   # 일러스트 이미지 업로드
+│   │       ├── CardCompare.tsx            # 원본 vs 일러스트 비교 (외부 URL 이미지 에러 핸들링 포함)
+│   │       ├── IllustrationUploader.tsx   # 일러스트 이미지 업로드 (파일 업로드 + 외부 URL 입력)
+│   │       └── BulkUploadModal.tsx        # CSV/Excel 대량 등록 모달 (SheetJS 변환 지원)
 │   ├── stores/
 │   │   ├── useCardStore.ts                # Zustand store (persist middleware)
 │   │   └── __tests__/
@@ -154,6 +158,7 @@ User -> /dashboard/[id] -> GET /api/requests/[id] -> 소유권 검증 -> 상세 
 [관리자 흐름]
 Admin -> /admin 대시보드 -> API GET /api/requests -> Supabase DB
 Admin -> /admin/[id] -> PATCH /api/requests/[id] -> 상태 업데이트 + 일러스트 업로드
+Admin -> BulkUploadModal -> CSV/Excel 파일 선택 -> xlsx 변환 -> POST /api/admin/bulk-upload -> Supabase DB (대량 생성) + Supabase Auth (이메일 자동 등록)
 
 [카드 편집기 흐름]
 Card Editor -> Zustand Store -> localStorage (persist) -> html-to-image -> PNG 다운로드
@@ -230,6 +235,7 @@ layout.tsx (Root - AuthProvider 래핑)
 │
 ├── admin/page.tsx (Dashboard)     # 관리자 대시보드
 │   ├── UserMenu                   # 사용자 메뉴 + 관리자 배지
+│   ├── BulkUploadModal            # CSV/Excel 대량 등록 모달
 │   └── RequestList                # 요청 목록 테이블
 │       └── StatusBadge            # 상태 배지
 │
@@ -259,7 +265,7 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/components/ui/` | 범용 UI 컴포넌트 (탭, 버튼) |
 | `src/components/wizard/` | 6단계 명함 제작 위저드 컴포넌트 |
 | `src/components/dashboard/` | 사용자 대시보드 컴포넌트 (ProgressStepper, MyRequestList, RequestCard, EmptyState, MyRequestDetail) |
-| `src/components/admin/` | 관리자 대시보드 컴포넌트 |
+| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
 | `src/types/` | TypeScript 타입 정의 (카드, 요청) |
 | `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증). `storage.ts`에 `getRequestsByUser(email)` 함수 포함 |
@@ -271,12 +277,12 @@ layout.tsx (Root - AuthProvider 래핑)
 | 카테고리 | 파일 수 |
 |---------|--------|
 | 페이지/레이아웃 (`.tsx` in `app/`) | 13 |
-| API 라우트 (`.ts` in `app/api/`) | 4 |
-| React 컴포넌트 (`.tsx` in `components/`) | 32 |
+| API 라우트 (`.ts` in `app/api/`) | 5 |
+| React 컴포넌트 (`.tsx` in `components/`) | 33 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
 | 타입 정의 (`.ts` in `types/`) | 2 |
 | 유틸리티 (`.ts` in `lib/`) | 6 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 61 |
+| 총 소스 파일 | 63 |

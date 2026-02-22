@@ -52,7 +52,17 @@
 - 요청 상태 관리: submitted -> processing -> confirmed / rejected
 - 상태 변경 이력 추적 (card_request_status_history 테이블)
 - 일러스트 이미지 업로드 (Supabase Storage illustrations 버킷)
-- 원본 카드와 일러스트 비교 뷰
+- 외부 URL 이미지 지원: 일러스트 이미지로 파일 업로드 외에 외부 URL 직접 입력 가능
+- 원본 카드와 일러스트 비교 뷰 (이미지 로드 실패 시 에러 핸들링 및 디버그 정보 표시)
+- CSV/Excel 대량 등록: CSV(.csv) 및 Excel(.xlsx, .xls) 파일을 통한 명함 제작 요청 일괄 등록
+  - 12개 컬럼 형식: 사진URL, 앞면이름, 뒷면이름, 관심사, 키워드1-3, 이메일, Facebook, Instagram, LinkedIn, 배경색
+  - 샘플 CSV 파일 다운로드 버튼 제공
+  - Excel 파일은 브라우저에서 SheetJS(xlsx) 라이브러리로 CSV 변환 후 처리
+  - API 엔드포인트: POST /api/admin/bulk-upload
+- 이메일 자동 회원가입: 대량 등록 시 존재하지 않는 이메일은 Supabase Auth에 자동으로 사용자 생성 (기본 비밀번호: 123456)
+  - `supabase.auth.admin.createUser()`로 이메일 확인 완료 상태로 생성
+  - Cloudflare Workers 런타임에서 Supabase Admin API 미사용 시 graceful degradation 처리
+  - 응답에 자동 등록된 사용자 수(`autoRegistered`) 포함
 
 ### 명함 앞면/뒷면 실시간 편집 및 미리보기
 
@@ -117,18 +127,22 @@
 
 1. ADMIN_EMAILS에 등록된 계정으로 로그인
 2. 관리자 대시보드(/admin)에서 전체 요청 목록 확인
-3. 요청 상세 페이지(/admin/[id])에서 요청 내용 검토
-4. 상태 변경: submitted -> processing -> confirmed/rejected
-5. 일러스트 이미지를 Supabase Storage(illustrations 버킷)에 업로드
-6. 원본 카드와 일러스트 비교 확인
+3. CSV/Excel 파일로 명함 제작 요청 대량 등록 (BulkUploadModal을 통한 일괄 업로드)
+4. 요청 상세 페이지(/admin/[id])에서 요청 내용 검토
+5. 상태 변경: submitted -> processing -> confirmed/rejected
+6. 일러스트 이미지를 Supabase Storage(illustrations 버킷)에 업로드하거나 외부 URL로 지정
+7. 원본 카드와 일러스트 비교 확인
 
 ### 요청 상태 흐름
 
 ```
 submitted (의뢰됨) -> processing (작업중) -> confirmed (확정)
+                                          -> revision_requested (수정 요청)
+                                          -> rejected (반려)
+                                          -> delivered (배송 완료)
 ```
 
-> **개선 예정**: 개선 로드맵 Phase 2에서 확장 상태 워크플로우 도입 계획 - `revision_requested` (수정 요청), `rejected` (반려), `delivered` (배송 완료) 상태 추가 예정. 관리자-사용자 간 수정 피드백 및 진행 상태 추적 강화 목적.
+> **구현 완료 (SPEC-WF-001)**: 확장 상태 워크플로우가 구현되었습니다. 기존 3단계(submitted, processing, confirmed) 외에 `revision_requested` (수정 요청), `rejected` (반려), `delivered` (배송 완료) 상태가 추가되었습니다. 관리자-사용자 간 수정 피드백 및 진행 상태 추적이 강화되었습니다.
 
 ## 사용 사례
 
@@ -218,7 +232,7 @@ submitted (의뢰됨) -> processing (작업중) -> confirmed (확정)
 - [ ] Base64 -> Direct Upload 전환 - presigned URL 기반 직접 업로드로 33% 페이로드 절감
 - [ ] 상태 변경 알림 시스템 - Supabase Edge Functions + 이메일 알림
 - [ ] 요청 편집/취소 기능 - submitted 상태에서 수정 및 취소 허용
-- [ ] 확장 상태 워크플로우 - `revision_requested`, `rejected`, `delivered` 상태 추가
+- [x] 확장 상태 워크플로우 - `revision_requested`, `rejected`, `delivered` 상태 추가 (SPEC-WF-001 구현 완료)
 - [ ] Zod 스키마 검증 - 모든 API 입력에 대한 일관된 런타임 검증
 - [ ] Error Boundary 컴포넌트 - 레이아웃 레벨 에러 경계 처리
 
