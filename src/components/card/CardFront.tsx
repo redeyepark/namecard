@@ -30,8 +30,10 @@ export function CardFront() {
           className="text-xl sm:text-2xl font-bold tracking-wide truncate"
           title={front.displayName || 'YOUR NAME'}
           style={{
-            WebkitTextStroke: '1px rgba(0, 0, 0, 0.8)',
-            color: 'white',
+            WebkitTextStroke: (front.textColor || '#FFFFFF').toUpperCase() === '#FFFFFF'
+              ? '1px rgba(0, 0, 0, 0.8)'
+              : '1px rgba(255, 255, 255, 0.6)',
+            color: front.textColor || '#FFFFFF',
             paintOrder: 'stroke fill',
           }}
         >

@@ -3,6 +3,7 @@
 import { useCardStore } from '@/stores/useCardStore';
 import { ImageUploader } from './ImageUploader';
 import { ColorPicker } from './ColorPicker';
+import { TextColorPicker } from './TextColorPicker';
 
 export function FrontEditor() {
   const front = useCardStore((state) => state.card.front);
@@ -29,6 +30,10 @@ export function FrontEditor() {
         color={front.backgroundColor}
         onChange={(color) => updateFront({ backgroundColor: color })}
         label="Background Color"
+      />
+      <TextColorPicker
+        color={front.textColor || '#FFFFFF'}
+        onChange={(color) => updateFront({ textColor: color })}
       />
     </div>
   );

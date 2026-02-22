@@ -14,20 +14,26 @@ export function CardBack() {
       {/* Upper area (~80%): Name, title, hashtags */}
       <div className="flex-1 min-h-0">
         <h2
-          className="text-lg sm:text-xl font-bold text-black mb-1 truncate"
+          className="text-lg sm:text-xl font-bold mb-1 truncate"
           title={back.fullName || 'FULL NAME'}
+          style={{ color: back.textColor || '#000000' }}
         >
           {back.fullName || 'FULL NAME'}
         </h2>
         <p
-          className="text-black/90 text-xs sm:text-sm mb-4 line-clamp-2"
+          className="text-xs sm:text-sm mb-4 line-clamp-2"
           title={back.title || 'Your Title'}
+          style={{ color: back.textColor || '#000000', opacity: 0.9 }}
         >
           {back.title || 'Your Title'}
         </p>
         <div className="flex flex-wrap gap-1 overflow-hidden max-h-[4.5rem]">
           {back.hashtags.map((tag, i) => (
-            <span key={i} className="text-black font-medium text-xs sm:text-sm">
+            <span
+              key={i}
+              className="font-medium text-xs sm:text-sm"
+              style={{ color: back.textColor || '#000000' }}
+            >
               {tag.startsWith('#') ? tag : `#${tag}`}
             </span>
           ))}
@@ -40,7 +46,10 @@ export function CardBack() {
           {back.socialLinks.map((link, i) => (
             <div key={i}>
               <div className="border-t border-white/20" />
-              <p className="text-black/80 text-xs py-1.5 truncate text-left">
+              <p
+                className="text-xs py-1.5 truncate text-left"
+                style={{ color: back.textColor || '#000000', opacity: 0.8 }}
+              >
                 {link.label || link.url}
               </p>
             </div>

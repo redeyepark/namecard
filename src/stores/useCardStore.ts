@@ -7,6 +7,7 @@ const DEFAULT_CARD: CardData = {
     displayName: 'YOUR NAME',
     avatarImage: null,
     backgroundColor: '#b21b3c',
+    textColor: '#FFFFFF',
   },
   back: {
     fullName: 'FULL NAME',
@@ -14,6 +15,7 @@ const DEFAULT_CARD: CardData = {
     hashtags: ['#Keyword1', '#Keyword2'],
     socialLinks: [],
     backgroundColor: '#000000',
+    textColor: '#000000',
   },
 };
 

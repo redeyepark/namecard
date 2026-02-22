@@ -270,6 +270,7 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
         displayName: frontName.trim(),
         avatarImage: null,
         backgroundColor,
+        textColor: '#FFFFFF',
       },
       back: {
         fullName: (backName || '').trim(),
@@ -277,6 +278,7 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
         hashtags,
         socialLinks,
         backgroundColor,
+        textColor: '#000000',
       },
     },
     originalAvatarPath: photoUrl && photoUrl.trim() ? photoUrl.trim() : null,

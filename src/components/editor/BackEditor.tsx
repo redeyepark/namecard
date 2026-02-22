@@ -2,6 +2,7 @@
 
 import { useCardStore } from '@/stores/useCardStore';
 import { ColorPicker } from './ColorPicker';
+import { TextColorPicker } from './TextColorPicker';
 import { HashtagEditor } from './HashtagEditor';
 import { SocialLinkEditor } from './SocialLinkEditor';
 
@@ -45,6 +46,10 @@ export function BackEditor() {
         color={back.backgroundColor}
         onChange={(color) => updateBack({ backgroundColor: color })}
         label="Background Color"
+      />
+      <TextColorPicker
+        color={back.textColor || '#000000'}
+        onChange={(color) => updateBack({ textColor: color })}
       />
     </div>
   );

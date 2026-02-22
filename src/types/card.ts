@@ -8,6 +8,7 @@ export interface CardFrontData {
   displayName: string;
   avatarImage: string | null;
   backgroundColor: string;
+  textColor: string;
 }
 
 export interface CardBackData {
@@ -16,6 +17,7 @@ export interface CardBackData {
   hashtags: string[];
   socialLinks: SocialLink[];
   backgroundColor: string;
+  textColor: string;
 }
 
 export interface CardData {
