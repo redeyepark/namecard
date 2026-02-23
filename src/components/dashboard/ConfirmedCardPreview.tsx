@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { CardData } from '@/types/card';
+import { extractHandle } from '@/lib/social-utils';
 
 interface ConfirmedCardPreviewProps {
   card: CardData;
@@ -20,7 +21,7 @@ function ConfirmedFront({
   return (
     <div
       className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden"
-      style={{ backgroundColor }}
+      style={{ backgroundColor, fontFamily: "'Nanum Myeongjo', serif" }}
     >
       {/* Layer 2: Illustration image - full card cover */}
       <img
@@ -32,7 +33,7 @@ function ConfirmedFront({
       {/* Layer 3: Display name overlay at top-left */}
       <div className="relative z-10 p-4 sm:p-6 pt-4 sm:pt-5">
         <h1
-          className="text-xl sm:text-2xl font-bold tracking-wide truncate"
+          className="text-2xl sm:text-3xl font-bold tracking-wide truncate"
           title={displayName || 'YOUR NAME'}
           style={{
             WebkitTextStroke: '1px rgba(0, 0, 0, 0.8)',
@@ -63,46 +64,54 @@ function ConfirmedBack({
   return (
     <div
       className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col p-4 sm:p-6"
-      style={{ backgroundColor }}
+      style={{ backgroundColor, fontFamily: "'Nanum Myeongjo', serif" }}
     >
       {/* Upper area (~80%): Name, title, hashtags */}
       <div className="flex-1 min-h-0">
         <h2
-          className="text-lg sm:text-xl font-bold text-black mb-1 truncate"
+          className="text-[30px] font-bold text-black mb-1 truncate"
           title={fullName || 'FULL NAME'}
         >
           {fullName || 'FULL NAME'}
         </h2>
         <p
-          className="text-black/90 text-xs sm:text-sm mb-4 line-clamp-2"
+          className="text-black/90 text-[20px] mb-4 line-clamp-2"
           title={title || 'Your Title'}
         >
           {title || 'Your Title'}
         </p>
         <div className="flex flex-wrap gap-1 overflow-hidden max-h-[4.5rem]">
           {hashtags.map((tag, i) => (
-            <span key={i} className="text-black font-medium text-xs sm:text-sm">
+            <span key={i} className="text-black font-medium text-[20px]">
               {tag.startsWith('#') ? tag : `#${tag}`}
             </span>
           ))}
         </div>
       </div>
 
-      {/* Bottom area (~20%): Social links with horizontal dividers */}
-      {socialLinks.length > 0 && (
-        <div className="mt-2">
-          {socialLinks.map((link, i) => (
-            <div key={i}>
-              <div className="border-t border-black/30" />
-              <p className="text-black/80 text-xs py-1.5 truncate text-left">
-                {link.label || link.url}
+      {/* Bottom area (~20%): Social links */}
+      {(() => {
+        const platformOrder = ['email', 'linkedin', 'instagram', 'facebook'];
+        const sortedLinks = socialLinks
+          .filter((link) => link.url || link.label)
+          .sort((a, b) => {
+            const aIdx = platformOrder.indexOf(a.platform);
+            const bIdx = platformOrder.indexOf(b.platform);
+            return (aIdx === -1 ? platformOrder.length : aIdx) - (bIdx === -1 ? platformOrder.length : bIdx);
+          });
+        return sortedLinks.length > 0 ? (
+          <div className="mt-2">
+            {sortedLinks.map((link, i) => (
+              <p
+                key={i}
+                className="text-black/80 text-xs py-1.5 truncate text-right"
+              >
+                {link.platform}/{extractHandle(link.url || link.label)}
               </p>
-            </div>
-          ))}
-          {/* Final bottom divider */}
-          <div className="border-t border-black/30" />
-        </div>
-      )}
+            ))}
+          </div>
+        ) : null;
+      })()}
     </div>
   );
 }

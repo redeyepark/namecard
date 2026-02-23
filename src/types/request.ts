@@ -39,7 +39,7 @@ export interface RequestSummary {
 
 // Valid status transitions
 const VALID_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
-  submitted: ['processing', 'rejected', 'cancelled'],
+  submitted: ['processing', 'rejected', 'cancelled', 'confirmed'],
   processing: ['confirmed', 'revision_requested'],
   revision_requested: ['submitted', 'cancelled'],
   confirmed: ['delivered'],
@@ -60,7 +60,7 @@ export function isValidStatusTransition(
  * Only 'submitted' and 'revision_requested' statuses allow edits.
  */
 export function isEditableStatus(status: RequestStatus): boolean {
-  return status === 'submitted' || status === 'revision_requested';
+  return status === 'submitted' || status === 'revision_requested' || status === 'processing';
 }
 
 /**

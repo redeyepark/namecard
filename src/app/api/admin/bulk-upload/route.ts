@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { getSupabase } from '@/lib/supabase';
 import { requireAdminToken, AuthError } from '@/lib/auth-utils';
+import { convertGoogleDriveUrl } from '@/lib/url-utils';
 import type { CardRequest } from '@/types/request';
 import type { SocialLink } from '@/types/card';
 
@@ -95,27 +96,47 @@ function normalizeHashtag(tag: string): string {
 }
 
 /**
- * Convert Google Drive sharing URLs to direct image URLs.
- * Transforms viewer/sharing links to lh3.googleusercontent.com format
- * that serves image data directly, allowing <img> tags to render them.
+ * Extract a clean username/handle from a social media URL or value.
+ * Examples:
+ *   "https://www.instagram.com/wonder_choi/" -> "wonder_choi"
+ *   "https://www.linkedin.com/in/choi-wonjoon-4176a23/" -> "choi-wonjoon-4176a23"
+ *   "www.linkedin.com/in/aleckim78" -> "aleckim78"
+ *   "linkedin.com/in/yannheo" -> "yannheo"
+ *   "blog.naver.com/ggetmam" -> "ggetmam"
+ *   "@yannheo" -> "@yannheo"
+ *   "wonder.choi" -> "wonder.choi"
  */
-function convertGoogleDriveUrl(url: string): string {
-  if (!url) return url;
+function extractSocialHandle(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return trimmed;
 
-  // Pattern 1: drive.google.com/open?id=FILE_ID
-  let match = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+  // If it looks like a URL (starts with http/www, or has domain.tld/ pattern)
+  // try to extract the last meaningful path segment
+  if (/^(https?:\/\/|www\.)/.test(trimmed) || /[a-zA-Z]\.[a-zA-Z].*\//.test(trimmed)) {
+    try {
+      // Normalize: add protocol if missing so URL parsing works
+      let urlStr = trimmed;
+      if (!/^https?:\/\//.test(urlStr)) {
+        urlStr = 'https://' + urlStr;
+      }
+      const url = new URL(urlStr);
+      // Get pathname segments, filter out empty strings
+      const segments = url.pathname.split('/').filter((s) => s.length > 0);
+      if (segments.length > 0) {
+        // Return the last non-empty segment (e.g. "in/username" -> "username")
+        const handle = segments[segments.length - 1];
+        // Remove trailing slashes (already handled by split, but just in case)
+        return handle.replace(/\/+$/, '');
+      }
+    } catch {
+      // URL parsing failed, fall through to return trimmed value
+    }
+  }
 
-  // Pattern 2: drive.google.com/file/d/FILE_ID/...
-  match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-
-  // Pattern 3: docs.google.com/uc?id=FILE_ID
-  match = url.match(/docs\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/);
-  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-
-  return url;
+  // Not a URL - return as-is (handles @mentions, plain usernames, etc.)
+  return trimmed;
 }
+
 /**
  * Check if a row is entirely empty (all columns are blank).
  */
@@ -262,7 +283,7 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
     socialLinks.push({
       platform: 'facebook',
       url: facebook.trim(),
-      label: 'Facebook',
+      label: extractSocialHandle(facebook.trim()),
     });
   }
 
@@ -270,7 +291,7 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
     socialLinks.push({
       platform: 'instagram',
       url: instagram.trim(),
-      label: 'Instagram',
+      label: extractSocialHandle(instagram.trim()),
     });
   }
 
@@ -278,7 +299,7 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
     socialLinks.push({
       platform: 'linkedin',
       url: linkedin.trim(),
-      label: 'LinkedIn',
+      label: extractSocialHandle(linkedin.trim()),
     });
   }
 
@@ -303,7 +324,7 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
         textColor: '#000000',
       },
     },
-    originalAvatarPath: photoUrl && photoUrl.trim() ? convertGoogleDriveUrl(photoUrl.trim()) : null,
+    originalAvatarPath: photoUrl && photoUrl.trim() ? (convertGoogleDriveUrl(photoUrl.trim()) as string) : null,
     illustrationPath: null,
     status: 'processing',
     submittedAt: now,

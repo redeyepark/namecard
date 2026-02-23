@@ -45,7 +45,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { card, note, avatarImage } = body;
+    const { card, note, avatarImage, confirm } = body;
 
     // Upload avatar image if provided
     let originalAvatarPath = cardRequest.originalAvatarPath;
@@ -79,6 +79,23 @@ export async function PATCH(
       updates.statusHistory = [
         ...cardRequest.statusHistory,
         { status: 'submitted' as RequestStatus, timestamp: now },
+      ];
+    }
+
+    // If user requests confirmation, set status to confirmed
+    if (confirm) {
+      const validFrom = ['submitted', 'processing', 'revision_requested'];
+      if (!validFrom.includes(cardRequest.status) && !validFrom.includes(updates.status as string)) {
+        return NextResponse.json(
+          { error: '현재 상태에서는 확정할 수 없습니다.' },
+          { status: 403 }
+        );
+      }
+      const now = new Date().toISOString();
+      updates.status = 'confirmed';
+      updates.statusHistory = [
+        ...(updates.statusHistory || cardRequest.statusHistory),
+        { status: 'confirmed' as RequestStatus, timestamp: now },
       ];
     }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { CardRequest } from '@/types/request';
 import type { SocialLink } from '@/types/card';
 
@@ -30,6 +30,7 @@ export function EditRequestForm({ request, onSave, onCancel }: EditRequestFormPr
   const [note, setNote] = useState(request.note || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const confirmRef = useRef(false);
 
   // Hashtag handlers
   const handleAddHashtag = useCallback(() => {
@@ -104,6 +105,7 @@ export function EditRequestForm({ request, onSave, onCancel }: EditRequestFormPr
           },
         },
         note: note || undefined,
+        confirm: confirmRef.current,
       };
 
       try {
@@ -118,10 +120,12 @@ export function EditRequestForm({ request, onSave, onCancel }: EditRequestFormPr
           throw new Error(data.error || '저장에 실패했습니다.');
         }
 
+        confirmRef.current = false;
         onSave();
       } catch (err) {
         setError(err instanceof Error ? err.message : '저장에 실패했습니다.');
       } finally {
+        confirmRef.current = false;
         setSaving(false);
       }
     },
@@ -341,9 +345,18 @@ export function EditRequestForm({ request, onSave, onCancel }: EditRequestFormPr
         <button
           type="submit"
           disabled={saving || !displayName.trim() || !fullName.trim()}
+          onClick={() => { confirmRef.current = false; }}
           className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? '저장 중...' : '저장'}
+        </button>
+        <button
+          type="submit"
+          disabled={saving || !displayName.trim() || !fullName.trim()}
+          onClick={() => { confirmRef.current = true; }}
+          className="px-6 py-2.5 text-sm font-medium text-white bg-[#2d8c3c] rounded-lg hover:bg-[#246e30] transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? '처리 중...' : '저장 후 확정'}
         </button>
         <button
           type="button"

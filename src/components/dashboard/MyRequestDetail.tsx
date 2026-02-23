@@ -22,6 +22,9 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
 
   const submittedDate = new Date(request.submittedAt).toLocaleString('ko-KR', {
     year: 'numeric',
@@ -64,6 +67,28 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
       setCancelError(err instanceof Error ? err.message : '취소에 실패했습니다.');
     } finally {
       setCancelLoading(false);
+    }
+  }, [request.id, onRefresh]);
+
+  const handleConfirm = useCallback(async () => {
+    setConfirmLoading(true);
+    setConfirmError(null);
+    try {
+      const res = await fetch(`/api/requests/my/${request.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '확정에 실패했습니다.');
+      }
+      setShowConfirmDialog(false);
+      onRefresh?.();
+    } catch (err) {
+      setConfirmError(err instanceof Error ? err.message : '확정에 실패했습니다.');
+    } finally {
+      setConfirmLoading(false);
     }
   }, [request.id, onRefresh]);
 
@@ -253,6 +278,36 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
         </div>
       )}
 
+      {/* Confirm dialog */}
+      {showConfirmDialog && (
+        <div className="p-4 bg-[#dbe9e0]/50 border border-[#2d8c3c]/30">
+          <p className="text-sm text-[#020912] font-medium mb-3">
+            명함 정보를 확정하시겠습니까? 확정 후에는 수정이 불가합니다.
+          </p>
+          {confirmError && (
+            <p className="text-sm text-red-600 mb-3">{confirmError}</p>
+          )}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleConfirm}
+              disabled={confirmLoading}
+              className="px-4 py-2 text-sm font-medium text-[#fcfcfc] bg-[#2d8c3c] hover:bg-[#246e30] transition-colors min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {confirmLoading ? '처리 중...' : '확정'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowConfirmDialog(false); setConfirmError(null); }}
+              disabled={confirmLoading}
+              className="px-4 py-2 text-sm font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors min-h-[40px] disabled:opacity-50"
+            >
+              돌아가기
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Cancel confirmation dialog */}
       {showCancelConfirm && (
         <div className="p-4 bg-[#ffa639]/10 border border-[#ffa639]/30">
@@ -283,8 +338,8 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
         </div>
       )}
 
-      {/* Edit / Cancel buttons */}
-      {(isEditableStatus(request.status) || isCancellableStatus(request.status)) && !showCancelConfirm && (
+      {/* Edit / Confirm / Cancel buttons */}
+      {(isEditableStatus(request.status) || isCancellableStatus(request.status)) && !showCancelConfirm && !showConfirmDialog && (
         <div className="flex gap-3">
           {isEditableStatus(request.status) && onEdit && (
             <button
@@ -293,6 +348,15 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
               className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px]"
             >
               편집
+            </button>
+          )}
+          {isEditableStatus(request.status) && (
+            <button
+              type="button"
+              onClick={() => setShowConfirmDialog(true)}
+              className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#2d8c3c] hover:bg-[#246e30] transition-colors min-h-[44px]"
+            >
+              확정
             </button>
           )}
           {isCancellableStatus(request.status) && (

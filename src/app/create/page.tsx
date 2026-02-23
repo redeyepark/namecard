@@ -1,11 +1,15 @@
 'use client';
 
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { WizardContainer } from '@/components/wizard/WizardContainer';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function CreatePage() {
+  // TEMPORARY: Card creation is temporarily disabled. Remove this line to re-enable.
+  redirect('/dashboard');
+
   const { user } = useAuth();
 
   return (
@@ -40,7 +44,7 @@ export default function CreatePage() {
           <div className="flex items-center gap-3">
             {user?.name && (
               <span className="hidden sm:inline text-sm text-gray-500">
-                안녕하세요, <span className="font-medium text-gray-700">{user.name}</span>님
+                안녕하세요, <span className="font-medium text-gray-700">{user?.name}</span>님
               </span>
             )}
             <UserMenu />

@@ -80,6 +80,7 @@
   - 신규 사용자 생성: `POST ${supabaseUrl}/auth/v1/admin/users` (service_role 키 인증)
   - Supabase SDK의 `auth.admin` 메서드는 Cloudflare Workers 엣지 런타임과 호환되지 않아 REST API fetch()로 전환
 - CSV 대량 등록 시 초기 상태: `processing` (작업중) - statusHistory에 submitted와 processing 두 건의 이력이 동시 기록됨
+- 소셜 링크 핸들 추출: `extractSocialHandle()` 함수가 소셜 미디어 URL에서 실제 사용자 핸들을 추출하여 라벨로 사용 (플랫폼명 대신 `@username` 형태 표시)
 - 응답 필드: `success`, `total`, `created`, `errors`, `autoRegistered`
 
 ## 데이터베이스: Supabase PostgreSQL
@@ -97,6 +98,21 @@
 |------|------|
 | `avatars` | 사용자 아바타 이미지 저장 |
 | `illustrations` | 관리자가 업로드하는 일러스트 이미지 저장 |
+
+### 소셜 유틸리티 (`src/lib/social-utils.ts`)
+
+- `extractHandle(value)`: 소셜 미디어 URL에서 클린 사용자명(핸들)을 추출하는 공유 유틸리티 함수
+- Facebook, Instagram, LinkedIn, Naver Blog URL 패턴을 인식하여 경로에서 핸들 추출
+- 이메일의 경우 원본 그대로 반환
+- 카드 뒷면 3개 컴포넌트(CardBack, MiniPreview, MyRequestDetail)에서 공통 사용
+- URL이 아닌 일반 텍스트는 그대로 반환
+
+### URL 변환 유틸리티 (`src/lib/url-utils.ts`)
+
+- `convertGoogleDriveUrl(url)`: Google Drive 공유 URL을 직접 이미지 URL(`lh3.googleusercontent.com`)로 변환
+- 지원 패턴: `drive.google.com/open?id=`, `drive.google.com/file/d/`, `docs.google.com/uc?id=`
+- IllustrationUploader, CardCompare, AdminCardPreview, bulk-upload API 라우트에서 공통 사용
+- null/undefined 입력 시 원본 그대로 반환
 
 ### 데이터 접근 계층 (`src/lib/storage.ts`)
 
@@ -118,6 +134,7 @@
 - 미니멀리스트 갤러리 스타일: 딥 네이비(`#020912`) + 오프 화이트(`#fcfcfc`) 색상 조합
 - 날카로운 모서리(0px border-radius) 일관 적용
 - 폰트: Google Fonts - Figtree(제목/헤딩) + Anonymous Pro(본문/모노)
+- 명함 전용 폰트: Google Fonts - Nanum Myeongjo(나눔명조) 한국어 세리프 폰트. `--font-card` CSS 변수로 카드 컴포넌트에 적용. 나머지 UI는 기존 Figtree 유지
 
 ## 상태 관리: Zustand 5
 
@@ -230,6 +247,18 @@ Supabase를 Backend-as-a-Service로 활용하여 인증, 데이터베이스, 파
 ### Zustand으로 경량 상태 관리
 
 Redux, MobX 등 대비 보일러플레이트가 최소화된 Zustand을 선택했습니다. 단일 store에 모든 명함 데이터와 UI 상태를 관리하며, persist middleware 한 줄 추가로 localStorage 영속성을 구현했습니다. 프로젝트 규모에 적합한 간결한 상태 관리 솔루션입니다.
+
+### 명함 뒷면 고정 폰트 사이즈
+
+명함 뒷면 텍스트는 반응형 대신 고정 픽셀 크기를 사용합니다. fullName은 `text-[30px]`, title과 hashtags는 `text-[20px]`로 적용됩니다. CardBack, AdminCardPreview(AdminBack), ConfirmedCardPreview(ConfirmedBack) 3개 컴포넌트에 동일하게 적용되어 일관된 출력을 보장합니다.
+
+### 사용자 확정(Confirm) 기능
+
+사용자가 대시보드 요청 상세(`/dashboard/[id]`)에서 직접 카드 요청을 확정할 수 있습니다. `VALID_TRANSITIONS`에 `submitted -> confirmed` 전환이 추가되었으며, `isEditableStatus` 함수가 `processing` 상태도 편집 가능하도록 확장되었습니다. 편집 폼에서는 "저장 후 확정" 버튼을 통해 수정과 확정을 동시에 처리할 수 있습니다.
+
+### Create 라우트 임시 차단
+
+`/create` 및 `/create/edit` 라우트가 임시로 `/dashboard`로 리다이렉트됩니다. 위저드를 통한 신규 명함 제작이 일시 중단된 상태이며, 기존 코드의 리다이렉트 로직을 제거하면 쉽게 복원할 수 있습니다.
 
 ### react-colorful로 경량 색상 선택기
 

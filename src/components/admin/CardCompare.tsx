@@ -1,24 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-/**
- * Convert Google Drive sharing URLs to direct image URLs.
- */
-function convertGoogleDriveUrl(url: string): string {
-  if (!url) return url;
-
-  let match = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-
-  match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-
-  match = url.match(/docs\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/);
-  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-
-  return url;
-}
+import { convertGoogleDriveUrl } from '@/lib/url-utils';
 
 interface CardCompareProps {
   originalAvatarUrl: string | null;
@@ -31,8 +14,10 @@ export function CardCompare({
   illustrationUrl,
   illustrationPreview,
 }: CardCompareProps) {
-  const illustrationSrc = illustrationPreview || illustrationUrl;
   const transformedAvatarUrl = originalAvatarUrl ? convertGoogleDriveUrl(originalAvatarUrl) : null;
+  const illustrationSrc = illustrationPreview
+    ? (illustrationPreview.startsWith('data:') ? illustrationPreview : convertGoogleDriveUrl(illustrationPreview))
+    : (illustrationUrl ? convertGoogleDriveUrl(illustrationUrl) : null);
   const [avatarLoadError, setAvatarLoadError] = useState(false);
   const [illustrationLoadError, setIllustrationLoadError] = useState(false);
   const [showDebugInfo, setShowDebugInfo] = useState(false);

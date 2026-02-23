@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getRequest, updateRequest, saveImageFile } from '@/lib/storage';
 import { isValidStatusTransition, requiresFeedback, isAdminEditableStatus } from '@/types/request';
 import { requireAuth, requireAdminToken, isAdminTokenValid, AuthError } from '@/lib/auth-utils';
+import { convertGoogleDriveUrl } from '@/lib/url-utils';
 import type { RequestStatus } from '@/types/request';
 import type { CardData } from '@/types/card';
 
@@ -118,8 +119,8 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      // Use URL directly without uploading to Supabase Storage
-      illustrationPath = illustrationUrl;
+      // Convert Google Drive URL if needed, then use URL directly without uploading to Supabase Storage
+      illustrationPath = convertGoogleDriveUrl(illustrationUrl) || illustrationUrl;
     } else if (illustrationImage && typeof illustrationImage === 'string') {
       // Upload base64 image to Supabase Storage
       const estimatedSize = (illustrationImage.length * 3) / 4;

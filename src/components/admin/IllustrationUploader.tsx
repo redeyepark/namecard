@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { convertGoogleDriveUrl } from '@/lib/url-utils';
 
 type UploadMode = 'file' | 'url';
 
@@ -88,7 +89,7 @@ export function IllustrationUploader({
       const url = e.target.value;
       setUrlValue(url);
       setUrlPreviewError(false);
-      onUrlInput?.(url);
+      onUrlInput?.(convertGoogleDriveUrl(url) || url);
     },
     [onUrlInput]
   );
@@ -227,7 +228,7 @@ export function IllustrationUploader({
                 </div>
               ) : (
                 <img
-                  src={urlValue}
+                  src={convertGoogleDriveUrl(urlValue) || urlValue}
                   alt="URL image preview"
                   className="w-full h-full object-cover"
                   onError={() => setUrlPreviewError(true)}

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import type { CardData } from '@/types/card';
+import { extractHandle } from '@/lib/social-utils';
+import { convertGoogleDriveUrl } from '@/lib/url-utils';
 
 interface AdminCardPreviewProps {
   card: CardData;
@@ -22,12 +24,12 @@ function AdminFront({
   return (
     <div
       className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden"
-      style={{ backgroundColor }}
+      style={{ backgroundColor, fontFamily: "'Nanum Myeongjo', serif" }}
     >
       {/* Layer 2: Illustration image - full card cover */}
       {illustrationUrl ? (
         <img
-          src={illustrationUrl}
+          src={convertGoogleDriveUrl(illustrationUrl) || illustrationUrl}
           alt="Card illustration"
           className="absolute inset-0 w-full h-full object-cover"
           referrerPolicy="no-referrer"
@@ -41,7 +43,7 @@ function AdminFront({
       {/* Layer 3: Display name overlay at top-left */}
       <div className="relative z-10 p-4 sm:p-6 pt-4 sm:pt-5">
         <h1
-          className="text-xl sm:text-2xl font-bold tracking-wide truncate"
+          className="text-2xl sm:text-3xl font-bold tracking-wide truncate"
           title={displayName || 'YOUR NAME'}
           style={{
             WebkitTextStroke: (textColor || '#FFFFFF').toUpperCase() === '#FFFFFF'
@@ -73,25 +75,22 @@ function AdminBack({
   backgroundColor: string;
   textColor: string;
 }) {
-  // Derive divider border color from textColor with 20% opacity
-  const dividerColor = `${textColor || '#000000'}33`;
-
   return (
     <div
       className="relative w-full aspect-[29/45] rounded-lg shadow-xl overflow-hidden flex flex-col p-4 sm:p-6"
-      style={{ backgroundColor }}
+      style={{ backgroundColor, fontFamily: "'Nanum Myeongjo', serif" }}
     >
       {/* Upper area (~80%): Name, title, hashtags */}
       <div className="flex-1 min-h-0">
         <h2
-          className="text-lg sm:text-xl font-bold mb-1 truncate"
+          className="text-[30px] font-bold mb-1 truncate"
           title={fullName || 'FULL NAME'}
           style={{ color: textColor || '#000000' }}
         >
           {fullName || 'FULL NAME'}
         </h2>
         <p
-          className="text-xs sm:text-sm mb-4 line-clamp-2"
+          className="text-[20px] mb-4 line-clamp-2"
           title={title || 'Your Title'}
           style={{ color: textColor || '#000000', opacity: 0.9 }}
         >
@@ -101,7 +100,7 @@ function AdminBack({
           {hashtags.map((tag, i) => (
             <span
               key={i}
-              className="font-medium text-xs sm:text-sm"
+              className="font-medium text-[20px]"
               style={{ color: textColor || '#000000' }}
             >
               {tag.startsWith('#') ? tag : `#${tag}`}
@@ -110,30 +109,30 @@ function AdminBack({
         </div>
       </div>
 
-      {/* Bottom area (~20%): Social links with horizontal dividers */}
-      {socialLinks.length > 0 && (
-        <div className="mt-2">
-          {socialLinks.map((link, i) => (
-            <div key={i}>
-              <div
-                className="border-t"
-                style={{ borderColor: dividerColor }}
-              />
+      {/* Bottom area (~20%): Social links */}
+      {(() => {
+        const platformOrder = ['email', 'linkedin', 'instagram', 'facebook'];
+        const sortedLinks = socialLinks
+          .filter((link) => link.url || link.label)
+          .sort((a, b) => {
+            const aIdx = platformOrder.indexOf(a.platform);
+            const bIdx = platformOrder.indexOf(b.platform);
+            return (aIdx === -1 ? platformOrder.length : aIdx) - (bIdx === -1 ? platformOrder.length : bIdx);
+          });
+        return sortedLinks.length > 0 ? (
+          <div className="mt-2">
+            {sortedLinks.map((link, i) => (
               <p
-                className="text-xs py-1.5 truncate text-left"
+                key={i}
+                className="text-xs py-1.5 truncate text-right"
                 style={{ color: textColor || '#000000', opacity: 0.8 }}
               >
-                {link.label || link.url}
+                {link.platform}/{extractHandle(link.url || link.label)}
               </p>
-            </div>
-          ))}
-          {/* Final bottom divider */}
-          <div
-            className="border-t"
-            style={{ borderColor: dividerColor }}
-          />
-        </div>
-      )}
+            ))}
+          </div>
+        ) : null;
+      })()}
     </div>
   );
 }

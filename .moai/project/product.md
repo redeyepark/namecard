@@ -40,12 +40,16 @@
 - **Step 5 - 제작 요청**: 명함 제작 요청 제출 (Supabase DB에 저장)
 - **Step 6 - 완료**: 요청 완료 안내
 
+> **임시 조치**: `/create` 및 `/create/edit` 라우트는 현재 `/dashboard`로 리다이렉트됩니다. 위저드를 통한 신규 명함 제작은 일시 중단되었으며, 기존 코드를 복원하면 쉽게 되돌릴 수 있습니다.
+
 ### 사용자 대시보드
 
 - 로그인한 사용자의 명함 제작 요청 목록 조회 (`GET /api/requests/my`)
 - 3단계 프로그레스 인디케이터로 진행 상태 시각화 (의뢰됨 -> 작업중 -> 확정)
 - 반응형 레이아웃: 모바일은 카드형, 데스크톱은 테이블형 리스트
 - 요청 상세 보기 (`/dashboard/[id]`): 상태 이력, 카드 비교, 명함 정보 읽기 전용 표시
+- 사용자 확정 기능: 요청 상세 페이지(`/dashboard/[id]`)에서 사용자가 직접 카드 요청을 확정(confirm)할 수 있음. 편집 폼에서 "저장 후 확정" 버튼 제공
+- 편집 가능 상태: `submitted`(의뢰됨) 및 `processing`(작업중) 상태에서 사용자 편집 가능
 - 요청이 없는 경우 EmptyState에서 "명함 만들기" CTA 제공
 - 소유권 검증: 다른 사용자의 요청에 접근 시 403 반환
 
@@ -57,9 +61,11 @@
 - 상태 변경 이력 추적 (card_request_status_history 테이블)
 - 일러스트 이미지 업로드 (Supabase Storage illustrations 버킷)
 - 외부 URL 이미지 지원: 일러스트 이미지로 파일 업로드 외에 외부 URL 직접 입력 가능
+- Google Drive URL 자동 변환: Google Drive 공유 URL을 직접 이미지 URL(`lh3.googleusercontent.com`)로 자동 변환하여 일러스트 이미지 표시 (`convertGoogleDriveUrl` 공유 유틸리티)
 - 원본 카드와 일러스트 비교 뷰 (이미지 로드 실패 시 에러 핸들링 및 디버그 정보 표시)
 - CSV/Excel 대량 등록: CSV(.csv) 및 Excel(.xlsx, .xls) 파일을 통한 명함 제작 요청 일괄 등록
   - 12개 컬럼 형식: 사진URL, 앞면이름, 뒷면이름, 관심사, 키워드1-3, 이메일, Facebook, Instagram, LinkedIn, 배경색
+  - 소셜 링크 라벨 처리: URL에서 실제 고객 핸들을 추출하여 라벨로 사용 (`extractSocialHandle()` 함수). 플랫폼명 대신 `@username` 형태로 표시
   - 샘플 CSV 파일 다운로드 버튼 제공
   - Excel 파일은 브라우저에서 SheetJS(xlsx) 라이브러리로 CSV 변환 후 처리
   - API 엔드포인트: POST /api/admin/bulk-upload
@@ -71,7 +77,8 @@
 ### 명함 앞면/뒷면 실시간 편집 및 미리보기
 
 - 앞면(Front): Display Name, Avatar Image, 텍스트 컬러 편집
-- 뒷면(Back): Full Name, Title/Role, Hashtags, Social Links, 텍스트 컬러 편집
+- 뒷면(Back): Full Name(`text-[30px]`), Title/Role(`text-[20px]`), Hashtags(`text-[20px]`), Social Links, 텍스트 컬러 편집 - 고정 폰트 사이즈 적용
+  - 소셜 링크 표시: 플랫폼 순서(email -> linkedin -> instagram -> facebook)로 정렬, 빈 항목 필터링, `platform/handle` 형식, 우측 정렬
 - 탭 전환으로 앞면/뒷면 즉시 전환 (카드 플립 애니메이션 포함)
 - 데스크톱에서는 오른쪽에 sticky preview, 모바일에서는 상단에 preview 표시
 
@@ -129,12 +136,13 @@
 
 1. 사용자가 랜딩 페이지(/)에서 서비스 소개 확인
 2. 이메일/비밀번호 또는 Google OAuth로 회원가입/로그인
-3. 명함 제작 위저드(/create)에서 6단계에 걸쳐 명함 정보 입력
+3. ~~명함 제작 위저드(/create)에서 6단계에 걸쳐 명함 정보 입력~~ (현재 임시 비활성화, /dashboard로 리다이렉트)
 4. 제작 요청 제출 시 API POST /api/requests로 Supabase DB에 저장
 5. 아바타 이미지는 Supabase Storage(avatars 버킷)에 업로드
-6. 요청 완료 후 카드 편집기(/create/edit)에서 추가 편집 가능
+6. ~~요청 완료 후 카드 편집기(/create/edit)에서 추가 편집 가능~~ (현재 임시 비활성화, /dashboard로 리다이렉트)
 7. UserMenu의 "내 요청" 클릭으로 대시보드(/dashboard)에서 제작 진행 상태 확인
 8. 대시보드에서 요청 클릭 시 상세 페이지(/dashboard/[id])에서 상태 이력, 카드 비교 확인
+9. 요청 상세에서 확정(confirm) 버튼 클릭 또는 편집 후 "저장 후 확정"으로 사용자가 직접 카드 요청 확정
 
 ### 관리자 흐름
 
@@ -153,6 +161,7 @@ submitted (의뢰됨) -> processing (작업중) -> confirmed (확정)
                                           -> revision_requested (수정 요청)
                                           -> rejected (반려)
                                           -> delivered (배송 완료)
+submitted (의뢰됨) -> confirmed (확정)      # 사용자가 대시보드에서 직접 확정 가능
 ```
 
 > **구현 완료 (SPEC-WF-001)**: 확장 상태 워크플로우가 구현되었습니다. 기존 3단계(submitted, processing, confirmed) 외에 `revision_requested` (수정 요청), `rejected` (반려), `delivered` (배송 완료) 상태가 추가되었습니다. 관리자-사용자 간 수정 피드백 및 진행 상태 추적이 강화되었습니다.
@@ -180,8 +189,8 @@ submitted (의뢰됨) -> processing (작업중) -> confirmed (확정)
 | `/signup` | 공개 | 회원가입 |
 | `/confirm` | 공개 | 이메일 인증 확인 |
 | `/callback` | 공개 | OAuth 콜백 핸들러 |
-| `/create` | 인증 필요 | 명함 제작 위저드 |
-| `/create/edit` | 인증 필요 | 카드 편집기 |
+| `/create` | 인증 필요 | 명함 제작 위저드 (임시 비활성화 - /dashboard로 리다이렉트) |
+| `/create/edit` | 인증 필요 | 카드 편집기 (임시 비활성화 - /dashboard로 리다이렉트) |
 | `/dashboard` | 인증 필요 | 사용자 대시보드 (내 요청 목록) |
 | `/dashboard/[id]` | 인증 필요 | 사용자 요청 상세 (소유권 검증) |
 | `/admin` | 관리자 전용 | 관리자 대시보드 |

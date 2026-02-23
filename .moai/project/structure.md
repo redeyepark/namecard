@@ -20,13 +20,13 @@ namecard/
 │   │   │   └── route.ts                   # OAuth 콜백 핸들러 (코드 교환)
 │   │   ├── create/
 │   │   │   ├── layout.tsx                 # Create 레이아웃
-│   │   │   ├── page.tsx                   # 위저드 기반 명함 제작 (useAuth)
+│   │   │   ├── page.tsx                   # 위저드 기반 명함 제작 (임시 /dashboard 리다이렉트)
 │   │   │   └── edit/
-│   │   │       └── page.tsx               # 카드 편집기 (2-column 반응형 레이아웃)
+│   │   │       └── page.tsx               # 카드 편집기 (임시 /dashboard 리다이렉트)
 │   │   ├── dashboard/
 │   │   │   ├── page.tsx                   # 사용자 대시보드 (내 요청 목록)
 │   │   │   └── [id]/
-│   │   │       └── page.tsx               # 사용자 요청 상세 (읽기 전용)
+│   │   │       └── page.tsx               # 사용자 요청 상세 (확정 버튼, 편집 폼 "저장 후 확정" 포함)
 │   │   ├── admin/
 │   │   │   ├── layout.tsx                 # Admin 레이아웃 (UserMenu, 인증 확인)
 │   │   │   ├── page.tsx                   # 관리자 대시보드 (요청 목록)
@@ -38,7 +38,7 @@ namecard/
 │   │       │       └── route.ts           # 사용자 정보 + isAdmin 상태 API
 │   │       ├── admin/
 │   │       │   └── bulk-upload/
-│   │       │       └── route.ts           # POST (CSV 대량 등록, requireAdmin, 이메일 자동 회원가입)
+│   │       │       └── route.ts           # POST (CSV 대량 등록, requireAdmin, 이메일 자동 회원가입, extractSocialHandle)
 │   │       └── requests/
 │   │           ├── route.ts               # POST (요청 생성, requireAuth), GET (목록, requireAdmin)
 │   │           ├── my/
@@ -86,7 +86,7 @@ namecard/
 │   │   │   ├── MyRequestList.tsx          # 반응형 요청 목록 (모바일: 카드 / 데스크톱: 테이블)
 │   │   │   ├── RequestCard.tsx            # 모바일용 요청 카드 컴포넌트
 │   │   │   ├── EmptyState.tsx             # 요청 없음 안내 + "명함 만들기" CTA
-│   │   │   └── MyRequestDetail.tsx        # 요청 상세 뷰 (읽기 전용)
+│   │   │   └── MyRequestDetail.tsx        # 요청 상세 뷰 (확정 버튼, 편집 폼, 저장 후 확정)
 │   │   └── admin/                         # 관리자 컴포넌트
 │   │       ├── RequestList.tsx            # 관리자 요청 목록 테이블
 │   │       ├── RequestDetail.tsx          # 요청 상세 뷰
@@ -107,6 +107,8 @@ namecard/
 │   │   ├── supabase-auth.ts               # 브라우저 Supabase 클라이언트 (anon key)
 │   │   ├── auth-utils.ts                  # 서버 인증 유틸리티 (requireAuth, requireAdmin, AuthError, isAdmin)
 │   │   ├── storage.ts                     # Supabase DB/Storage 연산 (saveRequest, getRequest, updateRequest 등)
+│   │   ├── social-utils.ts               # 소셜 미디어 URL에서 핸들 추출 유틸리티 (extractHandle)
+│   │   ├── url-utils.ts                  # Google Drive URL 변환 유틸리티 (convertGoogleDriveUrl)
 │   │   ├── export.ts                      # html-to-image PNG 내보내기 유틸리티
 │   │   └── validation.ts                  # 이미지 파일 검증 + Base64 변환
 │   └── test/
@@ -192,7 +194,7 @@ layout.tsx (Root - AuthProvider 래핑)
 │
 ├── signup/page.tsx (Signup)       # 회원가입 폼
 │
-├── create/page.tsx (Wizard)       # 명함 제작 위저드
+├── create/page.tsx (Wizard)       # 명함 제작 위저드 (임시 /dashboard 리다이렉트)
 │   └── WizardContainer
 │       ├── ProgressBar            # 단계 진행률
 │       ├── PersonalInfoStep       # Step 1: 개인 정보
@@ -204,7 +206,7 @@ layout.tsx (Root - AuthProvider 래핑)
 │       ├── CompleteStep           # Step 6: 완료
 │       └── StepNavigation         # 이전/다음 버튼
 │
-├── create/edit/page.tsx (Editor)  # 카드 편집기
+├── create/edit/page.tsx (Editor)  # 카드 편집기 (임시 /dashboard 리다이렉트)
 │   ├── CardPreview
 │   │   ├── CardFront              # 앞면 미리보기
 │   │   └── CardBack               # 뒷면 미리보기
@@ -230,8 +232,8 @@ layout.tsx (Root - AuthProvider 래핑)
 │   │   └── StatusBadge            # 상태 배지 (재사용)
 │   └── EmptyState                 # 요청 없음 안내 + CTA
 │
-├── dashboard/[id]/page.tsx (User Detail) # 사용자 요청 상세
-│   ├── MyRequestDetail            # 읽기 전용 요청 상세 뷰
+├── dashboard/[id]/page.tsx (User Detail) # 사용자 요청 상세 (확정 + 편집)
+│   ├── MyRequestDetail            # 요청 상세 뷰 (확정 버튼, 편집 폼, 저장 후 확정)
 │   ├── ProgressStepper            # 진행 상태 시각화
 │   ├── StatusHistory              # 상태 변경 이력 (재사용)
 │   └── CardCompare                # 원본 vs 일러스트 비교 (재사용)
@@ -271,7 +273,7 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
 | `src/types/` | TypeScript 타입 정의 (카드, 요청) |
-| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증). `storage.ts`에 `getRequestsByUser(email)` 함수 포함 |
+| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수 포함 |
 | `src/test/` | 테스트 환경 설정 |
 | `.github/workflows/` | GitHub Actions CI/CD 워크플로우 (Cloudflare Workers 배포) |
 
@@ -284,8 +286,8 @@ layout.tsx (Root - AuthProvider 래핑)
 | React 컴포넌트 (`.tsx` in `components/`) | 34 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
 | 타입 정의 (`.ts` in `types/`) | 2 |
-| 유틸리티 (`.ts` in `lib/`) | 6 |
+| 유틸리티 (`.ts` in `lib/`) | 8 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 64 |
+| 총 소스 파일 | 66 |

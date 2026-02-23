@@ -9,7 +9,7 @@ export function CardFront() {
     <div
       id="card-front"
       className="relative w-full aspect-[29/45] overflow-hidden"
-      style={{ backgroundColor: front.backgroundColor }}
+      style={{ backgroundColor: front.backgroundColor, fontFamily: "'Nanum Myeongjo', serif" }}
     >
       {/* Layer 2: Illustration image - full card cover */}
       {front.avatarImage ? (
@@ -27,7 +27,7 @@ export function CardFront() {
       {/* Layer 3: Display name overlay at top-left */}
       <div className="relative z-10 p-4 sm:p-6 pt-4 sm:pt-5">
         <h1
-          className="text-xl sm:text-2xl font-bold tracking-wide truncate"
+          className="text-2xl sm:text-3xl font-bold tracking-wide truncate"
           title={front.displayName || 'YOUR NAME'}
           style={{
             WebkitTextStroke: (front.textColor || '#FFFFFF').toUpperCase() === '#FFFFFF'
