@@ -87,9 +87,10 @@ export function IllustrationUploader({
   const handleUrlChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const url = e.target.value;
-      setUrlValue(url);
+      const converted = (convertGoogleDriveUrl(url) as string) || url;
+      setUrlValue(converted);
       setUrlPreviewError(false);
-      onUrlInput?.(convertGoogleDriveUrl(url) || url);
+      onUrlInput?.(converted);
     },
     [onUrlInput]
   );
@@ -228,7 +229,7 @@ export function IllustrationUploader({
                 </div>
               ) : (
                 <img
-                  src={convertGoogleDriveUrl(urlValue) || urlValue}
+                  src={urlValue}
                   alt="URL image preview"
                   className="w-full h-full object-cover"
                   onError={() => setUrlPreviewError(true)}
