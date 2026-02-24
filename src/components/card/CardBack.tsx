@@ -17,14 +17,14 @@ export function CardBack() {
         <h2
           className="text-[30px] font-bold mb-1 truncate"
           title={back.fullName || 'FULL NAME'}
-          style={{ color: back.textColor || '#000000' }}
+          style={{ color: back.textColor || '#000000', fontFamily: "'Nanum Myeongjo', serif" }}
         >
           {back.fullName || 'FULL NAME'}
         </h2>
         <p
           className="text-[20px] mb-4 line-clamp-2"
           title={back.title || 'Your Title'}
-          style={{ color: back.textColor || '#000000', opacity: 0.9 }}
+          style={{ color: back.textColor || '#000000', opacity: 0.9, fontFamily: "'Nanum Myeongjo', serif" }}
         >
           {back.title || 'Your Title'}
         </p>
@@ -43,7 +43,7 @@ export function CardBack() {
 
       {/* Bottom area (~20%): Social links */}
       {(() => {
-        const platformOrder = ['email', 'phone', 'linkedin', 'instagram', 'facebook', 'youtube'];
+        const platformOrder = ['phone', 'youtube', 'facebook', 'instagram', 'linkedin', 'email'];
         const sortedLinks = back.socialLinks
           .filter((link) => link.url || link.label)
           .sort((a, b) => {

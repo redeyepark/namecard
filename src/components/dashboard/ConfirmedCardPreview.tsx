@@ -71,12 +71,14 @@ function ConfirmedBack({
         <h2
           className="text-[30px] font-bold text-black mb-1 truncate"
           title={fullName || 'FULL NAME'}
+          style={{ fontFamily: "'Nanum Myeongjo', serif" }}
         >
           {fullName || 'FULL NAME'}
         </h2>
         <p
           className="text-black/90 text-[20px] mb-4 line-clamp-2"
           title={title || 'Your Title'}
+          style={{ fontFamily: "'Nanum Myeongjo', serif" }}
         >
           {title || 'Your Title'}
         </p>
@@ -91,7 +93,7 @@ function ConfirmedBack({
 
       {/* Bottom area (~20%): Social links */}
       {(() => {
-        const platformOrder = ['email', 'phone', 'linkedin', 'instagram', 'facebook', 'youtube'];
+        const platformOrder = ['phone', 'youtube', 'facebook', 'instagram', 'linkedin', 'email'];
         const sortedLinks = socialLinks
           .filter((link) => link.url || link.label)
           .sort((a, b) => {

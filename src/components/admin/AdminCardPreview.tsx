@@ -85,14 +85,14 @@ function AdminBack({
         <h2
           className="text-[30px] font-bold mb-1 truncate"
           title={fullName || 'FULL NAME'}
-          style={{ color: textColor || '#000000' }}
+          style={{ color: textColor || '#000000', fontFamily: "'Nanum Myeongjo', serif" }}
         >
           {fullName || 'FULL NAME'}
         </h2>
         <p
           className="text-[20px] mb-4 line-clamp-2"
           title={title || 'Your Title'}
-          style={{ color: textColor || '#000000', opacity: 0.9 }}
+          style={{ color: textColor || '#000000', opacity: 0.9, fontFamily: "'Nanum Myeongjo', serif" }}
         >
           {title || 'Your Title'}
         </p>
@@ -111,7 +111,7 @@ function AdminBack({
 
       {/* Bottom area (~20%): Social links */}
       {(() => {
-        const platformOrder = ['email', 'phone', 'linkedin', 'instagram', 'facebook', 'youtube'];
+        const platformOrder = ['phone', 'youtube', 'facebook', 'instagram', 'linkedin', 'email'];
         const sortedLinks = socialLinks
           .filter((link) => link.url || link.label)
           .sort((a, b) => {
