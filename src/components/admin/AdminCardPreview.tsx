@@ -96,7 +96,7 @@ function AdminBack({
         >
           {title || 'Your Title'}
         </p>
-        <div className="flex flex-wrap gap-1 overflow-hidden max-h-[4.5rem]">
+        <div className="flex flex-wrap gap-1 overflow-hidden max-h-[6rem]">
           {hashtags.map((tag, i) => (
             <span
               key={i}
@@ -111,7 +111,7 @@ function AdminBack({
 
       {/* Bottom area (~20%): Social links */}
       {(() => {
-        const platformOrder = ['email', 'linkedin', 'instagram', 'facebook'];
+        const platformOrder = ['email', 'phone', 'linkedin', 'instagram', 'facebook', 'youtube'];
         const sortedLinks = socialLinks
           .filter((link) => link.url || link.label)
           .sort((a, b) => {

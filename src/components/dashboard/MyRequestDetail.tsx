@@ -6,6 +6,7 @@ import type { CardRequest } from '@/types/request';
 import { isEditableStatus, isCancellableStatus } from '@/types/request';
 import { ProgressStepper } from './ProgressStepper';
 import { ConfirmedCardPreview } from './ConfirmedCardPreview';
+import { AdminCardPreview } from '@/components/admin/AdminCardPreview';
 import { CardCompare } from '@/components/admin/CardCompare';
 import { StatusHistory } from '@/components/admin/StatusHistory';
 
@@ -167,6 +168,17 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
           card={request.card}
           illustrationUrl={request.illustrationUrl}
         />
+      )}
+
+      {/* Card preview for all other cases (non-confirmed, or confirmed/delivered without illustration) */}
+      {!((request.status === 'confirmed' || request.status === 'delivered') && request.illustrationUrl) && (
+        <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+          <h2 className="text-sm font-medium text-[#020912]/70 mb-3">명함 미리보기</h2>
+          <AdminCardPreview
+            card={request.card}
+            illustrationUrl={request.illustrationUrl}
+          />
+        </div>
       )}
 
       {/* Card info */}

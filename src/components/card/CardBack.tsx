@@ -28,7 +28,7 @@ export function CardBack() {
         >
           {back.title || 'Your Title'}
         </p>
-        <div className="flex flex-wrap gap-1 overflow-hidden max-h-[4.5rem]">
+        <div className="flex flex-wrap gap-1 overflow-hidden max-h-[6rem]">
           {back.hashtags.map((tag, i) => (
             <span
               key={i}
@@ -43,7 +43,7 @@ export function CardBack() {
 
       {/* Bottom area (~20%): Social links */}
       {(() => {
-        const platformOrder = ['email', 'linkedin', 'instagram', 'facebook'];
+        const platformOrder = ['email', 'phone', 'linkedin', 'instagram', 'facebook', 'youtube'];
         const sortedLinks = back.socialLinks
           .filter((link) => link.url || link.label)
           .sort((a, b) => {

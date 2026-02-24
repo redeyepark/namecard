@@ -9,6 +9,8 @@ const PLATFORM_OPTIONS: { value: SocialLink['platform']; label: string }[] = [
   { value: 'instagram', label: 'Instagram' },
   { value: 'linkedin', label: 'LinkedIn' },
   { value: 'email', label: 'Email' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'youtube', label: 'YouTube' },
   { value: 'custom', label: 'Custom' },
 ];
 
