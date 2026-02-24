@@ -51,6 +51,7 @@ function AdminFront({
               : '1px rgba(255, 255, 255, 0.6)',
             color: textColor || '#FFFFFF',
             paintOrder: 'stroke fill',
+            fontFamily: "'Nanum Myeongjo', serif",
           }}
         >
           {displayName || 'YOUR NAME'}

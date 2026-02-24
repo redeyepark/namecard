@@ -39,6 +39,7 @@ function ConfirmedFront({
             WebkitTextStroke: '1px rgba(0, 0, 0, 0.8)',
             color: 'white',
             paintOrder: 'stroke fill',
+            fontFamily: "'Nanum Myeongjo', serif",
           }}
         >
           {displayName || 'YOUR NAME'}

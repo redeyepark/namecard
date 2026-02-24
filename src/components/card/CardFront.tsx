@@ -35,6 +35,7 @@ export function CardFront() {
               : '1px rgba(255, 255, 255, 0.6)',
             color: front.textColor || '#FFFFFF',
             paintOrder: 'stroke fill',
+            fontFamily: "'Nanum Myeongjo', serif",
           }}
         >
           {front.displayName || 'YOUR NAME'}
