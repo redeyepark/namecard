@@ -15,7 +15,7 @@ export function CardBack() {
       {/* Upper area (~80%): Name, title, hashtags */}
       <div className="flex-1 min-h-0">
         <h2
-          className="text-[30px] font-bold mb-1 truncate"
+          className="text-[24px] font-bold mb-1 truncate"
           title={back.fullName || 'FULL NAME'}
           style={{ color: back.textColor || '#000000', fontFamily: "'Nanum Myeongjo', serif" }}
         >
