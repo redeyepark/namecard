@@ -69,6 +69,34 @@ export function PokemonCardFront() {
             backgroundColor: '#808080',
           }}
         >
+          {/* Name overlay - top right */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '6px',
+              right: '8px',
+              zIndex: 5,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              borderRadius: '4px',
+              padding: '2px 8px',
+              maxWidth: '60%',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '12px',
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                fontFamily: "'Nanum Myeongjo', serif",
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: 'block',
+              }}
+            >
+              {front.displayName || 'YOUR NAME'}
+            </span>
+          </div>
           {front.avatarImage ? (
             <img
               src={front.avatarImage}
