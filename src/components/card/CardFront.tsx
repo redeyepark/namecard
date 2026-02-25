@@ -1,6 +1,7 @@
 'use client';
 
 import { useCardStore } from '@/stores/useCardStore';
+import { renderMultiLine } from '@/lib/text-utils';
 
 export function CardFront() {
   const { front } = useCardStore((state) => state.card);
@@ -27,7 +28,7 @@ export function CardFront() {
       {/* Layer 3: Display name overlay at top-left */}
       <div className="relative z-10 p-4 sm:p-6 pt-4 sm:pt-5">
         <h1
-          className="text-2xl sm:text-3xl font-bold tracking-wide truncate"
+          className="text-2xl sm:text-3xl font-bold tracking-wide"
           title={front.displayName || 'YOUR NAME'}
           style={{
             WebkitTextStroke: (front.textColor || '#FFFFFF').toUpperCase() === '#FFFFFF'
@@ -38,7 +39,7 @@ export function CardFront() {
             fontFamily: "'Nanum Myeongjo', serif",
           }}
         >
-          {front.displayName || 'YOUR NAME'}
+          {renderMultiLine(front.displayName || 'YOUR NAME')}
         </h1>
       </div>
     </div>

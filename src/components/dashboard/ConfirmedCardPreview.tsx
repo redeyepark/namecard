@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { CardData } from '@/types/card';
 import { extractHandle } from '@/lib/social-utils';
+import { renderMultiLine } from '@/lib/text-utils';
 
 interface ConfirmedCardPreviewProps {
   card: CardData;
@@ -35,7 +36,7 @@ function ConfirmedFront({
       {/* Layer 3: Display name overlay at top-left */}
       <div className="relative z-10 p-4 sm:p-6 pt-4 sm:pt-5">
         <h1
-          className="text-2xl sm:text-3xl font-bold tracking-wide truncate"
+          className="text-2xl sm:text-3xl font-bold tracking-wide"
           title={displayName || 'YOUR NAME'}
           style={{
             WebkitTextStroke: (textColor || '#FFFFFF').toUpperCase() === '#FFFFFF'
@@ -46,7 +47,7 @@ function ConfirmedFront({
             fontFamily: "'Nanum Myeongjo', serif",
           }}
         >
-          {displayName || 'YOUR NAME'}
+          {renderMultiLine(displayName || 'YOUR NAME')}
         </h1>
       </div>
     </div>
@@ -76,29 +77,32 @@ function ConfirmedBack({
       {/* Upper area (~80%): Name, title, hashtags */}
       <div className="flex-1 min-h-0">
         <h2
-          className="text-[24px] font-bold mb-1 truncate"
+          className="text-[24px] font-bold mb-1"
           title={fullName || 'FULL NAME'}
           style={{ color: textColor || '#000000', fontFamily: "'Nanum Myeongjo', serif" }}
         >
-          {fullName || 'FULL NAME'}
+          {renderMultiLine(fullName || 'FULL NAME')}
         </h2>
         <p
-          className="text-[20px] mb-4 line-clamp-2"
+          className="text-[20px] mb-4"
           title={title || 'Your Title'}
           style={{ color: textColor || '#000000', opacity: 0.9, fontFamily: "'Nanum Myeongjo', serif" }}
         >
-          {title || 'Your Title'}
+          {renderMultiLine(title || 'Your Title')}
         </p>
         <div className="flex flex-wrap gap-1 overflow-hidden max-h-[6rem]">
-          {hashtags.map((tag, i) => (
-            <span
-              key={i}
-              className="font-medium text-[20px]"
-              style={{ color: textColor || '#000000' }}
-            >
-              {tag.startsWith('#') ? tag : `#${tag}`}
-            </span>
-          ))}
+          {hashtags.map((tag, i) => {
+            const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+            return (
+              <span
+                key={i}
+                className="font-medium text-[20px]"
+                style={{ color: textColor || '#000000' }}
+              >
+                {renderMultiLine(tagText)}
+              </span>
+            );
+          })}
         </div>
       </div>
 

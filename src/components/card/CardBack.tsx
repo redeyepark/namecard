@@ -2,6 +2,7 @@
 
 import { useCardStore } from '@/stores/useCardStore';
 import { extractHandle } from '@/lib/social-utils';
+import { renderMultiLine } from '@/lib/text-utils';
 
 export function CardBack() {
   const { back } = useCardStore((state) => state.card);
@@ -15,29 +16,32 @@ export function CardBack() {
       {/* Upper area (~80%): Name, title, hashtags */}
       <div className="flex-1 min-h-0">
         <h2
-          className="text-[24px] font-bold mb-1 truncate"
+          className="text-[24px] font-bold mb-1"
           title={back.fullName || 'FULL NAME'}
           style={{ color: back.textColor || '#000000', fontFamily: "'Nanum Myeongjo', serif" }}
         >
-          {back.fullName || 'FULL NAME'}
+          {renderMultiLine(back.fullName || 'FULL NAME')}
         </h2>
         <p
-          className="text-[20px] mb-4 line-clamp-2"
+          className="text-[20px] mb-4"
           title={back.title || 'Your Title'}
           style={{ color: back.textColor || '#000000', opacity: 0.9, fontFamily: "'Nanum Myeongjo', serif" }}
         >
-          {back.title || 'Your Title'}
+          {renderMultiLine(back.title || 'Your Title')}
         </p>
         <div className="flex flex-wrap gap-1 overflow-hidden max-h-[6rem]">
-          {back.hashtags.map((tag, i) => (
-            <span
-              key={i}
-              className="font-medium text-[20px]"
-              style={{ color: back.textColor || '#000000' }}
-            >
-              {tag.startsWith('#') ? tag : `#${tag}`}
-            </span>
-          ))}
+          {back.hashtags.map((tag, i) => {
+            const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+            return (
+              <span
+                key={i}
+                className="font-medium text-[20px]"
+                style={{ color: back.textColor || '#000000' }}
+              >
+                {renderMultiLine(tagText)}
+              </span>
+            );
+          })}
         </div>
       </div>
 
