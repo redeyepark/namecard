@@ -13,10 +13,12 @@ function ConfirmedFront({
   displayName,
   illustrationUrl,
   backgroundColor,
+  textColor,
 }: {
   displayName: string;
   illustrationUrl: string;
   backgroundColor: string;
+  textColor: string;
 }) {
   return (
     <div
@@ -36,8 +38,10 @@ function ConfirmedFront({
           className="text-2xl sm:text-3xl font-bold tracking-wide truncate"
           title={displayName || 'YOUR NAME'}
           style={{
-            WebkitTextStroke: '1px rgba(0, 0, 0, 0.8)',
-            color: 'white',
+            WebkitTextStroke: (textColor || '#FFFFFF').toUpperCase() === '#FFFFFF'
+              ? '1px rgba(0, 0, 0, 0.8)'
+              : '1px rgba(255, 255, 255, 0.6)',
+            color: textColor || '#FFFFFF',
             paintOrder: 'stroke fill',
             fontFamily: "'Nanum Myeongjo', serif",
           }}
@@ -55,12 +59,14 @@ function ConfirmedBack({
   hashtags,
   socialLinks,
   backgroundColor,
+  textColor,
 }: {
   fullName: string;
   title: string;
   hashtags: string[];
   socialLinks: { platform: string; url: string; label: string }[];
   backgroundColor: string;
+  textColor: string;
 }) {
   return (
     <div
@@ -70,22 +76,26 @@ function ConfirmedBack({
       {/* Upper area (~80%): Name, title, hashtags */}
       <div className="flex-1 min-h-0">
         <h2
-          className="text-[30px] font-bold text-black mb-1 truncate"
+          className="text-[30px] font-bold mb-1 truncate"
           title={fullName || 'FULL NAME'}
-          style={{ fontFamily: "'Nanum Myeongjo', serif" }}
+          style={{ color: textColor || '#000000', fontFamily: "'Nanum Myeongjo', serif" }}
         >
           {fullName || 'FULL NAME'}
         </h2>
         <p
-          className="text-black/90 text-[20px] mb-4 line-clamp-2"
+          className="text-[20px] mb-4 line-clamp-2"
           title={title || 'Your Title'}
-          style={{ fontFamily: "'Nanum Myeongjo', serif" }}
+          style={{ color: textColor || '#000000', opacity: 0.9, fontFamily: "'Nanum Myeongjo', serif" }}
         >
           {title || 'Your Title'}
         </p>
         <div className="flex flex-wrap gap-1 overflow-hidden max-h-[6rem]">
           {hashtags.map((tag, i) => (
-            <span key={i} className="text-black font-medium text-[20px]">
+            <span
+              key={i}
+              className="font-medium text-[20px]"
+              style={{ color: textColor || '#000000' }}
+            >
               {tag.startsWith('#') ? tag : `#${tag}`}
             </span>
           ))}
@@ -107,7 +117,8 @@ function ConfirmedBack({
             {sortedLinks.map((link, i) => (
               <p
                 key={i}
-                className="text-black/80 text-xs py-1.5 truncate text-right"
+                className="text-xs py-1.5 truncate text-right"
+                style={{ color: textColor || '#000000', opacity: 0.8 }}
               >
                 {link.platform}/{extractHandle(link.url || link.label)}
               </p>
@@ -137,6 +148,7 @@ export function ConfirmedCardPreview({
             displayName={card.front.displayName}
             illustrationUrl={illustrationUrl}
             backgroundColor={card.front.backgroundColor}
+            textColor={card.front.textColor}
           />
         ) : (
           <ConfirmedBack
@@ -145,6 +157,7 @@ export function ConfirmedCardPreview({
             hashtags={card.back.hashtags}
             socialLinks={card.back.socialLinks}
             backgroundColor={card.back.backgroundColor}
+            textColor={card.back.textColor}
           />
         )}
       </div>

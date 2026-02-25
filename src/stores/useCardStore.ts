@@ -15,7 +15,7 @@ const DEFAULT_CARD: CardData = {
     hashtags: ['#Keyword1', '#Keyword2'],
     socialLinks: [],
     backgroundColor: '#000000',
-    textColor: '#000000',
+    textColor: '#FFFFFF',
   },
 };
 
