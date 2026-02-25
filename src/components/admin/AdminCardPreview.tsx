@@ -80,62 +80,54 @@ function AdminPokemonFront({
 
   return (
     <div
-      className="relative w-full aspect-[29/45] overflow-hidden flex flex-col"
+      className="relative w-full aspect-[29/45] overflow-hidden"
       style={{
-        border: `4px solid ${typeColor}`,
         borderRadius: '12px',
-        backgroundColor: '#FAFAF9',
+        backgroundColor: '#808080',
         fontFamily: "'Nanum Myeongjo', serif",
       }}
     >
-      {/* Top bar */}
+      {/* Thick gold border frame */}
       <div
-        className="flex items-center justify-between px-3 py-2"
         style={{
-          backgroundColor: `${typeColor}26`,
-          borderBottom: `1px solid ${typeColor}40`,
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '12px',
+          border: '5px solid #EED171',
+          pointerEvents: 'none',
+          zIndex: 10,
+        }}
+      />
+
+      {/* Inner content area */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '5px',
+          left: '5px',
+          right: '5px',
+          bottom: '5px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <div className="flex-1 min-w-0 overflow-hidden">
-          {card.back.title && (
-            <p
-              className="truncate leading-tight"
-              style={{ fontSize: '10px', color: '#555555', fontFamily: "'Nanum Myeongjo', serif" }}
-            >
-              {card.back.title}
-            </p>
-          )}
-          <h1
-            className="font-bold truncate leading-tight"
-            title={card.front.displayName || 'YOUR NAME'}
-            style={{ fontSize: '18px', color: '#1A1A1A', fontFamily: "'Nanum Myeongjo', serif" }}
-          >
-            {renderMultiLine(card.front.displayName || 'YOUR NAME')}
-          </h1>
-        </div>
-        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-          <span className="font-bold" style={{ fontSize: '12px', color: '#1A1A1A' }}>
-            EXP {exp}
-          </span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox={typeConfig.iconData.viewBox}
-            style={{ width: '16px', height: '16px', fill: typeColor, flexShrink: 0 }}
-          >
-            <path d={typeConfig.iconData.path} />
-          </svg>
-        </div>
-      </div>
-
-      {/* Center: Photo */}
-      <div className="flex-1 flex items-center justify-center px-3 py-2" style={{ minHeight: 0 }}>
+        {/* Double decorative inner border strip */}
         <div
-          className="w-full overflow-hidden"
           style={{
-            border: `2px solid ${typeColor}`,
-            borderRadius: '8px',
-            height: '100%',
+            flexShrink: 0,
+            height: '4px',
+            background: 'linear-gradient(to bottom, #736F6B 0%, #736F6B 50%, #E1DFDE 50%, #E1DFDE 100%)',
+          }}
+        />
+
+        {/* Full-bleed illustration area */}
+        <div
+          style={{
+            flex: '1 1 63%',
             position: 'relative',
+            minHeight: 0,
+            backgroundColor: '#808080',
           }}
         >
           {imgSrc ? (
@@ -161,35 +153,129 @@ function AdminPokemonFront({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: `${typeColor}0D`,
+                backgroundColor: '#707070',
               }}
             >
-              <span style={{ color: '#999999', fontSize: '12px' }}>No Image</span>
+              <span style={{ color: '#AAAAAA', fontSize: '12px', fontFamily: "'Nanum Myeongjo', serif" }}>
+                No Image
+              </span>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Bottom: Hashtags */}
-      <div
-        className="px-3 py-2"
-        style={{
-          backgroundColor: `${typeColor}15`,
-          borderTop: `1px solid ${typeColor}30`,
-        }}
-      >
-        <div className="flex flex-wrap gap-1 overflow-hidden" style={{ maxHeight: '3rem' }}>
-          {card.back.hashtags.map((tag, i) => {
-            const tagText = tag.startsWith('#') ? tag : `#${tag}`;
-            return (
-              <span
-                key={i}
-                style={{ fontSize: '11px', color: '#444444', fontFamily: "'Nanum Myeongjo', serif" }}
-              >
-                {renderMultiLine(tagText)}
-              </span>
-            );
-          })}
+        {/* Semi-transparent bottom info section */}
+        <div
+          style={{
+            flexShrink: 0,
+            backgroundColor: 'rgba(234, 233, 234, 0.8)',
+            padding: '6px 10px',
+            minHeight: '17%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <h1
+            className="font-bold"
+            title={card.front.displayName || 'YOUR NAME'}
+            style={{
+              fontSize: '16px',
+              color: '#262626',
+              fontFamily: "'Nanum Myeongjo', serif",
+              lineHeight: '1.3',
+              margin: 0,
+            }}
+          >
+            {renderMultiLine(card.front.displayName || 'YOUR NAME')}
+          </h1>
+          {card.back.title && (
+            <p
+              style={{
+                fontSize: '10px',
+                color: '#555555',
+                fontFamily: "'Nanum Myeongjo', serif",
+                lineHeight: '1.3',
+                margin: '2px 0 0 0',
+              }}
+            >
+              {card.back.title}
+            </p>
+          )}
+          {card.back.hashtags.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '4px',
+                marginTop: '4px',
+                overflow: 'hidden',
+                maxHeight: '2.4em',
+              }}
+            >
+              {card.back.hashtags.map((tag, i) => {
+                const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+                return (
+                  <span
+                    key={i}
+                    style={{ fontSize: '9px', color: '#444444', fontFamily: "'Nanum Myeongjo', serif" }}
+                  >
+                    {renderMultiLine(tagText)}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Orange rounded HP badge */}
+        <div
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            padding: '4px 8px 6px 8px',
+            backgroundColor: '#808080',
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: '#EBB373',
+              border: '2px solid #E1DFDE',
+              borderRadius: '20px',
+              padding: '3px 10px',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                fontFamily: "'Nanum Myeongjo', serif",
+              }}
+            >
+              HP
+            </span>
+            <span
+              style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                fontFamily: "'Nanum Myeongjo', serif",
+              }}
+            >
+              {exp}
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox={typeConfig.iconData.viewBox}
+              style={{ width: '14px', height: '14px', fill: typeColor, flexShrink: 0 }}
+            >
+              <path d={typeConfig.iconData.path} />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
@@ -213,87 +299,132 @@ function AdminPokemonBack({
 
   return (
     <div
-      className="relative w-full aspect-[29/45] overflow-hidden flex flex-col"
+      className="relative w-full aspect-[29/45] overflow-hidden"
       style={{
-        border: '4px solid #2A1A4A',
         borderRadius: '12px',
-        background: 'linear-gradient(135deg, #1e3a5f, #4a1a6b)',
+        backgroundColor: '#808080',
         fontFamily: "'Nanum Myeongjo', serif",
       }}
     >
-      {/* Decorative pattern overlay */}
+      {/* Thick gold border frame */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          opacity: 0.08,
-          background:
-            'radial-gradient(circle at 30% 40%, rgba(255,255,255,0.4) 0%, transparent 50%), ' +
-            'radial-gradient(circle at 70% 60%, rgba(255,255,255,0.3) 0%, transparent 45%), ' +
-            'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2) 0%, transparent 60%), ' +
-            'radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15) 0%, transparent 40%), ' +
-            'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 40%)',
+          borderRadius: '12px',
+          border: '5px solid #EED171',
           pointerEvents: 'none',
+          zIndex: 10,
         }}
       />
 
-      {/* Main content */}
+      {/* Inner content area */}
       <div
-        className="relative flex-1 flex flex-col items-center justify-center px-4 py-6"
-        style={{ zIndex: 1 }}
+        style={{
+          position: 'absolute',
+          top: '5px',
+          left: '5px',
+          right: '5px',
+          bottom: '5px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
       >
-        <h2
-          className="font-bold text-center mb-1"
-          title={card.back.fullName || 'FULL NAME'}
-          style={{ fontSize: '22px', color: '#FFFFFF', fontFamily: "'Nanum Myeongjo', serif" }}
-        >
-          {renderMultiLine(card.back.fullName || 'FULL NAME')}
-        </h2>
-        <p
-          className="text-center mb-4"
-          title={card.back.title || 'Your Title'}
-          style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.75)', fontFamily: "'Nanum Myeongjo', serif" }}
-        >
-          {renderMultiLine(card.back.title || 'Your Title')}
-        </p>
-        {card.back.hashtags.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
-            {card.back.hashtags.map((tag, i) => {
-              const tagText = tag.startsWith('#') ? tag : `#${tag}`;
-              return (
-                <span
-                  key={i}
-                  style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', fontFamily: "'Nanum Myeongjo', serif" }}
-                >
-                  {renderMultiLine(tagText)}
-                </span>
-              );
-            })}
-          </div>
-        )}
-      </div>
+        {/* Double decorative inner border strip */}
+        <div
+          style={{
+            flexShrink: 0,
+            height: '4px',
+            background: 'linear-gradient(to bottom, #736F6B 0%, #736F6B 50%, #E1DFDE 50%, #E1DFDE 100%)',
+          }}
+        />
 
-      {/* Bottom social links */}
-      {sortedLinks.length > 0 && (
-        <div className="relative px-4 pb-3" style={{ zIndex: 1 }}>
-          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '8px' }}>
-            {sortedLinks.map((link, i) => (
-              <p
-                key={i}
-                className="truncate text-right"
-                style={{
-                  fontSize: '10px',
-                  color: 'rgba(255, 255, 255, 0.6)',
-                  lineHeight: '1.6',
-                  fontFamily: "'Nanum Myeongjo', serif",
-                }}
-              >
-                {link.platform}/{extractHandle(link.url || link.label)}
-              </p>
-            ))}
+        {/* Dark gradient content area */}
+        <div
+          style={{
+            flex: 1,
+            position: 'relative',
+            background: 'linear-gradient(135deg, #1e3a5f, #4a1a6b)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Decorative pattern overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: 0.08,
+              background:
+                'radial-gradient(circle at 30% 40%, rgba(255,255,255,0.4) 0%, transparent 50%), ' +
+                'radial-gradient(circle at 70% 60%, rgba(255,255,255,0.3) 0%, transparent 45%), ' +
+                'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2) 0%, transparent 60%), ' +
+                'radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15) 0%, transparent 40%), ' +
+                'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 40%)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Main content */}
+          <div
+            className="relative flex-1 flex flex-col items-center justify-center px-4 py-6"
+            style={{ zIndex: 1 }}
+          >
+            <h2
+              className="font-bold text-center mb-1"
+              title={card.back.fullName || 'FULL NAME'}
+              style={{ fontSize: '22px', color: '#FFFFFF', fontFamily: "'Nanum Myeongjo', serif" }}
+            >
+              {renderMultiLine(card.back.fullName || 'FULL NAME')}
+            </h2>
+            <p
+              className="text-center mb-4"
+              title={card.back.title || 'Your Title'}
+              style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.75)', fontFamily: "'Nanum Myeongjo', serif" }}
+            >
+              {renderMultiLine(card.back.title || 'Your Title')}
+            </p>
+            {card.back.hashtags.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
+                {card.back.hashtags.map((tag, i) => {
+                  const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+                  return (
+                    <span
+                      key={i}
+                      style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', fontFamily: "'Nanum Myeongjo', serif" }}
+                    >
+                      {renderMultiLine(tagText)}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
+
+          {/* Bottom social links */}
+          {sortedLinks.length > 0 && (
+            <div className="relative px-4 pb-3" style={{ zIndex: 1 }}>
+              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '8px' }}>
+                {sortedLinks.map((link, i) => (
+                  <p
+                    key={i}
+                    className="truncate text-right"
+                    style={{
+                      fontSize: '10px',
+                      color: 'rgba(255, 255, 255, 0.6)',
+                      lineHeight: '1.6',
+                      fontFamily: "'Nanum Myeongjo', serif",
+                    }}
+                  >
+                    {link.platform}/{extractHandle(link.url || link.label)}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -5,7 +5,9 @@ import { renderMultiLine } from '@/lib/text-utils';
 import { getPokemonTypeConfig } from './pokemon-types';
 
 /**
- * PokemonCardFront - Trading card style front layout.
+ * PokemonCardFront - Trading card style front layout matching reference SVG design.
+ * Gray base with thick gold border, full-bleed illustration, semi-transparent overlay,
+ * and orange HP badge.
  * Uses inline styles for all critical visual properties (html-to-image compatibility).
  */
 export function PokemonCardFront() {
@@ -17,85 +19,54 @@ export function PokemonCardFront() {
   return (
     <div
       id="card-front"
-      className="relative w-full aspect-[29/45] overflow-hidden flex flex-col"
+      className="relative w-full aspect-[29/45] overflow-hidden"
       style={{
-        border: `4px solid ${typeColor}`,
         borderRadius: '12px',
-        backgroundColor: '#FAFAF9',
+        backgroundColor: '#808080',
         fontFamily: "'Nanum Myeongjo', serif",
       }}
     >
-      {/* Top bar: title, name, EXP, type icon */}
+      {/* Thick gold border frame */}
       <div
-        className="flex items-center justify-between px-3 py-2"
         style={{
-          backgroundColor: `${typeColor}26`,
-          borderBottom: `1px solid ${typeColor}40`,
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '12px',
+          border: '5px solid #EED171',
+          pointerEvents: 'none',
+          zIndex: 10,
+        }}
+      />
+
+      {/* Inner content area (inside the gold border) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '5px',
+          left: '5px',
+          right: '5px',
+          bottom: '5px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {/* Left: title + display name */}
-        <div className="flex-1 min-w-0 overflow-hidden">
-          {back.title && (
-            <p
-              className="truncate leading-tight"
-              style={{
-                fontSize: '10px',
-                color: '#555555',
-                fontFamily: "'Nanum Myeongjo', serif",
-              }}
-            >
-              {back.title}
-            </p>
-          )}
-          <h1
-            className="font-bold truncate leading-tight"
-            title={front.displayName || 'YOUR NAME'}
-            style={{
-              fontSize: '18px',
-              color: '#1A1A1A',
-              fontFamily: "'Nanum Myeongjo', serif",
-            }}
-          >
-            {renderMultiLine(front.displayName || 'YOUR NAME')}
-          </h1>
-        </div>
-
-        {/* Right: EXP + type icon */}
-        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-          <span
-            className="font-bold"
-            style={{ fontSize: '12px', color: '#1A1A1A' }}
-          >
-            EXP {exp}
-          </span>
-          {/* Inline SVG type icon */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox={typeConfig.iconData.viewBox}
-            style={{
-              width: '16px',
-              height: '16px',
-              fill: typeColor,
-              flexShrink: 0,
-            }}
-          >
-            <path d={typeConfig.iconData.path} />
-          </svg>
-        </div>
-      </div>
-
-      {/* Center: Photo / illustration window */}
-      <div
-        className="flex-1 flex items-center justify-center px-3 py-2"
-        style={{ minHeight: 0 }}
-      >
+        {/* Double decorative inner border strip */}
         <div
-          className="w-full overflow-hidden"
           style={{
-            border: `2px solid ${typeColor}`,
-            borderRadius: '8px',
-            height: '100%',
+            flexShrink: 0,
+            height: '4px',
+            background: 'linear-gradient(to bottom, #736F6B 0%, #736F6B 50%, #E1DFDE 50%, #E1DFDE 100%)',
+          }}
+        />
+
+        {/* Full-bleed illustration area (~63% of card height) */}
+        <div
+          style={{
+            flex: '1 1 63%',
             position: 'relative',
+            minHeight: 0,
+            backgroundColor: '#808080',
           }}
         >
           {front.avatarImage ? (
@@ -120,44 +91,150 @@ export function PokemonCardFront() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: `${typeColor}0D`,
+                backgroundColor: '#707070',
               }}
             >
-              <span style={{ color: '#999999', fontSize: '12px' }}>
+              <span
+                style={{
+                  color: '#AAAAAA',
+                  fontSize: '12px',
+                  fontFamily: "'Nanum Myeongjo', serif",
+                }}
+              >
                 Upload Image
               </span>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Bottom section: Hashtags */}
-      <div
-        className="px-3 py-2"
-        style={{
-          backgroundColor: `${typeColor}15`,
-          borderTop: `1px solid ${typeColor}30`,
-        }}
-      >
+        {/* Semi-transparent bottom info section (~17% height) */}
         <div
-          className="flex flex-wrap gap-1 overflow-hidden"
-          style={{ maxHeight: '3rem' }}
+          style={{
+            flexShrink: 0,
+            backgroundColor: 'rgba(234, 233, 234, 0.8)',
+            padding: '6px 10px',
+            minHeight: '17%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
         >
-          {back.hashtags.map((tag, i) => {
-            const tagText = tag.startsWith('#') ? tag : `#${tag}`;
-            return (
-              <span
-                key={i}
-                style={{
-                  fontSize: '11px',
-                  color: '#444444',
-                  fontFamily: "'Nanum Myeongjo', serif",
-                }}
-              >
-                {renderMultiLine(tagText)}
-              </span>
-            );
-          })}
+          {/* Name (bold) */}
+          <h1
+            className="font-bold"
+            title={front.displayName || 'YOUR NAME'}
+            style={{
+              fontSize: '16px',
+              color: '#262626',
+              fontFamily: "'Nanum Myeongjo', serif",
+              lineHeight: '1.3',
+              margin: 0,
+            }}
+          >
+            {renderMultiLine(front.displayName || 'YOUR NAME')}
+          </h1>
+
+          {/* Title */}
+          {back.title && (
+            <p
+              style={{
+                fontSize: '10px',
+                color: '#555555',
+                fontFamily: "'Nanum Myeongjo', serif",
+                lineHeight: '1.3',
+                margin: '2px 0 0 0',
+              }}
+            >
+              {back.title}
+            </p>
+          )}
+
+          {/* Hashtags */}
+          {back.hashtags.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '4px',
+                marginTop: '4px',
+                overflow: 'hidden',
+                maxHeight: '2.4em',
+              }}
+            >
+              {back.hashtags.map((tag, i) => {
+                const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+                return (
+                  <span
+                    key={i}
+                    style={{
+                      fontSize: '9px',
+                      color: '#444444',
+                      fontFamily: "'Nanum Myeongjo', serif",
+                    }}
+                  >
+                    {renderMultiLine(tagText)}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Orange rounded HP badge */}
+        <div
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            padding: '4px 8px 6px 8px',
+            backgroundColor: '#808080',
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: '#EBB373',
+              border: '2px solid #E1DFDE',
+              borderRadius: '20px',
+              padding: '3px 10px',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                fontFamily: "'Nanum Myeongjo', serif",
+              }}
+            >
+              HP
+            </span>
+            <span
+              style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                fontFamily: "'Nanum Myeongjo', serif",
+              }}
+            >
+              {exp}
+            </span>
+            {/* Type icon inside HP badge */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox={typeConfig.iconData.viewBox}
+              style={{
+                width: '14px',
+                height: '14px',
+                fill: typeColor,
+                flexShrink: 0,
+              }}
+            >
+              <path d={typeConfig.iconData.path} />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
