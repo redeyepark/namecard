@@ -2,8 +2,24 @@
 
 import { useCardStore } from '@/stores/useCardStore';
 import { renderMultiLine } from '@/lib/text-utils';
+import { PokemonCardFront } from './PokemonCardFront';
 
+/**
+ * CardFront wrapper that delegates to the appropriate theme renderer.
+ * Classic theme preserves 100% original behavior.
+ */
 export function CardFront() {
+  const theme = useCardStore((state) => state.card.theme ?? 'classic');
+
+  if (theme === 'pokemon') return <PokemonCardFront />;
+  return <ClassicCardFront />;
+}
+
+/**
+ * ClassicCardFront - Identical to the original CardFront rendering.
+ * No changes to layout, styles, or behavior.
+ */
+function ClassicCardFront() {
   const { front } = useCardStore((state) => state.card);
 
   return (

@@ -4,10 +4,15 @@ import { useCardStore } from '@/stores/useCardStore';
 import { ImageUploader } from './ImageUploader';
 import { ColorPicker } from './ColorPicker';
 import { TextColorPicker } from './TextColorPicker';
+import { PokemonTypeSelector } from './PokemonTypeSelector';
+import { ExpInput } from './ExpInput';
 
 export function FrontEditor() {
   const front = useCardStore((state) => state.card.front);
+  const theme = useCardStore((state) => state.card.theme ?? 'classic');
   const updateFront = useCardStore((state) => state.updateFront);
+
+  const isPokemon = theme === 'pokemon';
 
   return (
     <div className="space-y-4">
@@ -26,15 +31,31 @@ export function FrontEditor() {
         />
       </div>
       <ImageUploader />
-      <ColorPicker
-        color={front.backgroundColor}
-        onChange={(color) => updateFront({ backgroundColor: color })}
-        label="Background Color"
-      />
-      <TextColorPicker
-        color={front.textColor || '#FFFFFF'}
-        onChange={(color) => updateFront({ textColor: color })}
-      />
+
+      {/* Pokemon-specific editors */}
+      {isPokemon && (
+        <>
+          <PokemonTypeSelector />
+          <ExpInput />
+        </>
+      )}
+
+      {/* Classic theme: show background color picker. Pokemon theme uses type colors instead. */}
+      {!isPokemon && (
+        <ColorPicker
+          color={front.backgroundColor}
+          onChange={(color) => updateFront({ backgroundColor: color })}
+          label="Background Color"
+        />
+      )}
+
+      {/* Text color picker: only relevant for classic theme */}
+      {!isPokemon && (
+        <TextColorPicker
+          color={front.textColor || '#FFFFFF'}
+          onChange={(color) => updateFront({ textColor: color })}
+        />
+      )}
     </div>
   );
 }

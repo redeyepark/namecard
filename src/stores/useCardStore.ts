@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { CardData, CardSide, SocialLink } from '@/types/card';
+import type { CardData, CardSide, CardTheme, PokemonType, SocialLink } from '@/types/card';
 
 const DEFAULT_CARD: CardData = {
   front: {
@@ -33,6 +33,9 @@ interface CardStore {
   addHashtag: (tag: string) => void;
   removeHashtag: (index: number) => void;
   resetCard: () => void;
+  setTheme: (theme: CardTheme) => void;
+  setPokemonType: (type: PokemonType) => void;
+  setPokemonExp: (exp: number) => void;
   setWizardStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -108,6 +111,35 @@ export const useCardStore = create<CardStore>()(
           },
         })),
       resetCard: () => set({ card: DEFAULT_CARD }),
+      setTheme: (theme) =>
+        set((state) => {
+          const updatedCard = { ...state.card, theme };
+          // Auto-create default pokemonMeta when switching to 'pokemon' if none exists
+          if (theme === 'pokemon' && !state.card.pokemonMeta) {
+            updatedCard.pokemonMeta = { type: 'electric', exp: 100 };
+          }
+          return { card: updatedCard };
+        }),
+      setPokemonType: (type) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            pokemonMeta: {
+              ...(state.card.pokemonMeta ?? { type: 'electric', exp: 100 }),
+              type,
+            },
+          },
+        })),
+      setPokemonExp: (exp) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            pokemonMeta: {
+              ...(state.card.pokemonMeta ?? { type: 'electric', exp: 100 }),
+              exp: Math.max(0, Math.min(999, exp)),
+            },
+          },
+        })),
       setWizardStep: (step) =>
         set({ wizardStep: Math.max(1, Math.min(5, step)) }),
       nextStep: () =>

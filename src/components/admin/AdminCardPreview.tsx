@@ -5,6 +5,7 @@ import type { CardData } from '@/types/card';
 import { extractHandle } from '@/lib/social-utils';
 import { convertGoogleDriveUrl } from '@/lib/url-utils';
 import { renderMultiLine } from '@/lib/text-utils';
+import { getPokemonTypeConfig } from '@/components/card/pokemon-types';
 
 interface AdminCardPreviewProps {
   card: CardData;
@@ -58,6 +59,241 @@ function AdminFront({
           {renderMultiLine(displayName || 'YOUR NAME')}
         </h1>
       </div>
+    </div>
+  );
+}
+
+/** Pokemon theme front for admin preview - reads from props instead of store */
+function AdminPokemonFront({
+  card,
+  illustrationUrl,
+}: {
+  card: CardData;
+  illustrationUrl: string | null;
+}) {
+  const typeConfig = getPokemonTypeConfig(card.pokemonMeta?.type ?? 'electric');
+  const exp = card.pokemonMeta?.exp ?? 100;
+  const typeColor = typeConfig.color;
+  const imgSrc = illustrationUrl
+    ? convertGoogleDriveUrl(illustrationUrl) || illustrationUrl
+    : null;
+
+  return (
+    <div
+      className="relative w-full aspect-[29/45] overflow-hidden flex flex-col"
+      style={{
+        border: `4px solid ${typeColor}`,
+        borderRadius: '12px',
+        backgroundColor: '#FAFAF9',
+        fontFamily: "'Nanum Myeongjo', serif",
+      }}
+    >
+      {/* Top bar */}
+      <div
+        className="flex items-center justify-between px-3 py-2"
+        style={{
+          backgroundColor: `${typeColor}26`,
+          borderBottom: `1px solid ${typeColor}40`,
+        }}
+      >
+        <div className="flex-1 min-w-0 overflow-hidden">
+          {card.back.title && (
+            <p
+              className="truncate leading-tight"
+              style={{ fontSize: '10px', color: '#555555', fontFamily: "'Nanum Myeongjo', serif" }}
+            >
+              {card.back.title}
+            </p>
+          )}
+          <h1
+            className="font-bold truncate leading-tight"
+            title={card.front.displayName || 'YOUR NAME'}
+            style={{ fontSize: '18px', color: '#1A1A1A', fontFamily: "'Nanum Myeongjo', serif" }}
+          >
+            {renderMultiLine(card.front.displayName || 'YOUR NAME')}
+          </h1>
+        </div>
+        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+          <span className="font-bold" style={{ fontSize: '12px', color: '#1A1A1A' }}>
+            EXP {exp}
+          </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox={typeConfig.iconData.viewBox}
+            style={{ width: '16px', height: '16px', fill: typeColor, flexShrink: 0 }}
+          >
+            <path d={typeConfig.iconData.path} />
+          </svg>
+        </div>
+      </div>
+
+      {/* Center: Photo */}
+      <div className="flex-1 flex items-center justify-center px-3 py-2" style={{ minHeight: 0 }}>
+        <div
+          className="w-full overflow-hidden"
+          style={{
+            border: `2px solid ${typeColor}`,
+            borderRadius: '8px',
+            height: '100%',
+            position: 'relative',
+          }}
+        >
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt="Illustration"
+              referrerPolicy="no-referrer"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: `${typeColor}0D`,
+              }}
+            >
+              <span style={{ color: '#999999', fontSize: '12px' }}>No Image</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom: Hashtags */}
+      <div
+        className="px-3 py-2"
+        style={{
+          backgroundColor: `${typeColor}15`,
+          borderTop: `1px solid ${typeColor}30`,
+        }}
+      >
+        <div className="flex flex-wrap gap-1 overflow-hidden" style={{ maxHeight: '3rem' }}>
+          {card.back.hashtags.map((tag, i) => {
+            const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+            return (
+              <span
+                key={i}
+                style={{ fontSize: '11px', color: '#444444', fontFamily: "'Nanum Myeongjo', serif" }}
+              >
+                {renderMultiLine(tagText)}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Pokemon theme back for admin preview - reads from props instead of store */
+function AdminPokemonBack({
+  card,
+}: {
+  card: CardData;
+}) {
+  const platformOrder = ['phone', 'youtube', 'facebook', 'instagram', 'linkedin', 'email'];
+  const sortedLinks = card.back.socialLinks
+    .filter((link) => link.url || link.label)
+    .sort((a, b) => {
+      const aIdx = platformOrder.indexOf(a.platform);
+      const bIdx = platformOrder.indexOf(b.platform);
+      return (aIdx === -1 ? platformOrder.length : aIdx) - (bIdx === -1 ? platformOrder.length : bIdx);
+    });
+
+  return (
+    <div
+      className="relative w-full aspect-[29/45] overflow-hidden flex flex-col"
+      style={{
+        border: '4px solid #2A1A4A',
+        borderRadius: '12px',
+        background: 'linear-gradient(135deg, #1e3a5f, #4a1a6b)',
+        fontFamily: "'Nanum Myeongjo', serif",
+      }}
+    >
+      {/* Decorative pattern overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.08,
+          background:
+            'radial-gradient(circle at 30% 40%, rgba(255,255,255,0.4) 0%, transparent 50%), ' +
+            'radial-gradient(circle at 70% 60%, rgba(255,255,255,0.3) 0%, transparent 45%), ' +
+            'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2) 0%, transparent 60%), ' +
+            'radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15) 0%, transparent 40%), ' +
+            'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 40%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Main content */}
+      <div
+        className="relative flex-1 flex flex-col items-center justify-center px-4 py-6"
+        style={{ zIndex: 1 }}
+      >
+        <h2
+          className="font-bold text-center mb-1"
+          title={card.back.fullName || 'FULL NAME'}
+          style={{ fontSize: '22px', color: '#FFFFFF', fontFamily: "'Nanum Myeongjo', serif" }}
+        >
+          {renderMultiLine(card.back.fullName || 'FULL NAME')}
+        </h2>
+        <p
+          className="text-center mb-4"
+          title={card.back.title || 'Your Title'}
+          style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.75)', fontFamily: "'Nanum Myeongjo', serif" }}
+        >
+          {renderMultiLine(card.back.title || 'Your Title')}
+        </p>
+        {card.back.hashtags.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
+            {card.back.hashtags.map((tag, i) => {
+              const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+              return (
+                <span
+                  key={i}
+                  style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', fontFamily: "'Nanum Myeongjo', serif" }}
+                >
+                  {renderMultiLine(tagText)}
+                </span>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom social links */}
+      {sortedLinks.length > 0 && (
+        <div className="relative px-4 pb-3" style={{ zIndex: 1 }}>
+          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '8px' }}>
+            {sortedLinks.map((link, i) => (
+              <p
+                key={i}
+                className="truncate text-right"
+                style={{
+                  fontSize: '10px',
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  lineHeight: '1.6',
+                  fontFamily: "'Nanum Myeongjo', serif",
+                }}
+              >
+                {link.platform}/{extractHandle(link.url || link.label)}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -147,17 +383,24 @@ export function AdminCardPreview({
   illustrationUrl,
 }: AdminCardPreviewProps) {
   const [side, setSide] = useState<'front' | 'back'>('front');
+  const isPokemon = card.theme === 'pokemon';
 
   return (
     <div>
       <div className="max-w-xs mx-auto">
         {side === 'front' ? (
-          <AdminFront
-            displayName={card.front.displayName}
-            illustrationUrl={illustrationUrl}
-            backgroundColor={card.front.backgroundColor}
-            textColor={card.front.textColor}
-          />
+          isPokemon ? (
+            <AdminPokemonFront card={card} illustrationUrl={illustrationUrl} />
+          ) : (
+            <AdminFront
+              displayName={card.front.displayName}
+              illustrationUrl={illustrationUrl}
+              backgroundColor={card.front.backgroundColor}
+              textColor={card.front.textColor}
+            />
+          )
+        ) : isPokemon ? (
+          <AdminPokemonBack card={card} />
         ) : (
           <AdminBack
             fullName={card.back.fullName}

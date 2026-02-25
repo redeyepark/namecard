@@ -3,8 +3,24 @@
 import { useCardStore } from '@/stores/useCardStore';
 import { extractHandle } from '@/lib/social-utils';
 import { renderMultiLine } from '@/lib/text-utils';
+import { PokemonCardBack } from './PokemonCardBack';
 
+/**
+ * CardBack wrapper that delegates to the appropriate theme renderer.
+ * Classic theme preserves 100% original behavior.
+ */
 export function CardBack() {
+  const theme = useCardStore((state) => state.card.theme ?? 'classic');
+
+  if (theme === 'pokemon') return <PokemonCardBack />;
+  return <ClassicCardBack />;
+}
+
+/**
+ * ClassicCardBack - Identical to the original CardBack rendering.
+ * No changes to layout, styles, or behavior.
+ */
+function ClassicCardBack() {
   const { back } = useCardStore((state) => state.card);
 
   return (
