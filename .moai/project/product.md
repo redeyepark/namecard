@@ -63,6 +63,8 @@
 - 외부 URL 이미지 지원: 일러스트 이미지로 파일 업로드 외에 외부 URL 직접 입력 가능
 - Google Drive URL 자동 변환: Google Drive 공유 URL을 직접 이미지 URL(`lh3.googleusercontent.com`)로 자동 변환하여 일러스트 이미지 표시 (`convertGoogleDriveUrl` 공유 유틸리티)
 - 원본 카드와 일러스트 비교 뷰 (이미지 로드 실패 시 에러 핸들링 및 디버그 정보 표시)
+- 테마 관리 페이지 (`/admin/themes`): 테마 미리보기 갤러리, 테마별 의뢰 통계, 일괄 테마 적용
+- 요청 상세에서 테마 및 메타데이터 편집 가능
 - CSV/Excel 대량 등록: CSV(.csv) 및 Excel(.xlsx, .xls) 파일을 통한 명함 제작 요청 일괄 등록
   - 12개 컬럼 형식: 사진URL, 앞면이름, 뒷면이름, 관심사, 키워드1-3, 이메일, Facebook, Instagram, LinkedIn, 배경색
   - 소셜 링크 라벨 처리: URL에서 실제 고객 핸들을 추출하여 라벨로 사용 (`extractSocialHandle()` 함수). 플랫폼명 대신 `@username` 형태로 표시
@@ -73,6 +75,16 @@
   - Supabase Auth REST API를 통한 직접 HTTP 요청으로 사용자 생성 (`POST ${supabaseUrl}/auth/v1/admin/users`)
   - Cloudflare Workers 엣지 런타임 호환: SDK admin 메서드 대신 REST API fetch() 호출 사용
   - 응답에 자동 등록된 사용자 수(`autoRegistered`) 포함
+
+### 테마 시스템
+
+- 3개 테마 지원: Classic (기본), Pokemon (트레이딩 카드), Hearthstone (전설 카드)
+- 테마별 고유 디자인 요소
+- **Pokemon 테마**: 7개 타입(Fire, Water, Grass, Electric, Psychic, Steel, Normal), 골드 프레임(#EED171), HP 배지, 타입 아이콘
+- **Hearthstone 테마**: 9개 직업(Warrior, Mage, Rogue, Priest, Hunter, Paladin, Shaman, Warlock, Druid), 석재/금색 프레임(#8B6914), 마나 크리스탈, 공격/체력 스탯
+- 에디터에서 실시간 테마 전환 및 미리보기
+- 테마별 메타데이터 편집 (타입 선택, 스탯 입력)
+- 하위 호환성: theme 필드 없는 기존 카드는 자동 classic 처리
 
 ### 명함 앞면/뒷면 실시간 편집 및 미리보기
 
@@ -195,6 +207,7 @@ submitted (의뢰됨) -> confirmed (확정)      # 사용자가 대시보드에�
 | `/dashboard/[id]` | 인증 필요 | 사용자 요청 상세 (소유권 검증) |
 | `/admin` | 관리자 전용 | 관리자 대시보드 |
 | `/admin/[id]` | 관리자 전용 | 요청 상세 페이지 |
+| `/admin/themes` | 관리자 전용 | 테마 관리 (미리보기, 통계, 일괄 적용) |
 
 ## 접근성(Accessibility) 지원
 

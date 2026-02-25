@@ -30,15 +30,26 @@ namecard/
 │   │   ├── admin/
 │   │   │   ├── layout.tsx                 # Admin 레이아웃 (UserMenu, 인증 확인)
 │   │   │   ├── page.tsx                   # 관리자 대시보드 (요청 목록)
-│   │   │   └── [id]/
-│   │   │       └── page.tsx               # 요청 상세 (상태 관리, 일러스트 업로드)
+│   │   │   ├── [id]/
+│   │   │   │   └── page.tsx               # 요청 상세 (상태 관리, 일러스트 업로드)
+│   │   │   ├── themes/
+│   │   │   │   └── page.tsx               # 테마 관리 페이지 (미리보기, 통계, 일괄 적용)
+│   │   │   └── login/
+│   │   │       ├── layout.tsx             # 관리자 로그인 레이아웃
+│   │   │       └── page.tsx               # 관리자 로그인 페이지
 │   │   └── api/
 │   │       ├── auth/
 │   │       │   └── me/
 │   │       │       └── route.ts           # 사용자 정보 + isAdmin 상태 API
 │   │       ├── admin/
-│   │       │   └── bulk-upload/
-│   │       │       └── route.ts           # POST (CSV 대량 등록, requireAdmin, 이메일 자동 회원가입, extractSocialHandle)
+│   │       │   ├── bulk-upload/
+│   │       │   │   └── route.ts           # POST (CSV 대량 등록, requireAdmin, 이메일 자동 회원가입, extractSocialHandle)
+│   │       │   ├── themes/
+│   │       │   │   └── route.ts           # GET (테마별 의뢰 통계), PATCH (일괄 테마 적용)
+│   │       │   ├── login/
+│   │       │   │   └── route.ts           # 관리자 로그인 API
+│   │       │   └── logout/
+│   │       │       └── route.ts           # 관리자 로그아웃 API
 │   │       └── requests/
 │   │           ├── route.ts               # POST (요청 생성, requireAuth), GET (목록, requireAdmin)
 │   │           ├── my/
@@ -52,19 +63,30 @@ namecard/
 │   │   │   └── UserMenu.tsx               # 사용자 정보 + 관리자 배지 + 로그아웃 (useAuth)
 │   │   ├── landing/                       # 랜딩 페이지 컴포넌트
 │   │   │   └── LandingPage.tsx            # 인증 상태 기반 CTA가 있는 랜딩 페이지
-│   │   ├── card/                          # 카드 미리보기 컴포넌트
-│   │   │   ├── CardFront.tsx              # 앞면 미리보기
-│   │   │   ├── CardBack.tsx               # 뒷면 미리보기
-│   │   │   └── CardPreview.tsx            # 프리뷰 컨테이너 (플립 애니메이션)
+│   │   ├── card/                          # 카드 미리보기 컴포넌트 (테마 기반 위임 패턴)
+│   │   │   ├── CardFront.tsx              # 앞면 래퍼 (theme에 따라 Classic/Pokemon/Hearthstone 위임)
+│   │   │   ├── CardBack.tsx               # 뒷면 래퍼 (theme에 따라 Classic/Pokemon/Hearthstone 위임)
+│   │   │   ├── CardPreview.tsx            # 프리뷰 컨테이너 (플립 애니메이션)
+│   │   │   ├── PokemonCardFront.tsx       # Pokemon 테마 앞면 (골드 프레임, HP 배지)
+│   │   │   ├── PokemonCardBack.tsx        # Pokemon 테마 뒷면 (그라데이션 배경)
+│   │   │   ├── pokemon-types.ts           # Pokemon 7개 타입 정의, 색상, SVG 아이콘
+│   │   │   ├── HearthstoneCardFront.tsx   # Hearthstone 테마 앞면 (석재 프레임, 마나, 공격/체력)
+│   │   │   ├── HearthstoneCardBack.tsx    # Hearthstone 테마 뒷면 (다크 브라운 배경)
+│   │   │   └── hearthstone-types.ts       # Hearthstone 9개 직업 정의, 색상, SVG 아이콘
 │   │   ├── editor/                        # 편집기 폼 컴포넌트
 │   │   │   ├── EditorPanel.tsx            # 편집기 패널 컨테이너
-│   │   │   ├── FrontEditor.tsx            # 앞면 편집 필드
+│   │   │   ├── FrontEditor.tsx            # 앞면 편집 필드 (ThemeSelector, 테마별 메타데이터 편집 포함)
 │   │   │   ├── BackEditor.tsx             # 뒷면 편집 필드
 │   │   │   ├── ImageUploader.tsx          # 이미지 업로드 (드래그 앤 드롭, 5MB 제한)
 │   │   │   ├── ColorPicker.tsx            # react-colorful 래퍼
 │   │   │   ├── TextColorPicker.tsx        # 텍스트 색상 선택기 (화이트/블랙 2옵션)
 │   │   │   ├── HashtagEditor.tsx          # 해시태그 태그 관리
-│   │   │   └── SocialLinkEditor.tsx       # 소셜 링크 CRUD
+│   │   │   ├── SocialLinkEditor.tsx       # 소셜 링크 CRUD
+│   │   │   ├── ThemeSelector.tsx          # 테마 선택기 (Classic / Pokemon / Hearthstone)
+│   │   │   ├── PokemonTypeSelector.tsx    # Pokemon 타입 선택 그리드
+│   │   │   ├── ExpInput.tsx              # EXP 숫자 입력
+│   │   │   ├── HearthstoneClassSelector.tsx # Hearthstone 직업 선택 그리드
+│   │   │   └── HearthstoneStatInput.tsx   # Mana/Attack/Health 스탯 입력
 │   │   ├── export/                        # 내보내기 컴포넌트
 │   │   │   └── ExportButton.tsx           # PNG 내보내기 (2x 해상도)
 │   │   ├── ui/                            # 범용 UI 컴포넌트
@@ -208,11 +230,22 @@ layout.tsx (Root - AuthProvider 래핑)
 │
 ├── create/edit/page.tsx (Editor)  # 카드 편집기 (임시 /dashboard 리다이렉트)
 │   ├── CardPreview
-│   │   ├── CardFront              # 앞면 미리보기
-│   │   └── CardBack               # 뒷면 미리보기
+│   │   ├── CardFront              # 앞면 래퍼 (테마 기반 위임)
+│   │   │   ├── (classic)          # Classic 앞면 (기본, theme 없는 경우 포함)
+│   │   │   ├── PokemonCardFront   # Pokemon 앞면 (골드 프레임, HP 배지, 타입 아이콘)
+│   │   │   └── HearthstoneCardFront # Hearthstone 앞면 (석재 프레임, 마나, 공격/체력)
+│   │   └── CardBack               # 뒷면 래퍼 (테마 기반 위임)
+│   │       ├── (classic)          # Classic 뒷면 (기본, theme 없는 경우 포함)
+│   │       ├── PokemonCardBack    # Pokemon 뒷면 (그라데이션 배경)
+│   │       └── HearthstoneCardBack # Hearthstone 뒷면 (다크 브라운 배경)
 │   ├── TabSwitch                  # 앞면/뒷면 탭 전환
 │   ├── EditorPanel
 │   │   ├── FrontEditor            # 앞면 편집
+│   │   │   ├── ThemeSelector      # 테마 선택 (Classic/Pokemon/Hearthstone)
+│   │   │   ├── PokemonTypeSelector # Pokemon 타입 선택 그리드
+│   │   │   ├── ExpInput           # EXP 숫자 입력
+│   │   │   ├── HearthstoneClassSelector # Hearthstone 직업 선택 그리드
+│   │   │   ├── HearthstoneStatInput # Mana/Attack/Health 스탯 입력
 │   │   │   ├── ImageUploader      # 이미지 업로드
 │   │   │   ├── ColorPicker        # 배경색 선택
 │   │   │   └── TextColorPicker    # 텍스트 색상 선택
@@ -244,11 +277,16 @@ layout.tsx (Root - AuthProvider 래핑)
 │   └── RequestList                # 요청 목록 테이블
 │       └── StatusBadge            # 상태 배지
 │
-└── admin/[id]/page.tsx (Detail)   # 요청 상세
-    ├── RequestDetail              # 요청 상세 뷰
-    ├── StatusHistory              # 상태 변경 이력
-    ├── CardCompare                # 원본 vs 일러스트 비교
-    └── IllustrationUploader       # 일러스트 업로드
+├── admin/[id]/page.tsx (Detail)   # 요청 상세
+│   ├── RequestDetail              # 요청 상세 뷰 (테마 및 메타데이터 편집 포함)
+│   ├── StatusHistory              # 상태 변경 이력
+│   ├── CardCompare                # 원본 vs 일러스트 비교
+│   └── IllustrationUploader       # 일러스트 업로드
+│
+└── admin/themes/page.tsx (Themes) # 테마 관리
+    ├── 테마 미리보기 갤러리        # Classic/Pokemon/Hearthstone 미리보기
+    ├── 테마별 의뢰 통계            # 테마 사용 현황
+    └── 일괄 테마 적용              # 필터 기반 대량 테마 변경
 ```
 
 ## 주요 디렉토리 설명
@@ -264,13 +302,13 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/app/admin/` | 관리자 대시보드 및 요청 상세 페이지 |
 | `src/components/auth/` | 인증 관련 컴포넌트 (AuthProvider, LoginButton, UserMenu) |
 | `src/components/landing/` | 랜딩 페이지 컴포넌트 |
-| `src/components/card/` | 명함 미리보기 렌더링 컴포넌트 |
-| `src/components/editor/` | 명함 편집 폼 컴포넌트 |
+| `src/components/card/` | 명함 미리보기 렌더링 컴포넌트 (테마 기반 위임 패턴: CardFront/CardBack이 theme 값에 따라 Classic/Pokemon/Hearthstone 컴포넌트로 위임) |
+| `src/components/editor/` | 명함 편집 폼 컴포넌트 (ThemeSelector, PokemonTypeSelector, HearthstoneClassSelector 등 테마 편집 UI 포함) |
 | `src/components/export/` | PNG 이미지 내보내기 관련 컴포넌트 |
 | `src/components/ui/` | 범용 UI 컴포넌트 (탭, 버튼) |
 | `src/components/wizard/` | 6단계 명함 제작 위저드 컴포넌트 |
 | `src/components/dashboard/` | 사용자 대시보드 컴포넌트 (ProgressStepper, MyRequestList, RequestCard, EmptyState, MyRequestDetail) |
-| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader 등) |
+| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, AdminCardPreview, AdminLogoutButton 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
 | `src/types/` | TypeScript 타입 정의 (카드, 요청) |
 | `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수 포함 |
@@ -281,13 +319,13 @@ layout.tsx (Root - AuthProvider 래핑)
 
 | 카테고리 | 파일 수 |
 |---------|--------|
-| 페이지/레이아웃 (`.tsx` in `app/`) | 13 |
-| API 라우트 (`.ts` in `app/api/`) | 5 |
-| React 컴포넌트 (`.tsx` in `components/`) | 34 |
+| 페이지/레이아웃 (`.tsx` in `app/`) | 16 |
+| API 라우트 (`.ts` in `app/api/`) | 10 |
+| React 컴포넌트 (`.tsx` in `components/`) | 53 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
 | 타입 정의 (`.ts` in `types/`) | 2 |
 | 유틸리티 (`.ts` in `lib/`) | 8 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 66 |
+| 총 소스 파일 | 98 |
