@@ -93,7 +93,7 @@ function AdminPokemonFront({
           position: 'absolute',
           inset: 0,
           borderRadius: '12px',
-          border: '5px solid #EED171',
+          border: '10px solid #EED171',
           pointerEvents: 'none',
           zIndex: 10,
         }}
@@ -312,7 +312,7 @@ function AdminPokemonBack({
           position: 'absolute',
           inset: 0,
           borderRadius: '12px',
-          border: '5px solid #EED171',
+          border: '10px solid #EED171',
           pointerEvents: 'none',
           zIndex: 10,
         }}
