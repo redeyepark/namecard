@@ -4,6 +4,7 @@ import { useCardStore } from '@/stores/useCardStore';
 import { extractHandle } from '@/lib/social-utils';
 import { renderMultiLine } from '@/lib/text-utils';
 import { PokemonCardBack } from './PokemonCardBack';
+import { HearthstoneCardBack } from './HearthstoneCardBack';
 
 /**
  * CardBack wrapper that delegates to the appropriate theme renderer.
@@ -13,6 +14,7 @@ export function CardBack() {
   const theme = useCardStore((state) => state.card.theme ?? 'classic');
 
   if (theme === 'pokemon') return <PokemonCardBack />;
+  if (theme === 'hearthstone') return <HearthstoneCardBack />;
   return <ClassicCardBack />;
 }
 

@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { requireAdminToken, AuthError } from '@/lib/auth-utils';
-import type { CardTheme, PokemonMeta, PokemonType } from '@/types/card';
+import type { CardTheme, PokemonMeta, PokemonType, HearthstoneMeta, HearthstoneClass } from '@/types/card';
 
 interface ThemeStats {
   theme: string;
   count: number;
 }
 
-const VALID_THEMES: CardTheme[] = ['classic', 'pokemon'];
+const VALID_THEMES: CardTheme[] = ['classic', 'pokemon', 'hearthstone'];
 const VALID_POKEMON_TYPES: PokemonType[] = [
   'fire', 'water', 'grass', 'electric', 'psychic', 'steel', 'normal',
+];
+const VALID_HEARTHSTONE_CLASSES: HearthstoneClass[] = [
+  'warrior', 'mage', 'rogue', 'priest', 'hunter', 'paladin', 'shaman', 'warlock', 'druid',
 ];
 
 /**
@@ -72,9 +75,10 @@ export async function PATCH(request: NextRequest) {
     await requireAdminToken();
 
     const body = await request.json();
-    const { targetTheme, pokemonMeta, filters } = body as {
+    const { targetTheme, pokemonMeta, hearthstoneMeta, filters } = body as {
       targetTheme?: CardTheme;
       pokemonMeta?: PokemonMeta;
+      hearthstoneMeta?: HearthstoneMeta;
       filters?: { status?: string; currentTheme?: string };
     };
 
@@ -97,6 +101,34 @@ export async function PATCH(request: NextRequest) {
       if (pokemonMeta.exp === undefined || pokemonMeta.exp < 0 || pokemonMeta.exp > 999) {
         return NextResponse.json(
           { error: 'Invalid pokemonMeta.exp', details: 'EXP must be between 0 and 999' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate hearthstoneMeta when target is hearthstone
+    if (targetTheme === 'hearthstone') {
+      if (!hearthstoneMeta || !hearthstoneMeta.classType || !VALID_HEARTHSTONE_CLASSES.includes(hearthstoneMeta.classType)) {
+        return NextResponse.json(
+          { error: 'Invalid hearthstoneMeta', details: 'Hearthstone theme requires a valid hearthstoneMeta with classType' },
+          { status: 400 }
+        );
+      }
+      if (hearthstoneMeta.mana === undefined || hearthstoneMeta.mana < 0 || hearthstoneMeta.mana > 10) {
+        return NextResponse.json(
+          { error: 'Invalid hearthstoneMeta.mana', details: 'Mana must be between 0 and 10' },
+          { status: 400 }
+        );
+      }
+      if (hearthstoneMeta.attack === undefined || hearthstoneMeta.attack < 0 || hearthstoneMeta.attack > 12) {
+        return NextResponse.json(
+          { error: 'Invalid hearthstoneMeta.attack', details: 'Attack must be between 0 and 12' },
+          { status: 400 }
+        );
+      }
+      if (hearthstoneMeta.health === undefined || hearthstoneMeta.health < 1 || hearthstoneMeta.health > 12) {
+        return NextResponse.json(
+          { error: 'Invalid hearthstoneMeta.health', details: 'Health must be between 1 and 12' },
           { status: 400 }
         );
       }
@@ -135,8 +167,13 @@ export async function PATCH(request: NextRequest) {
 
     if (targetTheme === 'pokemon' && pokemonMeta) {
       updatePayload.pokemon_meta = pokemonMeta;
+      updatePayload.hearthstone_meta = null;
+    } else if (targetTheme === 'hearthstone' && hearthstoneMeta) {
+      updatePayload.hearthstone_meta = hearthstoneMeta;
+      updatePayload.pokemon_meta = null;
     } else if (targetTheme === 'classic') {
       updatePayload.pokemon_meta = null;
+      updatePayload.hearthstone_meta = null;
     }
 
     // Execute update with same filters

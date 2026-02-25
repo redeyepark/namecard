@@ -6,6 +6,8 @@ import { ColorPicker } from './ColorPicker';
 import { TextColorPicker } from './TextColorPicker';
 import { PokemonTypeSelector } from './PokemonTypeSelector';
 import { ExpInput } from './ExpInput';
+import { HearthstoneClassSelector } from './HearthstoneClassSelector';
+import { HearthstoneStatInput } from './HearthstoneStatInput';
 
 export function FrontEditor() {
   const front = useCardStore((state) => state.card.front);
@@ -13,6 +15,8 @@ export function FrontEditor() {
   const updateFront = useCardStore((state) => state.updateFront);
 
   const isPokemon = theme === 'pokemon';
+  const isHearthstone = theme === 'hearthstone';
+  const isClassic = !isPokemon && !isHearthstone;
 
   return (
     <div className="space-y-4">
@@ -40,8 +44,16 @@ export function FrontEditor() {
         </>
       )}
 
-      {/* Classic theme: show background color picker. Pokemon theme uses type colors instead. */}
-      {!isPokemon && (
+      {/* Hearthstone-specific editors */}
+      {isHearthstone && (
+        <>
+          <HearthstoneClassSelector />
+          <HearthstoneStatInput />
+        </>
+      )}
+
+      {/* Classic theme: show background color picker. Themed cards use their own colors. */}
+      {isClassic && (
         <ColorPicker
           color={front.backgroundColor}
           onChange={(color) => updateFront({ backgroundColor: color })}
@@ -50,7 +62,7 @@ export function FrontEditor() {
       )}
 
       {/* Text color picker: only relevant for classic theme */}
-      {!isPokemon && (
+      {isClassic && (
         <TextColorPicker
           color={front.textColor || '#FFFFFF'}
           onChange={(color) => updateFront({ textColor: color })}

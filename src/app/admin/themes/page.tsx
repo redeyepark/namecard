@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AdminCardPreview } from '@/components/admin/AdminCardPreview';
 import { POKEMON_TYPES } from '@/components/card/pokemon-types';
-import type { CardData, CardTheme, PokemonType } from '@/types/card';
+import { HEARTHSTONE_CLASSES } from '@/components/card/hearthstone-types';
+import type { CardData, CardTheme, PokemonType, HearthstoneClass } from '@/types/card';
 
 // Sample card data for theme previews
 const sampleClassicCard: CardData = {
@@ -51,6 +52,30 @@ function createSamplePokemonCard(pokemonType: PokemonType): CardData {
   };
 }
 
+function createSampleHearthstoneCard(classType: HearthstoneClass): CardData {
+  return {
+    front: {
+      displayName: '홍길동',
+      avatarImage: null,
+      backgroundColor: '#3D2B1F',
+      textColor: '#FFFFFF',
+    },
+    back: {
+      fullName: '홍길동 | Hong Gildong',
+      title: 'Software Developer',
+      hashtags: ['#Development', '#Innovation', '#Technology'],
+      socialLinks: [
+        { platform: 'email', url: 'hong@example.com', label: 'hong@example.com' },
+        { platform: 'linkedin', url: 'linkedin.com/in/hong', label: 'hong' },
+      ],
+      backgroundColor: '#2A1F14',
+      textColor: '#D4A76A',
+    },
+    theme: 'hearthstone',
+    hearthstoneMeta: { classType, mana: 3, attack: 4, health: 5 },
+  };
+}
+
 interface ThemeStats {
   theme: string;
   count: number;
@@ -73,8 +98,17 @@ export default function ThemesPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
 
+  // Hearthstone bulk apply options
+  const [hearthstoneClass, setHearthstoneClass] = useState<HearthstoneClass>('mage');
+  const [hearthstoneMana, setHearthstoneMana] = useState(3);
+  const [hearthstoneAttack, setHearthstoneAttack] = useState(1);
+  const [hearthstoneHealth, setHearthstoneHealth] = useState(5);
+
   // Pokemon thumbnail selection
   const [selectedPokemonType, setSelectedPokemonType] = useState<PokemonType>('electric');
+
+  // Hearthstone thumbnail selection
+  const [selectedHearthstoneClass, setSelectedHearthstoneClass] = useState<HearthstoneClass>('mage');
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -145,6 +179,8 @@ export default function ThemesPage() {
 
       if (targetTheme === 'pokemon') {
         body.pokemonMeta = { type: pokemonType, exp: pokemonExp };
+      } else if (targetTheme === 'hearthstone') {
+        body.hearthstoneMeta = { classType: hearthstoneClass, mana: hearthstoneMana, attack: hearthstoneAttack, health: hearthstoneHealth };
       }
 
       const res = await fetch('/api/admin/themes', {
@@ -198,7 +234,7 @@ export default function ThemesPage() {
       <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">테마 미리보기</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Classic Theme Preview */}
           <div>
             <div className="mb-3">
@@ -255,6 +291,52 @@ export default function ThemesPage() {
               </div>
             </div>
           </div>
+
+          {/* Hearthstone Theme Preview */}
+          <div>
+            <div className="mb-3">
+              <h3 className="text-base font-semibold text-gray-800">Hearthstone</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                하스스톤 카드 스타일. 석재 프레임, 마나 크리스탈, 공격/체력 등 판타지 디자인 요소가 포함됩니다.
+              </p>
+            </div>
+            <AdminCardPreview
+              card={createSampleHearthstoneCard(selectedHearthstoneClass)}
+              illustrationUrl={null}
+            />
+
+            {/* Hearthstone Class Thumbnails */}
+            <div className="mt-4">
+              <p className="text-xs text-gray-500 mb-2">직업 변형 (클릭하여 미리보기)</p>
+              <div className="flex flex-wrap gap-2">
+                {HEARTHSTONE_CLASSES.map((classConfig) => (
+                  <button
+                    key={classConfig.id}
+                    type="button"
+                    onClick={() => setSelectedHearthstoneClass(classConfig.id)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      selectedHearthstoneClass === classConfig.id
+                        ? 'ring-2 ring-offset-1 ring-gray-900 bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                    aria-pressed={selectedHearthstoneClass === classConfig.id}
+                    aria-label={`${classConfig.name} (${classConfig.label}) class preview`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox={classConfig.iconData.viewBox}
+                      className="w-3.5 h-3.5"
+                      style={{ fill: selectedHearthstoneClass === classConfig.id ? '#FFFFFF' : classConfig.color }}
+                      aria-hidden="true"
+                    >
+                      <path d={classConfig.iconData.path} />
+                    </svg>
+                    {classConfig.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -282,6 +364,12 @@ export default function ThemesPage() {
               <div>
                 <p className="text-xs text-gray-500">Pokemon</p>
                 <p className="text-2xl font-bold text-gray-900">{getStatCount('pokemon')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-lg">
+              <div>
+                <p className="text-xs text-gray-500">Hearthstone</p>
+                <p className="text-2xl font-bold text-gray-900">{getStatCount('hearthstone')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
               </div>
             </div>
             <div className="flex items-center gap-3 px-5 py-3 bg-blue-50 rounded-lg">
@@ -335,6 +423,7 @@ export default function ThemesPage() {
                 <option value="all">전체</option>
                 <option value="classic">Classic</option>
                 <option value="pokemon">Pokemon</option>
+                <option value="hearthstone">Hearthstone</option>
               </select>
             </div>
           </div>
@@ -352,6 +441,7 @@ export default function ThemesPage() {
             >
               <option value="classic">Classic</option>
               <option value="pokemon">Pokemon</option>
+              <option value="hearthstone">Hearthstone</option>
             </select>
           </div>
 
@@ -387,6 +477,74 @@ export default function ThemesPage() {
                   max={999}
                   value={pokemonExp}
                   onChange={(e) => setPokemonExp(Math.min(999, Math.max(0, Number(e.target.value))))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Hearthstone Options (shown when target is hearthstone) */}
+          {targetTheme === 'hearthstone' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-stone-50 border border-stone-300 rounded-lg">
+              <div>
+                <label htmlFor="hearthstone-class" className="block text-sm font-medium text-gray-700 mb-1">
+                  직업 (Class)
+                </label>
+                <select
+                  id="hearthstone-class"
+                  value={hearthstoneClass}
+                  onChange={(e) => setHearthstoneClass(e.target.value as HearthstoneClass)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                >
+                  {HEARTHSTONE_CLASSES.map((classConfig) => (
+                    <option key={classConfig.id} value={classConfig.id}>
+                      {classConfig.name} ({classConfig.label})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="hearthstone-mana" className="block text-sm font-medium text-gray-700 mb-1">
+                  마나 (0-10)
+                </label>
+                <input
+                  id="hearthstone-mana"
+                  type="number"
+                  min={0}
+                  max={10}
+                  value={hearthstoneMana}
+                  onChange={(e) => setHearthstoneMana(Math.min(10, Math.max(0, Number(e.target.value))))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="hearthstone-attack" className="block text-sm font-medium text-gray-700 mb-1">
+                  공격력 (0-12)
+                </label>
+                <input
+                  id="hearthstone-attack"
+                  type="number"
+                  min={0}
+                  max={12}
+                  value={hearthstoneAttack}
+                  onChange={(e) => setHearthstoneAttack(Math.min(12, Math.max(0, Number(e.target.value))))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="hearthstone-health" className="block text-sm font-medium text-gray-700 mb-1">
+                  체력 (1-12)
+                </label>
+                <input
+                  id="hearthstone-health"
+                  type="number"
+                  min={1}
+                  max={12}
+                  value={hearthstoneHealth}
+                  onChange={(e) => setHearthstoneHealth(Math.min(12, Math.max(1, Number(e.target.value))))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
                 />
               </div>
@@ -451,13 +609,19 @@ export default function ThemesPage() {
             <p className="text-sm text-gray-600 mb-4">
               {affectedCount !== null ? `${affectedCount}건` : '해당'}의 의뢰에{' '}
               <span className="font-semibold">
-                {targetTheme === 'classic' ? 'Classic' : 'Pokemon'}
+                {targetTheme === 'classic' ? 'Classic' : targetTheme === 'pokemon' ? 'Pokemon' : 'Hearthstone'}
               </span>{' '}
               테마를 적용합니다.
               {targetTheme === 'pokemon' && (
                 <>
                   <br />
                   타입: {POKEMON_TYPES.find((t) => t.id === pokemonType)?.name} / EXP: {pokemonExp}
+                </>
+              )}
+              {targetTheme === 'hearthstone' && (
+                <>
+                  <br />
+                  직업: {HEARTHSTONE_CLASSES.find((c) => c.id === hearthstoneClass)?.name} / 마나: {hearthstoneMana} / 공격: {hearthstoneAttack} / 체력: {hearthstoneHealth}
                 </>
               )}
             </p>

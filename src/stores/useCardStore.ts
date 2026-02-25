@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { CardData, CardSide, CardTheme, PokemonType, SocialLink } from '@/types/card';
+import type { CardData, CardSide, CardTheme, PokemonType, HearthstoneClass, SocialLink } from '@/types/card';
 
 const DEFAULT_CARD: CardData = {
   front: {
@@ -36,6 +36,10 @@ interface CardStore {
   setTheme: (theme: CardTheme) => void;
   setPokemonType: (type: PokemonType) => void;
   setPokemonExp: (exp: number) => void;
+  setHearthstoneClass: (classType: HearthstoneClass) => void;
+  setHearthstoneMana: (mana: number) => void;
+  setHearthstoneAttack: (attack: number) => void;
+  setHearthstoneHealth: (health: number) => void;
   setWizardStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -118,6 +122,10 @@ export const useCardStore = create<CardStore>()(
           if (theme === 'pokemon' && !state.card.pokemonMeta) {
             updatedCard.pokemonMeta = { type: 'electric', exp: 100 };
           }
+          // Auto-create default hearthstoneMeta when switching to 'hearthstone' if none exists
+          if (theme === 'hearthstone' && !state.card.hearthstoneMeta) {
+            updatedCard.hearthstoneMeta = { classType: 'warrior', mana: 3, attack: 2, health: 5 };
+          }
           return { card: updatedCard };
         }),
       setPokemonType: (type) =>
@@ -137,6 +145,46 @@ export const useCardStore = create<CardStore>()(
             pokemonMeta: {
               ...(state.card.pokemonMeta ?? { type: 'electric', exp: 100 }),
               exp: Math.max(0, Math.min(999, exp)),
+            },
+          },
+        })),
+      setHearthstoneClass: (classType) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            hearthstoneMeta: {
+              ...(state.card.hearthstoneMeta ?? { classType: 'warrior', mana: 3, attack: 2, health: 5 }),
+              classType,
+            },
+          },
+        })),
+      setHearthstoneMana: (mana) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            hearthstoneMeta: {
+              ...(state.card.hearthstoneMeta ?? { classType: 'warrior', mana: 3, attack: 2, health: 5 }),
+              mana: Math.max(0, Math.min(10, mana)),
+            },
+          },
+        })),
+      setHearthstoneAttack: (attack) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            hearthstoneMeta: {
+              ...(state.card.hearthstoneMeta ?? { classType: 'warrior', mana: 3, attack: 2, health: 5 }),
+              attack: Math.max(0, Math.min(12, attack)),
+            },
+          },
+        })),
+      setHearthstoneHealth: (health) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            hearthstoneMeta: {
+              ...(state.card.hearthstoneMeta ?? { classType: 'warrior', mana: 3, attack: 2, health: 5 }),
+              health: Math.max(1, Math.min(12, health)),
             },
           },
         })),

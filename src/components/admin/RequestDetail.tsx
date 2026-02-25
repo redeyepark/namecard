@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import type { CardRequest } from '@/types/request';
-import type { CardFrontData, CardBackData, CardTheme, PokemonType, PokemonMeta } from '@/types/card';
+import type { CardFrontData, CardBackData, CardTheme, PokemonType, PokemonMeta, HearthstoneClass, HearthstoneMeta } from '@/types/card';
 import { POKEMON_TYPES } from '@/components/card/pokemon-types';
+import { HEARTHSTONE_CLASSES } from '@/components/card/hearthstone-types';
 import { isTerminalStatus, requiresFeedback } from '@/types/request';
 import { StatusBadge } from './StatusBadge';
 import { CardCompare } from './CardCompare';
@@ -38,6 +39,9 @@ export function RequestDetail({
   const [editTheme, setEditTheme] = useState<CardTheme>(request.card.theme ?? 'classic');
   const [editPokemonMeta, setEditPokemonMeta] = useState<PokemonMeta>(
     request.card.pokemonMeta ?? { type: 'electric', exp: 100 }
+  );
+  const [editHearthstoneMeta, setEditHearthstoneMeta] = useState<HearthstoneMeta>(
+    request.card.hearthstoneMeta ?? { classType: 'mage', mana: 3, attack: 1, health: 5 }
   );
 
   const { status } = request;
@@ -221,6 +225,7 @@ export function RequestDetail({
           },
           theme: editTheme,
           pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : null,
+          hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : null,
         }),
       });
       if (!res.ok) {
@@ -234,13 +239,14 @@ export function RequestDetail({
     } finally {
       setActionLoading(false);
     }
-  }, [request.id, editFront, editBack, editTheme, editPokemonMeta, onUpdate]);
+  }, [request.id, editFront, editBack, editTheme, editPokemonMeta, editHearthstoneMeta, onUpdate]);
 
   const handleCancelEdit = useCallback(() => {
     setEditFront(request.card.front);
     setEditBack(request.card.back);
     setEditTheme(request.card.theme ?? 'classic');
     setEditPokemonMeta(request.card.pokemonMeta ?? { type: 'electric', exp: 100 });
+    setEditHearthstoneMeta(request.card.hearthstoneMeta ?? { classType: 'mage', mana: 3, attack: 1, health: 5 });
     setIsEditing(false);
   }, [request.card]);
 
@@ -280,6 +286,7 @@ export function RequestDetail({
     setEditBack(request.card.back);
     setEditTheme(request.card.theme ?? 'classic');
     setEditPokemonMeta(request.card.pokemonMeta ?? { type: 'electric', exp: 100 });
+    setEditHearthstoneMeta(request.card.hearthstoneMeta ?? { classType: 'mage', mana: 3, attack: 1, health: 5 });
     setIsEditing(false);
   }, [request.card]);
 
@@ -487,7 +494,7 @@ export function RequestDetail({
             <div className="sm:col-span-2 pt-2 border-t border-gray-100">
               <label className="text-gray-500 text-xs block mb-2">테마</label>
               <div className="flex gap-2">
-                {(['classic', 'pokemon'] as CardTheme[]).map((themeOption) => (
+                {(['classic', 'pokemon', 'hearthstone'] as CardTheme[]).map((themeOption) => (
                   <button
                     key={themeOption}
                     type="button"
@@ -498,7 +505,7 @@ export function RequestDetail({
                         : 'border-[rgba(2,9,18,0.15)] bg-white text-[#020912] hover:bg-[#e4f6ff]'
                     }`}
                   >
-                    {themeOption === 'classic' ? 'Classic' : 'Pokemon'}
+                    {themeOption === 'classic' ? 'Classic' : themeOption === 'pokemon' ? 'Pokemon' : 'Hearthstone'}
                   </button>
                 ))}
               </div>
@@ -533,6 +540,75 @@ export function RequestDetail({
                       const val = parseInt(e.target.value, 10);
                       if (!isNaN(val)) {
                         setEditPokemonMeta({ ...editPokemonMeta, exp: Math.max(0, Math.min(999, val)) });
+                      }
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </>
+            )}
+            {/* Hearthstone options (shown only when hearthstone theme selected) */}
+            {editTheme === 'hearthstone' && (
+              <>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Hearthstone Class</label>
+                  <select
+                    value={editHearthstoneMeta.classType}
+                    onChange={(e) =>
+                      setEditHearthstoneMeta({ ...editHearthstoneMeta, classType: e.target.value as HearthstoneClass })
+                    }
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  >
+                    {HEARTHSTONE_CLASSES.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} - {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Mana (0-10)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={editHearthstoneMeta.mana}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setEditHearthstoneMeta({ ...editHearthstoneMeta, mana: Math.max(0, Math.min(10, val)) });
+                      }
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Attack (0-12)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={12}
+                    value={editHearthstoneMeta.attack}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setEditHearthstoneMeta({ ...editHearthstoneMeta, attack: Math.max(0, Math.min(12, val)) });
+                      }
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Health (1-12)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={12}
+                    value={editHearthstoneMeta.health}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setEditHearthstoneMeta({ ...editHearthstoneMeta, health: Math.max(1, Math.min(12, val)) });
                       }
                     }}
                     className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -621,10 +697,15 @@ export function RequestDetail({
             <div>
               <span className="text-gray-500">테마</span>
               <p className="font-medium text-gray-900">
-                {(request.card.theme ?? 'classic') === 'classic' ? 'Classic' : 'Pokemon'}
+                {(request.card.theme ?? 'classic') === 'classic' ? 'Classic' : request.card.theme === 'pokemon' ? 'Pokemon' : 'Hearthstone'}
                 {request.card.theme === 'pokemon' && request.card.pokemonMeta && (
                   <span className="text-xs text-gray-500 ml-2">
                     ({POKEMON_TYPES.find(t => t.id === request.card.pokemonMeta?.type)?.name ?? request.card.pokemonMeta.type} / EXP {request.card.pokemonMeta.exp})
+                  </span>
+                )}
+                {request.card.theme === 'hearthstone' && request.card.hearthstoneMeta && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({HEARTHSTONE_CLASSES.find(c => c.id === request.card.hearthstoneMeta?.classType)?.name ?? request.card.hearthstoneMeta.classType} / Mana {request.card.hearthstoneMeta.mana} / ATK {request.card.hearthstoneMeta.attack} / HP {request.card.hearthstoneMeta.health})
                   </span>
                 )}
               </p>
@@ -721,7 +802,7 @@ export function RequestDetail({
         <h2 className="text-sm font-medium text-gray-700 mb-3">명함 미리보기</h2>
         <AdminCardPreview
           card={isEditing
-            ? { front: editFront, back: editBack, theme: editTheme, pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : undefined }
+            ? { front: editFront, back: editBack, theme: editTheme, pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : undefined, hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : undefined }
             : request.card
           }
           illustrationUrl={illustrationPreview || illustrationUrlInput || illustrationUrl}

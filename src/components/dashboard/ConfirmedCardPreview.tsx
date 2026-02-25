@@ -426,6 +426,394 @@ function ConfirmedPokemonBack({
   );
 }
 
+/** Hearthstone theme front for confirmed card preview */
+function ConfirmedHearthstoneFront({
+  card,
+  illustrationUrl,
+}: {
+  card: CardData;
+  illustrationUrl: string;
+}) {
+  const mana = card.hearthstoneMeta?.mana ?? 1;
+  const attack = card.hearthstoneMeta?.attack ?? 1;
+  const health = card.hearthstoneMeta?.health ?? 1;
+
+  return (
+    <div
+      className="relative w-full aspect-[29/45] overflow-hidden"
+      style={{
+        borderRadius: '12px',
+        backgroundColor: '#3D2B1F',
+        fontFamily: "'Nanum Myeongjo', serif",
+      }}
+    >
+      {/* Thick stone/gold border frame */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '12px',
+          border: '8px solid #8B6914',
+          pointerEvents: 'none',
+          zIndex: 10,
+        }}
+      />
+
+      {/* Inner content area */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '8px',
+          left: '8px',
+          right: '8px',
+          bottom: '8px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Mana crystal - top left */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '4px',
+            left: '4px',
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            backgroundColor: '#1E90FF',
+            border: '2px solid #4169E1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 15,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#FFFFFF',
+              fontFamily: "'Nanum Myeongjo', serif",
+              lineHeight: 1,
+            }}
+          >
+            {mana}
+          </span>
+        </div>
+
+        {/* Portrait / Illustration area (~55% height) */}
+        <div
+          style={{
+            flex: '1 1 55%',
+            position: 'relative',
+            minHeight: 0,
+            backgroundColor: '#3D2B1F',
+            border: '3px solid #6B5B3E',
+          }}
+        >
+          <img
+            src={illustrationUrl}
+            alt="Confirmed illustration"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        </div>
+
+        {/* Name banner - parchment gradient */}
+        <div
+          style={{
+            flexShrink: 0,
+            background: 'linear-gradient(to right, #D4A76A, #C4965A)',
+            padding: '6px 10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '12%',
+          }}
+        >
+          <h1
+            style={{
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#1A1210',
+              fontFamily: "'Nanum Myeongjo', serif",
+              lineHeight: '1.3',
+              margin: 0,
+              textAlign: 'center',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              width: '100%',
+            }}
+            title={card.front.displayName || 'YOUR NAME'}
+          >
+            {card.front.displayName || 'YOUR NAME'}
+          </h1>
+        </div>
+
+        {/* Bottom dark area with title, hashtags */}
+        <div
+          style={{
+            flexShrink: 0,
+            backgroundColor: '#1A1210',
+            padding: '6px 10px',
+            minHeight: '18%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          {card.back.title && (
+            <p
+              style={{
+                fontSize: '10px',
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontFamily: "'Nanum Myeongjo', serif",
+                lineHeight: '1.3',
+                margin: '0 0 2px 0',
+                textAlign: 'center',
+              }}
+            >
+              {card.back.title}
+            </p>
+          )}
+          {card.back.hashtags.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '4px',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                maxHeight: '2.4em',
+              }}
+            >
+              {card.back.hashtags.map((tag, i) => {
+                const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+                return (
+                  <span
+                    key={i}
+                    style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.5)', fontFamily: "'Nanum Myeongjo', serif" }}
+                  >
+                    {renderMultiLine(tagText)}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Attack circle - bottom left */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '4px',
+            left: '4px',
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            backgroundColor: '#D4A017',
+            border: '2px solid #8B6914',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 15,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: '#FFFFFF',
+              fontFamily: "'Nanum Myeongjo', serif",
+              lineHeight: 1,
+            }}
+          >
+            {attack}
+          </span>
+        </div>
+
+        {/* Health circle - bottom right */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '4px',
+            right: '4px',
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            backgroundColor: '#CC2929',
+            border: '2px solid #8B1A1A',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 15,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: '#FFFFFF',
+              fontFamily: "'Nanum Myeongjo', serif",
+              lineHeight: 1,
+            }}
+          >
+            {health}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Hearthstone theme back for confirmed card preview */
+function ConfirmedHearthstoneBack({
+  card,
+}: {
+  card: CardData;
+}) {
+  const platformOrder = ['phone', 'youtube', 'facebook', 'instagram', 'linkedin', 'email'];
+  const sortedLinks = card.back.socialLinks
+    .filter((link) => link.url || link.label)
+    .sort((a, b) => {
+      const aIdx = platformOrder.indexOf(a.platform);
+      const bIdx = platformOrder.indexOf(b.platform);
+      return (aIdx === -1 ? platformOrder.length : aIdx) - (bIdx === -1 ? platformOrder.length : bIdx);
+    });
+
+  return (
+    <div
+      className="relative w-full aspect-[29/45] overflow-hidden"
+      style={{
+        borderRadius: '12px',
+        backgroundColor: '#2A1F14',
+        fontFamily: "'Nanum Myeongjo', serif",
+      }}
+    >
+      {/* Thick stone/gold border frame */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '12px',
+          border: '8px solid #8B6914',
+          pointerEvents: 'none',
+          zIndex: 10,
+        }}
+      />
+
+      {/* Inner content area */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '8px',
+          left: '8px',
+          right: '8px',
+          bottom: '8px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Dark gradient content area */}
+        <div
+          style={{
+            flex: 1,
+            position: 'relative',
+            background: 'linear-gradient(180deg, #2A1F14, #1A1210)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Decorative pattern overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: 0.06,
+              background:
+                'radial-gradient(circle at 25% 25%, rgba(212,167,106,0.5) 0%, transparent 50%), ' +
+                'radial-gradient(circle at 75% 75%, rgba(212,167,106,0.4) 0%, transparent 45%), ' +
+                'radial-gradient(circle at 50% 50%, rgba(139,105,20,0.3) 0%, transparent 60%), ' +
+                'radial-gradient(circle at 15% 85%, rgba(212,167,106,0.2) 0%, transparent 40%), ' +
+                'radial-gradient(circle at 85% 15%, rgba(139,105,20,0.2) 0%, transparent 40%)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Main content */}
+          <div
+            className="relative flex-1 flex flex-col items-center justify-center px-4 py-6"
+            style={{ zIndex: 1 }}
+          >
+            <h2
+              className="font-bold text-center mb-1"
+              title={card.back.fullName || 'FULL NAME'}
+              style={{ fontSize: '22px', color: '#D4A76A', fontFamily: "'Nanum Myeongjo', serif" }}
+            >
+              {renderMultiLine(card.back.fullName || 'FULL NAME')}
+            </h2>
+            <p
+              className="text-center mb-4"
+              title={card.back.title || 'Your Title'}
+              style={{ fontSize: '14px', color: 'rgba(212, 167, 106, 0.7)', fontFamily: "'Nanum Myeongjo', serif" }}
+            >
+              {renderMultiLine(card.back.title || 'Your Title')}
+            </p>
+            {card.back.hashtags.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-1 overflow-hidden" style={{ maxHeight: '3.5rem' }}>
+                {card.back.hashtags.map((tag, i) => {
+                  const tagText = tag.startsWith('#') ? tag : `#${tag}`;
+                  return (
+                    <span
+                      key={i}
+                      style={{ fontSize: '12px', color: 'rgba(212, 167, 106, 0.5)', fontFamily: "'Nanum Myeongjo', serif" }}
+                    >
+                      {renderMultiLine(tagText)}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Bottom social links */}
+          {sortedLinks.length > 0 && (
+            <div className="relative px-4 pb-3" style={{ zIndex: 1 }}>
+              <div style={{ borderTop: '1px solid rgba(212, 167, 106, 0.2)', paddingTop: '8px' }}>
+                {sortedLinks.map((link, i) => (
+                  <p
+                    key={i}
+                    className="truncate text-right"
+                    style={{
+                      fontSize: '10px',
+                      color: 'rgba(212, 167, 106, 0.5)',
+                      lineHeight: '1.6',
+                      fontFamily: "'Nanum Myeongjo', serif",
+                    }}
+                  >
+                    {link.platform}/{extractHandle(link.url || link.label)}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ConfirmedBack({
   fullName,
   title,
@@ -512,6 +900,7 @@ export function ConfirmedCardPreview({
 }: ConfirmedCardPreviewProps) {
   const [side, setSide] = useState<'front' | 'back'>('front');
   const isPokemon = card.theme === 'pokemon';
+  const isHearthstone = card.theme === 'hearthstone';
 
   return (
     <div className="bg-white rounded-xl p-4 border border-gray-100">
@@ -521,7 +910,9 @@ export function ConfirmedCardPreview({
 
       <div className="max-w-xs mx-auto">
         {side === 'front' ? (
-          isPokemon ? (
+          isHearthstone ? (
+            <ConfirmedHearthstoneFront card={card} illustrationUrl={illustrationUrl} />
+          ) : isPokemon ? (
             <ConfirmedPokemonFront card={card} illustrationUrl={illustrationUrl} />
           ) : (
             <ConfirmedFront
@@ -531,6 +922,8 @@ export function ConfirmedCardPreview({
               textColor={card.front.textColor}
             />
           )
+        ) : isHearthstone ? (
+          <ConfirmedHearthstoneBack card={card} />
         ) : isPokemon ? (
           <ConfirmedPokemonBack card={card} />
         ) : (
