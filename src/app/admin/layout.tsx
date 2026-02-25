@@ -17,6 +17,12 @@ export default function AdminLayout({
             명함 의뢰 관리
           </Link>
           <div className="flex items-center gap-4">
+            <Link
+              href="/admin/themes"
+              className="text-sm text-[#fcfcfc]/60 hover:text-[#ffa639] transition-colors"
+            >
+              테마 관리
+            </Link>
             <AdminLogoutButton />
             <Link
               href="/"
