@@ -81,7 +81,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status, illustrationImage, illustrationUrl, adminFeedback, cardFront, cardBack } = body;
+    const { status, illustrationImage, illustrationUrl, adminFeedback, cardFront, cardBack, theme, pokemonMeta } = body;
 
     // Validate status transition
     if (status) {
@@ -145,8 +145,8 @@ export async function PATCH(
     }
 
     // Build card data update if provided
-    let cardUpdate: { front?: CardData['front']; back?: CardData['back'] } | undefined;
-    if (cardFront || cardBack) {
+    let cardUpdate: Partial<CardData> | undefined;
+    if (cardFront || cardBack || theme !== undefined || pokemonMeta !== undefined) {
       if (!isAdminEditableStatus(cardRequest.status)) {
         return NextResponse.json(
           { error: 'Cannot edit card data', details: 'Card data cannot be edited in terminal status' },
@@ -160,13 +160,20 @@ export async function PATCH(
       if (cardBack) {
         cardUpdate.back = { ...cardRequest.card.back, ...cardBack };
       }
+      if (theme !== undefined) {
+        cardUpdate.theme = theme;
+      }
+      if (pokemonMeta !== undefined) {
+        // When theme is classic, clear pokemonMeta; otherwise set it
+        cardUpdate.pokemonMeta = theme === 'classic' ? null : pokemonMeta;
+      }
     }
 
     const updated = await updateRequest(id, {
       ...(status ? { status: status as RequestStatus } : {}),
       illustrationPath,
       ...(statusChanged ? { statusHistory } : {}),
-      ...(cardUpdate ? { card: cardUpdate as CardData } : {}),
+      ...(cardUpdate ? { card: cardUpdate as Partial<CardData> & CardData } : {}),
     });
 
     if (!updated) {

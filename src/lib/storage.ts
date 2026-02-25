@@ -1,5 +1,6 @@
 import { getSupabase } from './supabase';
 import type { CardRequest, RequestSummary, StatusHistoryEntry } from '@/types/request';
+import type { CardTheme, PokemonMeta } from '@/types/card';
 
 /**
  * Convert base64 image data to Uint8Array for Supabase Storage upload.
@@ -36,6 +37,8 @@ export async function saveRequest(request: CardRequest): Promise<void> {
     updated_at: request.updatedAt,
     note: request.note || null,
     created_by: request.createdBy || null,
+    theme: request.card.theme || 'classic',
+    pokemon_meta: request.card.pokemonMeta || null,
   });
 
   if (insertError) {
@@ -100,6 +103,8 @@ export async function getRequest(id: string): Promise<CardRequest | null> {
         avatarImage: null, // avatarImage is always null in stored card data
       },
       back: row.card_back,
+      theme: (row.theme as CardTheme) || 'classic',
+      pokemonMeta: (row.pokemon_meta as PokemonMeta) || undefined,
     },
     originalAvatarPath: row.original_avatar_url,
     illustrationPath: row.illustration_url,
@@ -199,6 +204,12 @@ export async function updateRequest(
     }
     if (updates.card.back) {
       dbUpdates.card_back = updates.card.back;
+    }
+    if (updates.card.theme !== undefined) {
+      dbUpdates.theme = updates.card.theme;
+    }
+    if (updates.card.pokemonMeta !== undefined) {
+      dbUpdates.pokemon_meta = updates.card.pokemonMeta;
     }
   }
 

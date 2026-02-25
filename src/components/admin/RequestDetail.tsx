@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import type { CardRequest } from '@/types/request';
-import type { CardFrontData, CardBackData } from '@/types/card';
+import type { CardFrontData, CardBackData, CardTheme, PokemonType, PokemonMeta } from '@/types/card';
+import { POKEMON_TYPES } from '@/components/card/pokemon-types';
 import { isTerminalStatus, requiresFeedback } from '@/types/request';
 import { StatusBadge } from './StatusBadge';
 import { CardCompare } from './CardCompare';
@@ -34,6 +35,10 @@ export function RequestDetail({
   const [isEditing, setIsEditing] = useState(false);
   const [editFront, setEditFront] = useState<CardFrontData>(request.card.front);
   const [editBack, setEditBack] = useState<CardBackData>(request.card.back);
+  const [editTheme, setEditTheme] = useState<CardTheme>(request.card.theme ?? 'classic');
+  const [editPokemonMeta, setEditPokemonMeta] = useState<PokemonMeta>(
+    request.card.pokemonMeta ?? { type: 'electric', exp: 100 }
+  );
 
   const { status } = request;
   const isTerminal = isTerminalStatus(status);
@@ -214,6 +219,8 @@ export function RequestDetail({
             backgroundColor: editBack.backgroundColor,
             textColor: editBack.textColor,
           },
+          theme: editTheme,
+          pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : null,
         }),
       });
       if (!res.ok) {
@@ -227,11 +234,13 @@ export function RequestDetail({
     } finally {
       setActionLoading(false);
     }
-  }, [request.id, editFront, editBack, onUpdate]);
+  }, [request.id, editFront, editBack, editTheme, editPokemonMeta, onUpdate]);
 
   const handleCancelEdit = useCallback(() => {
     setEditFront(request.card.front);
     setEditBack(request.card.back);
+    setEditTheme(request.card.theme ?? 'classic');
+    setEditPokemonMeta(request.card.pokemonMeta ?? { type: 'electric', exp: 100 });
     setIsEditing(false);
   }, [request.card]);
 
@@ -269,6 +278,8 @@ export function RequestDetail({
   useEffect(() => {
     setEditFront(request.card.front);
     setEditBack(request.card.back);
+    setEditTheme(request.card.theme ?? 'classic');
+    setEditPokemonMeta(request.card.pokemonMeta ?? { type: 'electric', exp: 100 });
     setIsEditing(false);
   }, [request.card]);
 
@@ -472,6 +483,63 @@ export function RequestDetail({
                 </div>
               </div>
             </div>
+            {/* Theme selector */}
+            <div className="sm:col-span-2 pt-2 border-t border-gray-100">
+              <label className="text-gray-500 text-xs block mb-2">테마</label>
+              <div className="flex gap-2">
+                {(['classic', 'pokemon'] as CardTheme[]).map((themeOption) => (
+                  <button
+                    key={themeOption}
+                    type="button"
+                    onClick={() => setEditTheme(themeOption)}
+                    className={`px-4 py-2 text-sm font-medium border transition-colors ${
+                      editTheme === themeOption
+                        ? 'border-[#020912] bg-[#020912] text-[#fcfcfc]'
+                        : 'border-[rgba(2,9,18,0.15)] bg-white text-[#020912] hover:bg-[#e4f6ff]'
+                    }`}
+                  >
+                    {themeOption === 'classic' ? 'Classic' : 'Pokemon'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Pokemon options (shown only when pokemon theme selected) */}
+            {editTheme === 'pokemon' && (
+              <>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Pokemon Type</label>
+                  <select
+                    value={editPokemonMeta.type}
+                    onChange={(e) =>
+                      setEditPokemonMeta({ ...editPokemonMeta, type: e.target.value as PokemonType })
+                    }
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  >
+                    {POKEMON_TYPES.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name} - {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">EXP (0-999)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={999}
+                    value={editPokemonMeta.exp}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setEditPokemonMeta({ ...editPokemonMeta, exp: Math.max(0, Math.min(999, val)) });
+                      }
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </>
+            )}
             {/* Social links editing */}
             {editBack.socialLinks.length > 0 && (
               <div>
@@ -550,6 +618,17 @@ export function RequestDetail({
                 </div>
               </div>
             )}
+            <div>
+              <span className="text-gray-500">테마</span>
+              <p className="font-medium text-gray-900">
+                {(request.card.theme ?? 'classic') === 'classic' ? 'Classic' : 'Pokemon'}
+                {request.card.theme === 'pokemon' && request.card.pokemonMeta && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({POKEMON_TYPES.find(t => t.id === request.card.pokemonMeta?.type)?.name ?? request.card.pokemonMeta.type} / EXP {request.card.pokemonMeta.exp})
+                  </span>
+                )}
+              </p>
+            </div>
             <div>
               <span className="text-gray-500">앞면 배경색</span>
               <div className="flex items-center gap-2 mt-1">
@@ -641,7 +720,10 @@ export function RequestDetail({
       <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
         <h2 className="text-sm font-medium text-gray-700 mb-3">명함 미리보기</h2>
         <AdminCardPreview
-          card={isEditing ? { front: editFront, back: editBack } : request.card}
+          card={isEditing
+            ? { front: editFront, back: editBack, theme: editTheme, pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : undefined }
+            : request.card
+          }
           illustrationUrl={illustrationPreview || illustrationUrlInput || illustrationUrl}
         />
       </div>
