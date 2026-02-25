@@ -90,7 +90,7 @@ function ConfirmedBack({
         >
           {renderMultiLine(title || 'Your Title')}
         </p>
-        <div className="flex flex-wrap gap-1 overflow-hidden max-h-[6rem]">
+        <div className="flex flex-wrap gap-1 overflow-hidden max-h-[8rem]">
           {hashtags.map((tag, i) => {
             const tagText = tag.startsWith('#') ? tag : `#${tag}`;
             return (
