@@ -1,23 +1,27 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { AdminCardPreview } from '@/components/admin/AdminCardPreview';
 import { POKEMON_TYPES } from '@/components/card/pokemon-types';
 import { HEARTHSTONE_CLASSES } from '@/components/card/hearthstone-types';
 import { HARRYPOTTER_HOUSES } from '@/components/card/harrypotter-types';
 import { TAROT_ARCANAS } from '@/components/card/tarot-types';
+import { ThemeListBox } from '@/components/admin/ThemeListBox';
+import { ThemePreviewPanel } from '@/components/admin/ThemePreviewPanel';
+import { ThemeEditPanel, DEFAULT_EDIT_STATE } from '@/components/admin/ThemeEditPanel';
+import type { ThemeEditState } from '@/components/admin/ThemeEditPanel';
+import { ThemeMobileSelector } from '@/components/admin/ThemeMobileSelector';
 import type { CardData, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse, TarotArcana } from '@/types/card';
 
 // Sample card data for theme previews
 const sampleClassicCard: CardData = {
   front: {
-    displayName: '홍길동',
+    displayName: '\ud64d\uae38\ub3d9',
     avatarImage: null,
     backgroundColor: '#1a1a2e',
     textColor: '#FFFFFF',
   },
   back: {
-    fullName: '홍길동 | Hong Gildong',
+    fullName: '\ud64d\uae38\ub3d9 | Hong Gildong',
     title: 'Software Developer',
     hashtags: ['#Development', '#Innovation', '#Technology'],
     socialLinks: [
@@ -30,16 +34,16 @@ const sampleClassicCard: CardData = {
   theme: 'classic',
 };
 
-function createSamplePokemonCard(pokemonType: PokemonType): CardData {
+function createSamplePokemonCard(pokemonType: PokemonType, exp: number = 100): CardData {
   return {
     front: {
-      displayName: '홍길동',
+      displayName: '\ud64d\uae38\ub3d9',
       avatarImage: null,
       backgroundColor: '#808080',
       textColor: '#FFFFFF',
     },
     back: {
-      fullName: '홍길동 | Hong Gildong',
+      fullName: '\ud64d\uae38\ub3d9 | Hong Gildong',
       title: 'Software Developer',
       hashtags: ['#Development', '#Innovation', '#Technology'],
       socialLinks: [
@@ -50,20 +54,20 @@ function createSamplePokemonCard(pokemonType: PokemonType): CardData {
       textColor: '#FFFFFF',
     },
     theme: 'pokemon',
-    pokemonMeta: { type: pokemonType, exp: 100 },
+    pokemonMeta: { type: pokemonType, exp },
   };
 }
 
-function createSampleHearthstoneCard(classType: HearthstoneClass): CardData {
+function createSampleHearthstoneCard(classType: HearthstoneClass, mana: number = 3, attack: number = 4, health: number = 5): CardData {
   return {
     front: {
-      displayName: '홍길동',
+      displayName: '\ud64d\uae38\ub3d9',
       avatarImage: null,
       backgroundColor: '#3D2B1F',
       textColor: '#FFFFFF',
     },
     back: {
-      fullName: '홍길동 | Hong Gildong',
+      fullName: '\ud64d\uae38\ub3d9 | Hong Gildong',
       title: 'Software Developer',
       hashtags: ['#Development', '#Innovation', '#Technology'],
       socialLinks: [
@@ -74,20 +78,20 @@ function createSampleHearthstoneCard(classType: HearthstoneClass): CardData {
       textColor: '#D4A76A',
     },
     theme: 'hearthstone',
-    hearthstoneMeta: { classType, mana: 3, attack: 4, health: 5 },
+    hearthstoneMeta: { classType, mana, attack, health },
   };
 }
 
-function createSampleHarrypotterCard(house: HarrypotterHouse): CardData {
+function createSampleHarrypotterCard(house: HarrypotterHouse, year: number = 1, spellPower: number = 100): CardData {
   return {
     front: {
-      displayName: '홍길동',
+      displayName: '\ud64d\uae38\ub3d9',
       avatarImage: null,
       backgroundColor: '#1A1A2E',
       textColor: '#FFFFFF',
     },
     back: {
-      fullName: '홍길동 | Hong Gildong',
+      fullName: '\ud64d\uae38\ub3d9 | Hong Gildong',
       title: 'Software Developer',
       hashtags: ['#Development', '#Innovation', '#Technology'],
       socialLinks: [
@@ -98,20 +102,20 @@ function createSampleHarrypotterCard(house: HarrypotterHouse): CardData {
       textColor: '#D4A76A',
     },
     theme: 'harrypotter',
-    harrypotterMeta: { house, year: 1, spellPower: 100 },
+    harrypotterMeta: { house, year, spellPower },
   };
 }
 
-function createSampleTarotCard(arcana: TarotArcana): CardData {
+function createSampleTarotCard(arcana: TarotArcana, cardNumber: number = 0, mystique: number = 100): CardData {
   return {
     front: {
-      displayName: '홍길동',
+      displayName: '\ud64d\uae38\ub3d9',
       avatarImage: null,
       backgroundColor: '#0D0B1A',
       textColor: '#FFFFFF',
     },
     back: {
-      fullName: '홍길동 | Hong Gildong',
+      fullName: '\ud64d\uae38\ub3d9 | Hong Gildong',
       title: 'Software Developer',
       hashtags: ['#Development', '#Innovation', '#Technology'],
       socialLinks: [
@@ -122,8 +126,38 @@ function createSampleTarotCard(arcana: TarotArcana): CardData {
       textColor: '#FFD700',
     },
     theme: 'tarot',
-    tarotMeta: { arcana, cardNumber: 0, mystique: 100 },
+    tarotMeta: { arcana, cardNumber, mystique },
   };
+}
+
+// Unified sample card creation from theme + edit state
+function createSampleCard(theme: CardTheme, editState: ThemeEditState): CardData {
+  switch (theme) {
+    case 'pokemon':
+      return createSamplePokemonCard(editState.pokemon.type, editState.pokemon.exp);
+    case 'hearthstone':
+      return createSampleHearthstoneCard(
+        editState.hearthstone.classType,
+        editState.hearthstone.mana,
+        editState.hearthstone.attack,
+        editState.hearthstone.health,
+      );
+    case 'harrypotter':
+      return createSampleHarrypotterCard(
+        editState.harrypotter.house,
+        editState.harrypotter.year,
+        editState.harrypotter.spellPower,
+      );
+    case 'tarot':
+      return createSampleTarotCard(
+        editState.tarot.arcana,
+        editState.tarot.cardNumber,
+        editState.tarot.mystique,
+      );
+    case 'classic':
+    default:
+      return sampleClassicCard;
+  }
 }
 
 interface ThemeStats {
@@ -132,7 +166,11 @@ interface ThemeStats {
 }
 
 export default function ThemesPage() {
-  // Section B: Stats
+  // Section A (NEW): Theme selection + preview + edit
+  const [selectedTheme, setSelectedTheme] = useState<CardTheme>('classic');
+  const [themeEditState, setThemeEditState] = useState<ThemeEditState>(DEFAULT_EDIT_STATE);
+
+  // Stats (used by ThemeListBox badges and Section C)
   const [stats, setStats] = useState<ThemeStats[]>([]);
   const [statsLoading, setStatsLoading] = useState(true);
 
@@ -154,27 +192,15 @@ export default function ThemesPage() {
   const [hearthstoneAttack, setHearthstoneAttack] = useState(1);
   const [hearthstoneHealth, setHearthstoneHealth] = useState(5);
 
-  // Pokemon thumbnail selection
-  const [selectedPokemonType, setSelectedPokemonType] = useState<PokemonType>('electric');
-
-  // Hearthstone thumbnail selection
-  const [selectedHearthstoneClass, setSelectedHearthstoneClass] = useState<HearthstoneClass>('mage');
-
   // Harry Potter bulk apply options
   const [harrypotterHouse, setHarrypotterHouse] = useState<HarrypotterHouse>('gryffindor');
   const [harrypotterYear, setHarrypotterYear] = useState(1);
   const [harrypotterSpellPower, setHarrypotterSpellPower] = useState(100);
 
-  // Harry Potter thumbnail selection
-  const [selectedHarrypotterHouse, setSelectedHarrypotterHouse] = useState<HarrypotterHouse>('gryffindor');
-
   // Tarot bulk apply options
   const [tarotArcana, setTarotArcana] = useState<TarotArcana>('major');
   const [tarotCardNumber, setTarotCardNumber] = useState(0);
   const [tarotMystique, setTarotMystique] = useState(100);
-
-  // Tarot thumbnail selection
-  const [selectedTarotArcana, setSelectedTarotArcana] = useState<TarotArcana>('major');
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -261,314 +287,103 @@ export default function ThemesPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setResultMessage(`${data.updatedCount}건의 의뢰에 테마가 적용되었습니다.`);
+        setResultMessage(`${data.updatedCount}\uac74\uc758 \uc758\ub8b0\uc5d0 \ud14c\ub9c8\uac00 \uc801\uc6a9\ub418\uc5c8\uc2b5\ub2c8\ub2e4.`);
         fetchStats();
       } else {
         const data = await res.json();
-        setResultMessage(`오류: ${data.error || '테마 적용에 실패했습니다.'}`);
+        setResultMessage(`\uc624\ub958: ${data.error || '\ud14c\ub9c8 \uc801\uc6a9\uc5d0 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4.'}`);
       }
     } catch {
-      setResultMessage('오류: 서버 연결에 실패했습니다.');
+      setResultMessage('\uc624\ub958: \uc11c\ubc84 \uc5f0\uacb0\uc5d0 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4.');
     } finally {
       setApplying(false);
       setShowConfirm(false);
     }
   };
 
-  const getStatCount = (theme: string): number => {
-    const found = stats.find((s) => s.theme === theme);
-    return found ? found.count : 0;
+  const handleEditStateChange = (_theme: CardTheme, newEditState: ThemeEditState) => {
+    setThemeEditState(newEditState);
   };
 
+  // Build card data for the preview based on selected theme + edit state
+  const previewCardData = createSampleCard(selectedTheme, themeEditState);
+
   const statusOptions = [
-    { value: 'all', label: '전체' },
-    { value: 'submitted', label: '제출됨' },
-    { value: 'processing', label: '처리중' },
-    { value: 'confirmed', label: '확인됨' },
-    { value: 'revision_requested', label: '수정요청' },
-    { value: 'delivered', label: '전달완료' },
-    { value: 'rejected', label: '거절됨' },
-    { value: 'cancelled', label: '취소됨' },
+    { value: 'all', label: '\uc804\uccb4' },
+    { value: 'submitted', label: '\uc81c\ucd9c\ub428' },
+    { value: 'processing', label: '\ucc98\ub9ac\uc911' },
+    { value: 'confirmed', label: '\ud655\uc778\ub428' },
+    { value: 'revision_requested', label: '\uc218\uc815\uc694\uccad' },
+    { value: 'delivered', label: '\uc804\ub2ec\uc644\ub8cc' },
+    { value: 'rejected', label: '\uac70\uc808\ub428' },
+    { value: 'cancelled', label: '\ucde8\uc18c\ub428' },
   ];
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#020912]">테마 관리</h1>
+        <h1 className="text-2xl font-bold text-[#020912]">{'\ud14c\ub9c8 \uad00\ub9ac'}</h1>
         <p className="mt-1 text-sm text-[#020912]/50">
-          명함 테마를 미리보고, 의뢰에 일괄 적용할 수 있습니다.
+          {'\uba85\ud568 \ud14c\ub9c8\ub97c \ubbf8\ub9ac\ubcf4\uace0, \uc758\ub8b0\uc5d0 \uc77c\uad04 \uc801\uc6a9\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.'}
         </p>
       </div>
 
-      {/* Section A: Theme Preview Gallery */}
+      {/* Section A (NEW): Theme List + Preview + Edit */}
       <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">테마 미리보기</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">{'\ud14c\ub9c8 \ubbf8\ub9ac\ubcf4\uae30'}</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Classic Theme Preview */}
-          <div>
-            <div className="mb-3">
-              <h3 className="text-base font-semibold text-gray-800">Classic</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                기본 클래식 명함 디자인. 깔끔하고 심플한 레이아웃으로 전문적인 인상을 줍니다.
-              </p>
-            </div>
-            <AdminCardPreview card={sampleClassicCard} illustrationUrl={null} />
+        {/* Mobile: dropdown selector */}
+        <div className="block lg:hidden mb-4">
+          <ThemeMobileSelector
+            selectedTheme={selectedTheme}
+            onSelect={setSelectedTheme}
+            stats={stats}
+            statsLoading={statsLoading}
+          />
+        </div>
+
+        {/* Desktop: 2-column layout */}
+        <div className="flex gap-6">
+          {/* Left: ThemeListBox (desktop only) */}
+          <div className="hidden lg:block w-[280px] flex-shrink-0">
+            <ThemeListBox
+              selectedTheme={selectedTheme}
+              onSelect={setSelectedTheme}
+              stats={stats}
+              statsLoading={statsLoading}
+            />
           </div>
 
-          {/* Pokemon Theme Preview */}
-          <div>
-            <div className="mb-3">
-              <h3 className="text-base font-semibold text-gray-800">Pokemon</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                포켓몬 트레이딩 카드 스타일. 골드 프레임, HP 배지 등 독특한 디자인 요소가 포함됩니다.
-              </p>
-            </div>
-            <AdminCardPreview
-              card={createSamplePokemonCard(selectedPokemonType)}
-              illustrationUrl={null}
-            />
+          {/* Right: Preview + Edit */}
+          <div className="flex-1 min-w-0">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {/* Preview panel */}
+              <ThemePreviewPanel
+                selectedTheme={selectedTheme}
+                cardData={previewCardData}
+              />
 
-            {/* Pokemon Type Thumbnails */}
-            <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">타입 변형 (클릭하여 미리보기)</p>
-              <div className="flex flex-wrap gap-2">
-                {POKEMON_TYPES.map((typeConfig) => (
-                  <button
-                    key={typeConfig.id}
-                    type="button"
-                    onClick={() => setSelectedPokemonType(typeConfig.id)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      selectedPokemonType === typeConfig.id
-                        ? 'ring-2 ring-offset-1 ring-gray-900 bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    aria-pressed={selectedPokemonType === typeConfig.id}
-                    aria-label={`${typeConfig.name} (${typeConfig.label}) type preview`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox={typeConfig.iconData.viewBox}
-                      className="w-3.5 h-3.5"
-                      style={{ fill: selectedPokemonType === typeConfig.id ? '#FFFFFF' : typeConfig.color }}
-                      aria-hidden="true"
-                    >
-                      <path d={typeConfig.iconData.path} />
-                    </svg>
-                    {typeConfig.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Hearthstone Theme Preview */}
-          <div>
-            <div className="mb-3">
-              <h3 className="text-base font-semibold text-gray-800">Hearthstone</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                하스스톤 카드 스타일. 석재 프레임, 마나 크리스탈, 공격/체력 등 판타지 디자인 요소가 포함됩니다.
-              </p>
-            </div>
-            <AdminCardPreview
-              card={createSampleHearthstoneCard(selectedHearthstoneClass)}
-              illustrationUrl={null}
-            />
-
-            {/* Hearthstone Class Thumbnails */}
-            <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">직업 변형 (클릭하여 미리보기)</p>
-              <div className="flex flex-wrap gap-2">
-                {HEARTHSTONE_CLASSES.map((classConfig) => (
-                  <button
-                    key={classConfig.id}
-                    type="button"
-                    onClick={() => setSelectedHearthstoneClass(classConfig.id)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      selectedHearthstoneClass === classConfig.id
-                        ? 'ring-2 ring-offset-1 ring-gray-900 bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    aria-pressed={selectedHearthstoneClass === classConfig.id}
-                    aria-label={`${classConfig.name} (${classConfig.label}) class preview`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox={classConfig.iconData.viewBox}
-                      className="w-3.5 h-3.5"
-                      style={{ fill: selectedHearthstoneClass === classConfig.id ? '#FFFFFF' : classConfig.color }}
-                      aria-hidden="true"
-                    >
-                      <path d={classConfig.iconData.path} />
-                    </svg>
-                    {classConfig.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Harry Potter Theme Preview */}
-          <div>
-            <div className="mb-3">
-              <h3 className="text-base font-semibold text-gray-800">Harry Potter</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                해리포터 마법사 카드 스타일. 호그와트 기숙사별 디자인, Year 배지, Spell Power 등 마법 세계 요소가 포함됩니다.
-              </p>
-            </div>
-            <AdminCardPreview
-              card={createSampleHarrypotterCard(selectedHarrypotterHouse)}
-              illustrationUrl={null}
-            />
-
-            {/* Harry Potter House Thumbnails */}
-            <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">기숙사 변형 (클릭하여 미리보기)</p>
-              <div className="flex flex-wrap gap-2">
-                {HARRYPOTTER_HOUSES.map((houseConfig) => (
-                  <button
-                    key={houseConfig.id}
-                    type="button"
-                    onClick={() => setSelectedHarrypotterHouse(houseConfig.id)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      selectedHarrypotterHouse === houseConfig.id
-                        ? 'ring-2 ring-offset-1 ring-gray-900 bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    aria-pressed={selectedHarrypotterHouse === houseConfig.id}
-                    aria-label={`${houseConfig.name} (${houseConfig.label}) house preview`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox={houseConfig.iconData.viewBox}
-                      className="w-3.5 h-3.5"
-                      style={{ fill: selectedHarrypotterHouse === houseConfig.id ? '#FFFFFF' : houseConfig.color }}
-                      aria-hidden="true"
-                    >
-                      <path d={houseConfig.iconData.path} />
-                    </svg>
-                    {houseConfig.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Tarot Theme Preview */}
-          <div>
-            <div className="mb-3">
-              <h3 className="text-base font-semibold text-gray-800">Tarot</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                타로 카드 스타일. 아르카나별 신비로운 디자인, 카드 번호, Mystique 등 신비주의 요소가 포함됩니다.
-              </p>
-            </div>
-            <AdminCardPreview
-              card={createSampleTarotCard(selectedTarotArcana)}
-              illustrationUrl={null}
-            />
-
-            {/* Tarot Arcana Thumbnails */}
-            <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">아르카나 변형 (클릭하여 미리보기)</p>
-              <div className="flex flex-wrap gap-2">
-                {TAROT_ARCANAS.map((arcanaConfig) => (
-                  <button
-                    key={arcanaConfig.id}
-                    type="button"
-                    onClick={() => setSelectedTarotArcana(arcanaConfig.id)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      selectedTarotArcana === arcanaConfig.id
-                        ? 'ring-2 ring-offset-1 ring-gray-900 bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    aria-pressed={selectedTarotArcana === arcanaConfig.id}
-                    aria-label={`${arcanaConfig.name} (${arcanaConfig.label}) arcana preview`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox={arcanaConfig.iconData.viewBox}
-                      className="w-3.5 h-3.5"
-                      style={{ fill: selectedTarotArcana === arcanaConfig.id ? '#FFFFFF' : arcanaConfig.color }}
-                      aria-hidden="true"
-                    >
-                      <path d={arcanaConfig.iconData.path} />
-                    </svg>
-                    {arcanaConfig.name}
-                  </button>
-                ))}
-              </div>
+              {/* Edit panel */}
+              <ThemeEditPanel
+                selectedTheme={selectedTheme}
+                editState={themeEditState}
+                onChange={handleEditStateChange}
+              />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Section B: Request Theme Statistics */}
-      <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">테마별 의뢰 현황</h2>
-
-        {statsLoading ? (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            통계를 불러오는 중...
-          </div>
-        ) : (
-          <div className="flex gap-6">
-            <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="text-xs text-gray-500">Classic</p>
-                <p className="text-2xl font-bold text-gray-900">{getStatCount('classic')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="text-xs text-gray-500">Pokemon</p>
-                <p className="text-2xl font-bold text-gray-900">{getStatCount('pokemon')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="text-xs text-gray-500">Hearthstone</p>
-                <p className="text-2xl font-bold text-gray-900">{getStatCount('hearthstone')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="text-xs text-gray-500">Harry Potter</p>
-                <p className="text-2xl font-bold text-gray-900">{getStatCount('harrypotter')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="text-xs text-gray-500">Tarot</p>
-                <p className="text-2xl font-bold text-gray-900">{getStatCount('tarot')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-5 py-3 bg-blue-50 rounded-lg">
-              <div>
-                <p className="text-xs text-blue-600">전체</p>
-                <p className="text-2xl font-bold text-blue-900">
-                  {stats.reduce((sum, s) => sum + s.count, 0)}
-                  <span className="text-sm font-normal text-blue-600 ml-1">건</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Section C: Bulk Theme Apply */}
       <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">테마 일괄 적용</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">{'\ud14c\ub9c8 \uc77c\uad04 \uc801\uc6a9'}</h2>
 
         <div className="space-y-4">
           {/* Filter Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-1">
-                상태 필터
+                {'\uc0c1\ud0dc \ud544\ud130'}
               </label>
               <select
                 id="status-filter"
@@ -586,7 +401,7 @@ export default function ThemesPage() {
 
             <div>
               <label htmlFor="current-theme-filter" className="block text-sm font-medium text-gray-700 mb-1">
-                현재 테마 필터
+                {'\ud604\uc7ac \ud14c\ub9c8 \ud544\ud130'}
               </label>
               <select
                 id="current-theme-filter"
@@ -594,7 +409,7 @@ export default function ThemesPage() {
                 onChange={(e) => setCurrentThemeFilter(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
               >
-                <option value="all">전체</option>
+                <option value="all">{'\uc804\uccb4'}</option>
                 <option value="classic">Classic</option>
                 <option value="pokemon">Pokemon</option>
                 <option value="hearthstone">Hearthstone</option>
@@ -607,7 +422,7 @@ export default function ThemesPage() {
           {/* Target Theme */}
           <div>
             <label htmlFor="target-theme" className="block text-sm font-medium text-gray-700 mb-1">
-              적용할 테마
+              {'\uc801\uc6a9\ud560 \ud14c\ub9c8'}
             </label>
             <select
               id="target-theme"
@@ -628,7 +443,7 @@ export default function ThemesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
               <div>
                 <label htmlFor="pokemon-type" className="block text-sm font-medium text-gray-700 mb-1">
-                  포켓몬 타입
+                  {'\ud3ec\ucf13\ubaac \ud0c0\uc785'}
                 </label>
                 <select
                   id="pokemon-type"
@@ -666,7 +481,7 @@ export default function ThemesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-stone-50 border border-stone-300 rounded-lg">
               <div>
                 <label htmlFor="hearthstone-class" className="block text-sm font-medium text-gray-700 mb-1">
-                  직업 (Class)
+                  {'\uc9c1\uc5c5 (Class)'}
                 </label>
                 <select
                   id="hearthstone-class"
@@ -684,7 +499,7 @@ export default function ThemesPage() {
 
               <div>
                 <label htmlFor="hearthstone-mana" className="block text-sm font-medium text-gray-700 mb-1">
-                  마나 (0-10)
+                  {'\ub9c8\ub098 (0-10)'}
                 </label>
                 <input
                   id="hearthstone-mana"
@@ -699,7 +514,7 @@ export default function ThemesPage() {
 
               <div>
                 <label htmlFor="hearthstone-attack" className="block text-sm font-medium text-gray-700 mb-1">
-                  공격력 (0-12)
+                  {'\uacf5\uaca9\ub825 (0-12)'}
                 </label>
                 <input
                   id="hearthstone-attack"
@@ -714,7 +529,7 @@ export default function ThemesPage() {
 
               <div>
                 <label htmlFor="hearthstone-health" className="block text-sm font-medium text-gray-700 mb-1">
-                  체력 (1-12)
+                  {'\uccb4\ub825 (1-12)'}
                 </label>
                 <input
                   id="hearthstone-health"
@@ -734,7 +549,7 @@ export default function ThemesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
               <div>
                 <label htmlFor="harrypotter-house" className="block text-sm font-medium text-gray-700 mb-1">
-                  기숙사 (House)
+                  {'\uae30\uc219\uc0ac (House)'}
                 </label>
                 <select
                   id="harrypotter-house"
@@ -787,7 +602,7 @@ export default function ThemesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
               <div>
                 <label htmlFor="tarot-arcana" className="block text-sm font-medium text-gray-700 mb-1">
-                  아르카나 (Arcana)
+                  {'\uc544\ub974\uce74\ub098 (Arcana)'}
                 </label>
                 <select
                   id="tarot-arcana"
@@ -839,16 +654,16 @@ export default function ThemesPage() {
           <div className="flex items-center gap-4 pt-2">
             <div className="text-sm text-gray-600">
               {countLoading ? (
-                <span className="text-gray-400">건수 확인 중...</span>
+                <span className="text-gray-400">{'\uac74\uc218 \ud655\uc778 \uc911...'}</span>
               ) : affectedCount !== null ? (
                 <>
-                  대상 의뢰: <span className="font-semibold text-gray-900">{affectedCount}건</span>
+                  {'\ub300\uc0c1 \uc758\ub8b0: '}<span className="font-semibold text-gray-900">{affectedCount}{'\uac74'}</span>
                   {statusFilter !== 'all' && (
-                    <span className="text-xs text-gray-400 ml-1">(상태 필터 적용시 실제 건수와 다를 수 있음)</span>
+                    <span className="text-xs text-gray-400 ml-1">{'(\uc0c1\ud0dc \ud544\ud130 \uc801\uc6a9\uc2dc \uc2e4\uc81c \uac74\uc218\uc640 \ub2e4\ub97c \uc218 \uc788\uc74c)'}</span>
                   )}
                 </>
               ) : (
-                <span className="text-gray-400">건수를 확인할 수 없습니다.</span>
+                <span className="text-gray-400">{'\uac74\uc218\ub97c \ud655\uc778\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.'}</span>
               )}
             </div>
 
@@ -858,7 +673,7 @@ export default function ThemesPage() {
               disabled={applying || affectedCount === 0}
               className="min-h-[44px] px-6 bg-[#020912] text-white text-sm font-medium hover:bg-[#020912]/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              적용
+              {'\uc801\uc6a9'}
             </button>
           </div>
 
@@ -866,7 +681,7 @@ export default function ThemesPage() {
           {resultMessage && (
             <div
               className={`p-3 rounded-lg text-sm ${
-                resultMessage.startsWith('오류')
+                resultMessage.startsWith('\uc624\ub958')
                   ? 'bg-red-50 text-red-700 border border-red-200'
                   : 'bg-green-50 text-green-700 border border-green-200'
               }`}
@@ -888,41 +703,41 @@ export default function ThemesPage() {
         >
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
             <h3 id="confirm-dialog-title" className="text-lg font-semibold text-gray-900 mb-2">
-              테마 일괄 적용 확인
+              {'\ud14c\ub9c8 \uc77c\uad04 \uc801\uc6a9 \ud655\uc778'}
             </h3>
             <p className="text-sm text-gray-600 mb-4">
-              {affectedCount !== null ? `${affectedCount}건` : '해당'}의 의뢰에{' '}
+              {affectedCount !== null ? `${affectedCount}\uac74` : '\ud574\ub2f9'}{'\uc758 \uc758\ub8b0\uc5d0 '}
               <span className="font-semibold">
                 {targetTheme === 'classic' ? 'Classic' : targetTheme === 'pokemon' ? 'Pokemon' : targetTheme === 'hearthstone' ? 'Hearthstone' : targetTheme === 'harrypotter' ? 'Harry Potter' : 'Tarot'}
               </span>{' '}
-              테마를 적용합니다.
+              {'\ud14c\ub9c8\ub97c \uc801\uc6a9\ud569\ub2c8\ub2e4.'}
               {targetTheme === 'pokemon' && (
                 <>
                   <br />
-                  타입: {POKEMON_TYPES.find((t) => t.id === pokemonType)?.name} / EXP: {pokemonExp}
+                  {'\ud0c0\uc785: '}{POKEMON_TYPES.find((t) => t.id === pokemonType)?.name} / EXP: {pokemonExp}
                 </>
               )}
               {targetTheme === 'hearthstone' && (
                 <>
                   <br />
-                  직업: {HEARTHSTONE_CLASSES.find((c) => c.id === hearthstoneClass)?.name} / 마나: {hearthstoneMana} / 공격: {hearthstoneAttack} / 체력: {hearthstoneHealth}
+                  {'\uc9c1\uc5c5: '}{HEARTHSTONE_CLASSES.find((c) => c.id === hearthstoneClass)?.name} / {'\ub9c8\ub098: '}{hearthstoneMana} / {'\uacf5\uaca9: '}{hearthstoneAttack} / {'\uccb4\ub825: '}{hearthstoneHealth}
                 </>
               )}
               {targetTheme === 'harrypotter' && (
                 <>
                   <br />
-                  기숙사: {HARRYPOTTER_HOUSES.find((h) => h.id === harrypotterHouse)?.name} / Year: {harrypotterYear} / Spell Power: {harrypotterSpellPower}
+                  {'\uae30\uc219\uc0ac: '}{HARRYPOTTER_HOUSES.find((h) => h.id === harrypotterHouse)?.name} / Year: {harrypotterYear} / Spell Power: {harrypotterSpellPower}
                 </>
               )}
               {targetTheme === 'tarot' && (
                 <>
                   <br />
-                  아르카나: {TAROT_ARCANAS.find((a) => a.id === tarotArcana)?.name} / Card Number: {tarotCardNumber} / Mystique: {tarotMystique}
+                  {'\uc544\ub974\uce74\ub098: '}{TAROT_ARCANAS.find((a) => a.id === tarotArcana)?.name} / Card Number: {tarotCardNumber} / Mystique: {tarotMystique}
                 </>
               )}
             </p>
             <p className="text-xs text-amber-600 mb-4">
-              이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?
+              {'\uc774 \uc791\uc5c5\uc740 \ub418\ub3cc\ub9b4 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4. \uacc4\uc18d\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?'}
             </p>
 
             <div className="flex justify-end gap-3">
@@ -932,7 +747,7 @@ export default function ThemesPage() {
                 disabled={applying}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
               >
-                취소
+                {'\ucde8\uc18c'}
               </button>
               <button
                 type="button"
@@ -940,7 +755,7 @@ export default function ThemesPage() {
                 disabled={applying}
                 className="px-4 py-2 text-sm font-medium text-white bg-[#020912] hover:bg-[#020912]/80 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 disabled:opacity-50"
               >
-                {applying ? '적용 중...' : '적용'}
+                {applying ? '\uc801\uc6a9 \uc911...' : '\uc801\uc6a9'}
               </button>
             </div>
           </div>
