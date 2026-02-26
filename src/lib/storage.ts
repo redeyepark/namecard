@@ -1,5 +1,5 @@
 import { getSupabase } from './supabase';
-import type { CardRequest, RequestSummary, StatusHistoryEntry } from '@/types/request';
+import type { CardRequest, RequestSummary, MemberRequestDetail, StatusHistoryEntry } from '@/types/request';
 import type { CardTheme, PokemonMeta, PublicCardData, GalleryCardData, GalleryResponse } from '@/types/card';
 
 /**
@@ -405,6 +405,53 @@ export async function getAllMembers(): Promise<
       latestRequestDate: data.latest,
     }))
     .sort((a, b) => b.requestCount - a.requestCount);
+}
+
+/**
+ * Get all card requests for a specific member email.
+ * Returns detailed request info including theme and event name.
+ * Ordered by submitted_at DESC.
+ */
+export async function getMemberRequests(email: string): Promise<MemberRequestDetail[]> {
+  const supabase = getSupabase();
+
+  const { data: rows, error } = await supabase
+    .from('card_requests')
+    .select('id, card_front, status, submitted_at, theme, event_id, illustration_url, original_avatar_url')
+    .eq('created_by', email)
+    .order('submitted_at', { ascending: false });
+
+  if (error || !rows) {
+    return [];
+  }
+
+  // Collect unique event IDs and fetch event names
+  const eventIds = [...new Set(rows.map((r) => r.event_id).filter(Boolean))] as string[];
+  const eventNameMap = new Map<string, string>();
+
+  if (eventIds.length > 0) {
+    const { data: events } = await supabase
+      .from('events')
+      .select('id, name')
+      .in('id', eventIds);
+
+    if (events) {
+      for (const e of events) {
+        eventNameMap.set(e.id, e.name);
+      }
+    }
+  }
+
+  return rows.map((row) => ({
+    id: row.id,
+    displayName: (row.card_front as { displayName?: string })?.displayName || '',
+    status: row.status,
+    submittedAt: row.submitted_at,
+    theme: row.theme || 'classic',
+    eventName: row.event_id ? (eventNameMap.get(row.event_id) || null) : null,
+    illustrationUrl: row.illustration_url || null,
+    originalAvatarUrl: row.original_avatar_url || null,
+  }));
 }
 
 /**

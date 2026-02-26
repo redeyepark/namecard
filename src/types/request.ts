@@ -41,6 +41,21 @@ export interface RequestSummary {
   eventName?: string | null;
 }
 
+/**
+ * Detailed request info for admin member detail view.
+ * Includes theme and illustration URL for richer display.
+ */
+export interface MemberRequestDetail {
+  id: string;
+  displayName: string;
+  status: RequestStatus;
+  submittedAt: string;
+  theme: string;
+  eventName: string | null;
+  illustrationUrl: string | null;
+  originalAvatarUrl: string | null;
+}
+
 // Valid status transitions
 const VALID_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
   submitted: ['processing', 'rejected', 'cancelled', 'confirmed'],
