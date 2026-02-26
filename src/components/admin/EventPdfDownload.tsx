@@ -45,6 +45,9 @@ const PNG_QUALITY = 0.85;
 const A4_W = 210;
 const A4_H = 297;
 
+// Maximum cards per PDF file to avoid memory pressure
+const CARDS_PER_PDF = 20;
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -380,13 +383,8 @@ export function EventPdfDownload({
       hiddenContainer.innerHTML = '';
 
       // ------------------------------------------------------------------
-      // 4. Create PDF
+      // 4. Create PDFs in chunks to avoid memory pressure
       // ------------------------------------------------------------------
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
 
       // Usable area with margins (10mm each side)
       const marginX = 10;
@@ -413,114 +411,144 @@ export function EventPdfDownload({
       // Center the pair horizontally
       const pairX = marginX + (usableW - pairW) / 2;
 
-      for (let i = 0; i < cards.length; i++) {
-        const cardItem = cards[i];
-        setProgress(`PDF 생성 중... (${i + 1}/${cards.length})`);
+      const totalChunks = Math.ceil(cards.length / CARDS_PER_PDF);
 
-        // Add new page (except first)
-        if (i > 0) {
-          pdf.addPage();
+      for (let chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
+        const start = chunkIdx * CARDS_PER_PDF;
+        const end = Math.min(start + CARDS_PER_PDF, cards.length);
+        const chunkCards = cards.slice(start, end);
+
+        // Create a NEW jsPDF instance per chunk to limit memory usage
+        let pdf: jsPDF | null = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+        });
+
+        for (let i = 0; i < chunkCards.length; i++) {
+          const cardItem = chunkCards[i];
+          if (totalChunks > 1) {
+            setProgress(`PDF 생성 중... Part ${chunkIdx + 1}/${totalChunks} (${i + 1}/${chunkCards.length})`);
+          } else {
+            setProgress(`PDF 생성 중... (${i + 1}/${chunkCards.length})`);
+          }
+
+          // Add new page (except first in this chunk)
+          if (i > 0) {
+            pdf.addPage();
+          }
+
+          // Page header - participant name
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(10);
+          pdf.setTextColor(100, 100, 100);
+          const headerText = `${cardItem.card.front.displayName || 'Unknown'} - ${cardItem.card.back.title || ''}`.trim();
+          pdf.text(headerText, A4_W / 2, marginY + 4, { align: 'center' });
+
+          // Render front card into hidden container
+          hiddenContainer.innerHTML = '';
+          const frontEl = renderFrontElement(cardItem.card, cardItem.illustrationUrl);
+          hiddenContainer.appendChild(frontEl);
+
+          // Wait a tick for rendering
+          await delay(100);
+
+          // Capture front
+          let frontDataUrl: string;
+          try {
+            frontDataUrl = await toPng(frontEl, {
+              quality: PNG_QUALITY,
+              pixelRatio: PIXEL_RATIO,
+              cacheBust: true,
+            });
+          } catch {
+            // If capture fails, create a placeholder
+            frontDataUrl = '';
+          }
+
+          // Render back card
+          hiddenContainer.innerHTML = '';
+          const backEl = renderBackElement(cardItem.card);
+          hiddenContainer.appendChild(backEl);
+
+          await delay(100);
+
+          // Capture back
+          let backDataUrl: string;
+          try {
+            backDataUrl = await toPng(backEl, {
+              quality: PNG_QUALITY,
+              pixelRatio: PIXEL_RATIO,
+              cacheBust: true,
+            });
+          } catch {
+            backDataUrl = '';
+          }
+
+          // Place images into the PDF
+          const cardY = marginY + headerH;
+
+          if (frontDataUrl) {
+            pdf.addImage(frontDataUrl, 'PNG', pairX, cardY, finalCardW, finalCardH);
+          } else {
+            // Draw placeholder rectangle
+            pdf.setDrawColor(200);
+            pdf.setFillColor(240, 240, 240);
+            pdf.rect(pairX, cardY, finalCardW, finalCardH, 'FD');
+            pdf.setFontSize(8);
+            pdf.setTextColor(150);
+            pdf.text('Front (capture failed)', pairX + finalCardW / 2, cardY + finalCardH / 2, { align: 'center' });
+          }
+
+          if (backDataUrl) {
+            pdf.addImage(
+              backDataUrl,
+              'PNG',
+              pairX + finalCardW + gap * scale,
+              cardY,
+              finalCardW,
+              finalCardH,
+            );
+          } else {
+            const backX = pairX + finalCardW + gap * scale;
+            pdf.setDrawColor(200);
+            pdf.setFillColor(240, 240, 240);
+            pdf.rect(backX, cardY, finalCardW, finalCardH, 'FD');
+            pdf.setFontSize(8);
+            pdf.setTextColor(150);
+            pdf.text('Back (capture failed)', backX + finalCardW / 2, cardY + finalCardH / 2, { align: 'center' });
+          }
+
+          // "Front" / "Back" labels
+          pdf.setFontSize(7);
+          pdf.setTextColor(160, 160, 160);
+          pdf.text('Front', pairX + finalCardW / 2, cardY + finalCardH + 4, { align: 'center' });
+          pdf.text('Back', pairX + finalCardW + gap * scale + finalCardW / 2, cardY + finalCardH + 4, { align: 'center' });
+
+          // Clean up DOM
+          hiddenContainer.innerHTML = '';
+
+          // Small delay between cards to reduce memory pressure
+          await delay(50);
         }
 
-        // Page header - participant name
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(10);
-        pdf.setTextColor(100, 100, 100);
-        const headerText = `${cardItem.card.front.displayName || 'Unknown'} - ${cardItem.card.back.title || ''}`.trim();
-        pdf.text(headerText, A4_W / 2, marginY + 4, { align: 'center' });
+        // ------------------------------------------------------------------
+        // 5. Download this chunk's PDF
+        // ------------------------------------------------------------------
+        const suffix = totalChunks > 1 ? `_Part${chunkIdx + 1}` : '';
+        const fileName = `${eventName}_명함_${todayString()}${suffix}.pdf`;
+        pdf.save(fileName);
 
-        // Render front card into hidden container
-        hiddenContainer.innerHTML = '';
-        const frontEl = renderFrontElement(cardItem.card, cardItem.illustrationUrl);
-        hiddenContainer.appendChild(frontEl);
+        // Explicitly release the jsPDF instance for GC
+        pdf = null;
 
-        // Wait a tick for rendering
-        await delay(100);
-
-        // Capture front
-        let frontDataUrl: string;
-        try {
-          frontDataUrl = await toPng(frontEl, {
-            quality: PNG_QUALITY,
-            pixelRatio: PIXEL_RATIO,
-            cacheBust: true,
-          });
-        } catch {
-          // If capture fails, create a placeholder
-          frontDataUrl = '';
+        // Longer delay between chunks to let the browser release memory
+        if (chunkIdx < totalChunks - 1) {
+          setProgress(`메모리 정리 중... (Part ${chunkIdx + 1}/${totalChunks} 완료)`);
+          await delay(500);
         }
-
-        // Render back card
-        hiddenContainer.innerHTML = '';
-        const backEl = renderBackElement(cardItem.card);
-        hiddenContainer.appendChild(backEl);
-
-        await delay(100);
-
-        // Capture back
-        let backDataUrl: string;
-        try {
-          backDataUrl = await toPng(backEl, {
-            quality: PNG_QUALITY,
-            pixelRatio: PIXEL_RATIO,
-            cacheBust: true,
-          });
-        } catch {
-          backDataUrl = '';
-        }
-
-        // Place images into the PDF
-        const cardY = marginY + headerH;
-
-        if (frontDataUrl) {
-          pdf.addImage(frontDataUrl, 'PNG', pairX, cardY, finalCardW, finalCardH);
-        } else {
-          // Draw placeholder rectangle
-          pdf.setDrawColor(200);
-          pdf.setFillColor(240, 240, 240);
-          pdf.rect(pairX, cardY, finalCardW, finalCardH, 'FD');
-          pdf.setFontSize(8);
-          pdf.setTextColor(150);
-          pdf.text('Front (capture failed)', pairX + finalCardW / 2, cardY + finalCardH / 2, { align: 'center' });
-        }
-
-        if (backDataUrl) {
-          pdf.addImage(
-            backDataUrl,
-            'PNG',
-            pairX + finalCardW + gap * scale,
-            cardY,
-            finalCardW,
-            finalCardH,
-          );
-        } else {
-          const backX = pairX + finalCardW + gap * scale;
-          pdf.setDrawColor(200);
-          pdf.setFillColor(240, 240, 240);
-          pdf.rect(backX, cardY, finalCardW, finalCardH, 'FD');
-          pdf.setFontSize(8);
-          pdf.setTextColor(150);
-          pdf.text('Back (capture failed)', backX + finalCardW / 2, cardY + finalCardH / 2, { align: 'center' });
-        }
-
-        // "Front" / "Back" labels
-        pdf.setFontSize(7);
-        pdf.setTextColor(160, 160, 160);
-        pdf.text('Front', pairX + finalCardW / 2, cardY + finalCardH + 4, { align: 'center' });
-        pdf.text('Back', pairX + finalCardW + gap * scale + finalCardW / 2, cardY + finalCardH + 4, { align: 'center' });
-
-        // Clean up DOM
-        hiddenContainer.innerHTML = '';
-
-        // Small delay between cards to reduce memory pressure
-        await delay(50);
       }
 
-      // ------------------------------------------------------------------
-      // 5. Download PDF
-      // ------------------------------------------------------------------
-      const fileName = `${eventName}_명함_${todayString()}.pdf`;
-      pdf.save(fileName);
       setProgress('');
     } catch (error) {
       console.error('PDF generation failed:', error);
