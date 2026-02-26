@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { EventList } from '@/components/admin/EventList';
 import { EventForm } from '@/components/admin/EventForm';
+import { EventPdfDownload } from '@/components/admin/EventPdfDownload';
 import type { EventWithCount } from '@/types/event';
 import type { EventParticipant } from '@/types/event';
 
@@ -291,16 +292,23 @@ export default function EventsPage() {
 
       {view === 'participants' && selectedEvent && (
         <div className="bg-white border border-[rgba(2,9,18,0.15)]">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {selectedEvent.name} - 참여자 목록
-            </h2>
-            {selectedEvent.eventDate && (
-              <p className="text-sm text-gray-500 mt-1">
-                {new Date(selectedEvent.eventDate + 'T00:00:00').toLocaleDateString('ko-KR')}
-                {selectedEvent.location ? ` | ${selectedEvent.location}` : ''}
-              </p>
-            )}
+          <div className="px-6 py-4 border-b border-gray-100 flex items-start justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                {selectedEvent.name} - 참여자 목록
+              </h2>
+              {selectedEvent.eventDate && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {new Date(selectedEvent.eventDate + 'T00:00:00').toLocaleDateString('ko-KR')}
+                  {selectedEvent.location ? ` | ${selectedEvent.location}` : ''}
+                </p>
+              )}
+            </div>
+            <EventPdfDownload
+              eventId={selectedEvent.id}
+              eventName={selectedEvent.name}
+              participantCount={participants.length}
+            />
           </div>
 
           {participantsLoading ? (
