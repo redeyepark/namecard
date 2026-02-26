@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { AdminCardPreview } from '@/components/admin/AdminCardPreview';
 import { POKEMON_TYPES } from '@/components/card/pokemon-types';
 import { HEARTHSTONE_CLASSES } from '@/components/card/hearthstone-types';
-import type { CardData, CardTheme, PokemonType, HearthstoneClass } from '@/types/card';
+import { HARRYPOTTER_HOUSES } from '@/components/card/harrypotter-types';
+import type { CardData, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse } from '@/types/card';
 
 // Sample card data for theme previews
 const sampleClassicCard: CardData = {
@@ -76,6 +77,30 @@ function createSampleHearthstoneCard(classType: HearthstoneClass): CardData {
   };
 }
 
+function createSampleHarrypotterCard(house: HarrypotterHouse): CardData {
+  return {
+    front: {
+      displayName: '홍길동',
+      avatarImage: null,
+      backgroundColor: '#1A1A2E',
+      textColor: '#FFFFFF',
+    },
+    back: {
+      fullName: '홍길동 | Hong Gildong',
+      title: 'Software Developer',
+      hashtags: ['#Development', '#Innovation', '#Technology'],
+      socialLinks: [
+        { platform: 'email', url: 'hong@example.com', label: 'hong@example.com' },
+        { platform: 'linkedin', url: 'linkedin.com/in/hong', label: 'hong' },
+      ],
+      backgroundColor: '#0E1A40',
+      textColor: '#D4A76A',
+    },
+    theme: 'harrypotter',
+    harrypotterMeta: { house, year: 1, spellPower: 100 },
+  };
+}
+
 interface ThemeStats {
   theme: string;
   count: number;
@@ -109,6 +134,14 @@ export default function ThemesPage() {
 
   // Hearthstone thumbnail selection
   const [selectedHearthstoneClass, setSelectedHearthstoneClass] = useState<HearthstoneClass>('mage');
+
+  // Harry Potter bulk apply options
+  const [harrypotterHouse, setHarrypotterHouse] = useState<HarrypotterHouse>('gryffindor');
+  const [harrypotterYear, setHarrypotterYear] = useState(1);
+  const [harrypotterSpellPower, setHarrypotterSpellPower] = useState(100);
+
+  // Harry Potter thumbnail selection
+  const [selectedHarrypotterHouse, setSelectedHarrypotterHouse] = useState<HarrypotterHouse>('gryffindor');
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -181,6 +214,8 @@ export default function ThemesPage() {
         body.pokemonMeta = { type: pokemonType, exp: pokemonExp };
       } else if (targetTheme === 'hearthstone') {
         body.hearthstoneMeta = { classType: hearthstoneClass, mana: hearthstoneMana, attack: hearthstoneAttack, health: hearthstoneHealth };
+      } else if (targetTheme === 'harrypotter') {
+        body.harrypotterMeta = { house: harrypotterHouse, year: harrypotterYear, spellPower: harrypotterSpellPower };
       }
 
       const res = await fetch('/api/admin/themes', {
@@ -234,7 +269,7 @@ export default function ThemesPage() {
       <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">테마 미리보기</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Classic Theme Preview */}
           <div>
             <div className="mb-3">
@@ -337,6 +372,52 @@ export default function ThemesPage() {
               </div>
             </div>
           </div>
+
+          {/* Harry Potter Theme Preview */}
+          <div>
+            <div className="mb-3">
+              <h3 className="text-base font-semibold text-gray-800">Harry Potter</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                해리포터 마법사 카드 스타일. 호그와트 기숙사별 디자인, Year 배지, Spell Power 등 마법 세계 요소가 포함됩니다.
+              </p>
+            </div>
+            <AdminCardPreview
+              card={createSampleHarrypotterCard(selectedHarrypotterHouse)}
+              illustrationUrl={null}
+            />
+
+            {/* Harry Potter House Thumbnails */}
+            <div className="mt-4">
+              <p className="text-xs text-gray-500 mb-2">기숙사 변형 (클릭하여 미리보기)</p>
+              <div className="flex flex-wrap gap-2">
+                {HARRYPOTTER_HOUSES.map((houseConfig) => (
+                  <button
+                    key={houseConfig.id}
+                    type="button"
+                    onClick={() => setSelectedHarrypotterHouse(houseConfig.id)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      selectedHarrypotterHouse === houseConfig.id
+                        ? 'ring-2 ring-offset-1 ring-gray-900 bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                    aria-pressed={selectedHarrypotterHouse === houseConfig.id}
+                    aria-label={`${houseConfig.name} (${houseConfig.label}) house preview`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox={houseConfig.iconData.viewBox}
+                      className="w-3.5 h-3.5"
+                      style={{ fill: selectedHarrypotterHouse === houseConfig.id ? '#FFFFFF' : houseConfig.color }}
+                      aria-hidden="true"
+                    >
+                      <path d={houseConfig.iconData.path} />
+                    </svg>
+                    {houseConfig.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -370,6 +451,12 @@ export default function ThemesPage() {
               <div>
                 <p className="text-xs text-gray-500">Hearthstone</p>
                 <p className="text-2xl font-bold text-gray-900">{getStatCount('hearthstone')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-lg">
+              <div>
+                <p className="text-xs text-gray-500">Harry Potter</p>
+                <p className="text-2xl font-bold text-gray-900">{getStatCount('harrypotter')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
               </div>
             </div>
             <div className="flex items-center gap-3 px-5 py-3 bg-blue-50 rounded-lg">
@@ -424,6 +511,7 @@ export default function ThemesPage() {
                 <option value="classic">Classic</option>
                 <option value="pokemon">Pokemon</option>
                 <option value="hearthstone">Hearthstone</option>
+                <option value="harrypotter">Harry Potter</option>
               </select>
             </div>
           </div>
@@ -442,6 +530,7 @@ export default function ThemesPage() {
               <option value="classic">Classic</option>
               <option value="pokemon">Pokemon</option>
               <option value="hearthstone">Hearthstone</option>
+              <option value="harrypotter">Harry Potter</option>
             </select>
           </div>
 
@@ -551,6 +640,59 @@ export default function ThemesPage() {
             </div>
           )}
 
+          {/* Harry Potter Options (shown when target is harrypotter) */}
+          {targetTheme === 'harrypotter' && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+              <div>
+                <label htmlFor="harrypotter-house" className="block text-sm font-medium text-gray-700 mb-1">
+                  기숙사 (House)
+                </label>
+                <select
+                  id="harrypotter-house"
+                  value={harrypotterHouse}
+                  onChange={(e) => setHarrypotterHouse(e.target.value as HarrypotterHouse)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                >
+                  {HARRYPOTTER_HOUSES.map((houseConfig) => (
+                    <option key={houseConfig.id} value={houseConfig.id}>
+                      {houseConfig.name} ({houseConfig.label})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="harrypotter-year" className="block text-sm font-medium text-gray-700 mb-1">
+                  Year (1-7)
+                </label>
+                <input
+                  id="harrypotter-year"
+                  type="number"
+                  min={1}
+                  max={7}
+                  value={harrypotterYear}
+                  onChange={(e) => setHarrypotterYear(Math.min(7, Math.max(1, Number(e.target.value))))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="harrypotter-spellpower" className="block text-sm font-medium text-gray-700 mb-1">
+                  Spell Power (0-999)
+                </label>
+                <input
+                  id="harrypotter-spellpower"
+                  type="number"
+                  min={0}
+                  max={999}
+                  value={harrypotterSpellPower}
+                  onChange={(e) => setHarrypotterSpellPower(Math.min(999, Math.max(0, Number(e.target.value))))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Affected Count & Apply Button */}
           <div className="flex items-center gap-4 pt-2">
             <div className="text-sm text-gray-600">
@@ -609,7 +751,7 @@ export default function ThemesPage() {
             <p className="text-sm text-gray-600 mb-4">
               {affectedCount !== null ? `${affectedCount}건` : '해당'}의 의뢰에{' '}
               <span className="font-semibold">
-                {targetTheme === 'classic' ? 'Classic' : targetTheme === 'pokemon' ? 'Pokemon' : 'Hearthstone'}
+                {targetTheme === 'classic' ? 'Classic' : targetTheme === 'pokemon' ? 'Pokemon' : targetTheme === 'hearthstone' ? 'Hearthstone' : 'Harry Potter'}
               </span>{' '}
               테마를 적용합니다.
               {targetTheme === 'pokemon' && (
@@ -622,6 +764,12 @@ export default function ThemesPage() {
                 <>
                   <br />
                   직업: {HEARTHSTONE_CLASSES.find((c) => c.id === hearthstoneClass)?.name} / 마나: {hearthstoneMana} / 공격: {hearthstoneAttack} / 체력: {hearthstoneHealth}
+                </>
+              )}
+              {targetTheme === 'harrypotter' && (
+                <>
+                  <br />
+                  기숙사: {HARRYPOTTER_HOUSES.find((h) => h.id === harrypotterHouse)?.name} / Year: {harrypotterYear} / Spell Power: {harrypotterSpellPower}
                 </>
               )}
             </p>

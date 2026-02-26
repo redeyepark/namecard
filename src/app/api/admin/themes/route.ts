@@ -1,19 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { requireAdminToken, AuthError } from '@/lib/auth-utils';
-import type { CardTheme, PokemonMeta, PokemonType, HearthstoneMeta, HearthstoneClass } from '@/types/card';
+import type { CardTheme, PokemonMeta, PokemonType, HearthstoneMeta, HearthstoneClass, HarrypotterMeta, HarrypotterHouse } from '@/types/card';
 
 interface ThemeStats {
   theme: string;
   count: number;
 }
 
-const VALID_THEMES: CardTheme[] = ['classic', 'pokemon', 'hearthstone'];
+const VALID_THEMES: CardTheme[] = ['classic', 'pokemon', 'hearthstone', 'harrypotter'];
 const VALID_POKEMON_TYPES: PokemonType[] = [
   'fire', 'water', 'grass', 'electric', 'psychic', 'steel', 'normal',
 ];
 const VALID_HEARTHSTONE_CLASSES: HearthstoneClass[] = [
   'warrior', 'mage', 'rogue', 'priest', 'hunter', 'paladin', 'shaman', 'warlock', 'druid',
+];
+const VALID_HARRYPOTTER_HOUSES: HarrypotterHouse[] = [
+  'gryffindor', 'slytherin', 'hufflepuff', 'ravenclaw',
 ];
 
 /**
@@ -75,10 +78,11 @@ export async function PATCH(request: NextRequest) {
     await requireAdminToken();
 
     const body = await request.json();
-    const { targetTheme, pokemonMeta, hearthstoneMeta, filters } = body as {
+    const { targetTheme, pokemonMeta, hearthstoneMeta, harrypotterMeta, filters } = body as {
       targetTheme?: CardTheme;
       pokemonMeta?: PokemonMeta;
       hearthstoneMeta?: HearthstoneMeta;
+      harrypotterMeta?: HarrypotterMeta;
       filters?: { status?: string; currentTheme?: string };
     };
 
@@ -134,6 +138,28 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    // Validate harrypotterMeta when target is harrypotter
+    if (targetTheme === 'harrypotter') {
+      if (!harrypotterMeta || !harrypotterMeta.house || !VALID_HARRYPOTTER_HOUSES.includes(harrypotterMeta.house)) {
+        return NextResponse.json(
+          { error: 'Invalid harrypotterMeta', details: 'Harry Potter theme requires a valid harrypotterMeta with house' },
+          { status: 400 }
+        );
+      }
+      if (harrypotterMeta.year === undefined || harrypotterMeta.year < 1 || harrypotterMeta.year > 7) {
+        return NextResponse.json(
+          { error: 'Invalid harrypotterMeta.year', details: 'Year must be between 1 and 7' },
+          { status: 400 }
+        );
+      }
+      if (harrypotterMeta.spellPower === undefined || harrypotterMeta.spellPower < 0 || harrypotterMeta.spellPower > 999) {
+        return NextResponse.json(
+          { error: 'Invalid harrypotterMeta.spellPower', details: 'Spell Power must be between 0 and 999' },
+          { status: 400 }
+        );
+      }
+    }
+
     const supabase = getSupabase();
 
     // Build query with filters
@@ -168,12 +194,19 @@ export async function PATCH(request: NextRequest) {
     if (targetTheme === 'pokemon' && pokemonMeta) {
       updatePayload.pokemon_meta = pokemonMeta;
       updatePayload.hearthstone_meta = null;
+      updatePayload.harrypotter_meta = null;
     } else if (targetTheme === 'hearthstone' && hearthstoneMeta) {
       updatePayload.hearthstone_meta = hearthstoneMeta;
       updatePayload.pokemon_meta = null;
+      updatePayload.harrypotter_meta = null;
+    } else if (targetTheme === 'harrypotter' && harrypotterMeta) {
+      updatePayload.harrypotter_meta = harrypotterMeta;
+      updatePayload.pokemon_meta = null;
+      updatePayload.hearthstone_meta = null;
     } else if (targetTheme === 'classic') {
       updatePayload.pokemon_meta = null;
       updatePayload.hearthstone_meta = null;
+      updatePayload.harrypotter_meta = null;
     }
 
     // Execute update with same filters

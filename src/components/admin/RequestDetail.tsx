@@ -2,9 +2,10 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import type { CardRequest } from '@/types/request';
-import type { CardFrontData, CardBackData, CardTheme, PokemonType, PokemonMeta, HearthstoneClass, HearthstoneMeta } from '@/types/card';
+import type { CardFrontData, CardBackData, CardTheme, PokemonType, PokemonMeta, HearthstoneClass, HearthstoneMeta, HarrypotterHouse, HarrypotterMeta } from '@/types/card';
 import { POKEMON_TYPES } from '@/components/card/pokemon-types';
 import { HEARTHSTONE_CLASSES } from '@/components/card/hearthstone-types';
+import { HARRYPOTTER_HOUSES } from '@/components/card/harrypotter-types';
 import { isTerminalStatus, requiresFeedback } from '@/types/request';
 import { StatusBadge } from './StatusBadge';
 import { CardCompare } from './CardCompare';
@@ -42,6 +43,9 @@ export function RequestDetail({
   );
   const [editHearthstoneMeta, setEditHearthstoneMeta] = useState<HearthstoneMeta>(
     request.card.hearthstoneMeta ?? { classType: 'mage', mana: 3, attack: 1, health: 5 }
+  );
+  const [editHarrypotterMeta, setEditHarrypotterMeta] = useState<HarrypotterMeta>(
+    request.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 }
   );
 
   const { status } = request;
@@ -226,6 +230,7 @@ export function RequestDetail({
           theme: editTheme,
           pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : null,
           hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : null,
+          harrypotterMeta: editTheme === 'harrypotter' ? editHarrypotterMeta : null,
         }),
       });
       if (!res.ok) {
@@ -239,7 +244,7 @@ export function RequestDetail({
     } finally {
       setActionLoading(false);
     }
-  }, [request.id, editFront, editBack, editTheme, editPokemonMeta, editHearthstoneMeta, onUpdate]);
+  }, [request.id, editFront, editBack, editTheme, editPokemonMeta, editHearthstoneMeta, editHarrypotterMeta, onUpdate]);
 
   const handleCancelEdit = useCallback(() => {
     setEditFront(request.card.front);
@@ -247,6 +252,7 @@ export function RequestDetail({
     setEditTheme(request.card.theme ?? 'classic');
     setEditPokemonMeta(request.card.pokemonMeta ?? { type: 'electric', exp: 100 });
     setEditHearthstoneMeta(request.card.hearthstoneMeta ?? { classType: 'mage', mana: 3, attack: 1, health: 5 });
+    setEditHarrypotterMeta(request.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 });
     setIsEditing(false);
   }, [request.card]);
 
@@ -287,6 +293,7 @@ export function RequestDetail({
     setEditTheme(request.card.theme ?? 'classic');
     setEditPokemonMeta(request.card.pokemonMeta ?? { type: 'electric', exp: 100 });
     setEditHearthstoneMeta(request.card.hearthstoneMeta ?? { classType: 'mage', mana: 3, attack: 1, health: 5 });
+    setEditHarrypotterMeta(request.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 });
     setIsEditing(false);
   }, [request.card]);
 
@@ -494,7 +501,7 @@ export function RequestDetail({
             <div className="sm:col-span-2 pt-2 border-t border-gray-100">
               <label className="text-gray-500 text-xs block mb-2">테마</label>
               <div className="flex gap-2">
-                {(['classic', 'pokemon', 'hearthstone'] as CardTheme[]).map((themeOption) => (
+                {(['classic', 'pokemon', 'hearthstone', 'harrypotter'] as CardTheme[]).map((themeOption) => (
                   <button
                     key={themeOption}
                     type="button"
@@ -505,7 +512,7 @@ export function RequestDetail({
                         : 'border-[rgba(2,9,18,0.15)] bg-white text-[#020912] hover:bg-[#e4f6ff]'
                     }`}
                   >
-                    {themeOption === 'classic' ? 'Classic' : themeOption === 'pokemon' ? 'Pokemon' : 'Hearthstone'}
+                    {themeOption === 'classic' ? 'Classic' : themeOption === 'pokemon' ? 'Pokemon' : themeOption === 'hearthstone' ? 'Hearthstone' : 'Harry Potter'}
                   </button>
                 ))}
               </div>
@@ -616,6 +623,59 @@ export function RequestDetail({
                 </div>
               </>
             )}
+            {/* Harry Potter options (shown only when harrypotter theme selected) */}
+            {editTheme === 'harrypotter' && (
+              <>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">House</label>
+                  <select
+                    value={editHarrypotterMeta.house}
+                    onChange={(e) =>
+                      setEditHarrypotterMeta({ ...editHarrypotterMeta, house: e.target.value as HarrypotterHouse })
+                    }
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  >
+                    {HARRYPOTTER_HOUSES.map((h) => (
+                      <option key={h.id} value={h.id}>
+                        {h.name} - {h.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Year (1-7)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={7}
+                    value={editHarrypotterMeta.year}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setEditHarrypotterMeta({ ...editHarrypotterMeta, year: Math.max(1, Math.min(7, val)) });
+                      }
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Spell Power (0-999)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={999}
+                    value={editHarrypotterMeta.spellPower}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setEditHarrypotterMeta({ ...editHarrypotterMeta, spellPower: Math.max(0, Math.min(999, val)) });
+                      }
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </>
+            )}
             {/* Social links editing */}
             {editBack.socialLinks.length > 0 && (
               <div>
@@ -697,7 +757,7 @@ export function RequestDetail({
             <div>
               <span className="text-gray-500">테마</span>
               <p className="font-medium text-gray-900">
-                {(request.card.theme ?? 'classic') === 'classic' ? 'Classic' : request.card.theme === 'pokemon' ? 'Pokemon' : 'Hearthstone'}
+                {(request.card.theme ?? 'classic') === 'classic' ? 'Classic' : request.card.theme === 'pokemon' ? 'Pokemon' : request.card.theme === 'hearthstone' ? 'Hearthstone' : 'Harry Potter'}
                 {request.card.theme === 'pokemon' && request.card.pokemonMeta && (
                   <span className="text-xs text-gray-500 ml-2">
                     ({POKEMON_TYPES.find(t => t.id === request.card.pokemonMeta?.type)?.name ?? request.card.pokemonMeta.type} / EXP {request.card.pokemonMeta.exp})
@@ -706,6 +766,11 @@ export function RequestDetail({
                 {request.card.theme === 'hearthstone' && request.card.hearthstoneMeta && (
                   <span className="text-xs text-gray-500 ml-2">
                     ({HEARTHSTONE_CLASSES.find(c => c.id === request.card.hearthstoneMeta?.classType)?.name ?? request.card.hearthstoneMeta.classType} / Mana {request.card.hearthstoneMeta.mana} / ATK {request.card.hearthstoneMeta.attack} / HP {request.card.hearthstoneMeta.health})
+                  </span>
+                )}
+                {request.card.theme === 'harrypotter' && request.card.harrypotterMeta && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({HARRYPOTTER_HOUSES.find(h => h.id === request.card.harrypotterMeta?.house)?.name ?? request.card.harrypotterMeta.house} / Year {request.card.harrypotterMeta.year} / SP {request.card.harrypotterMeta.spellPower})
                   </span>
                 )}
               </p>
@@ -802,7 +867,7 @@ export function RequestDetail({
         <h2 className="text-sm font-medium text-gray-700 mb-3">명함 미리보기</h2>
         <AdminCardPreview
           card={isEditing
-            ? { front: editFront, back: editBack, theme: editTheme, pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : undefined, hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : undefined }
+            ? { front: editFront, back: editBack, theme: editTheme, pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : undefined, hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : undefined, harrypotterMeta: editTheme === 'harrypotter' ? editHarrypotterMeta : undefined }
             : request.card
           }
           illustrationUrl={illustrationPreview || illustrationUrlInput || illustrationUrl}
