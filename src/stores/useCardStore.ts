@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { CardData, CardSide, CardTheme, PokemonType, HearthstoneClass, SocialLink } from '@/types/card';
+import type { CardData, CardSide, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse, SocialLink } from '@/types/card';
 
 const DEFAULT_CARD: CardData = {
   front: {
@@ -40,6 +40,9 @@ interface CardStore {
   setHearthstoneMana: (mana: number) => void;
   setHearthstoneAttack: (attack: number) => void;
   setHearthstoneHealth: (health: number) => void;
+  setHarrypotterHouse: (house: HarrypotterHouse) => void;
+  setHarrypotterYear: (year: number) => void;
+  setHarrypotterSpellPower: (spellPower: number) => void;
   setWizardStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -126,6 +129,10 @@ export const useCardStore = create<CardStore>()(
           if (theme === 'hearthstone' && !state.card.hearthstoneMeta) {
             updatedCard.hearthstoneMeta = { classType: 'warrior', mana: 3, attack: 2, health: 5 };
           }
+          // Auto-create default harrypotterMeta when switching to 'harrypotter' if none exists
+          if (theme === 'harrypotter' && !state.card.harrypotterMeta) {
+            updatedCard.harrypotterMeta = { house: 'gryffindor', year: 1, spellPower: 100 };
+          }
           return { card: updatedCard };
         }),
       setPokemonType: (type) =>
@@ -185,6 +192,36 @@ export const useCardStore = create<CardStore>()(
             hearthstoneMeta: {
               ...(state.card.hearthstoneMeta ?? { classType: 'warrior', mana: 3, attack: 2, health: 5 }),
               health: Math.max(1, Math.min(12, health)),
+            },
+          },
+        })),
+      setHarrypotterHouse: (house) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            harrypotterMeta: {
+              ...(state.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 }),
+              house,
+            },
+          },
+        })),
+      setHarrypotterYear: (year) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            harrypotterMeta: {
+              ...(state.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 }),
+              year: Math.max(1, Math.min(7, year)),
+            },
+          },
+        })),
+      setHarrypotterSpellPower: (spellPower) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            harrypotterMeta: {
+              ...(state.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 }),
+              spellPower: Math.max(0, Math.min(999, spellPower)),
             },
           },
         })),

@@ -5,6 +5,7 @@ import { extractHandle } from '@/lib/social-utils';
 import { renderMultiLine } from '@/lib/text-utils';
 import { PokemonCardBack } from './PokemonCardBack';
 import { HearthstoneCardBack } from './HearthstoneCardBack';
+import { HarrypotterCardBack } from './HarrypotterCardBack';
 
 /**
  * CardBack wrapper that delegates to the appropriate theme renderer.
@@ -15,6 +16,7 @@ export function CardBack() {
 
   if (theme === 'pokemon') return <PokemonCardBack />;
   if (theme === 'hearthstone') return <HearthstoneCardBack />;
+  if (theme === 'harrypotter') return <HarrypotterCardBack />;
   return <ClassicCardBack />;
 }
 

@@ -8,6 +8,8 @@ import { PokemonTypeSelector } from './PokemonTypeSelector';
 import { ExpInput } from './ExpInput';
 import { HearthstoneClassSelector } from './HearthstoneClassSelector';
 import { HearthstoneStatInput } from './HearthstoneStatInput';
+import { HarrypotterHouseSelector } from './HarrypotterHouseSelector';
+import { HarrypotterStatInput } from './HarrypotterStatInput';
 
 export function FrontEditor() {
   const front = useCardStore((state) => state.card.front);
@@ -16,7 +18,8 @@ export function FrontEditor() {
 
   const isPokemon = theme === 'pokemon';
   const isHearthstone = theme === 'hearthstone';
-  const isClassic = !isPokemon && !isHearthstone;
+  const isHarrypotter = theme === 'harrypotter';
+  const isClassic = !isPokemon && !isHearthstone && !isHarrypotter;
 
   return (
     <div className="space-y-4">
@@ -49,6 +52,14 @@ export function FrontEditor() {
         <>
           <HearthstoneClassSelector />
           <HearthstoneStatInput />
+        </>
+      )}
+
+      {/* Harry Potter-specific editors */}
+      {isHarrypotter && (
+        <>
+          <HarrypotterHouseSelector />
+          <HarrypotterStatInput />
         </>
       )}
 
