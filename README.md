@@ -86,7 +86,7 @@ src/
 │   ├── api/requests/my/ # 사용자 본인 요청 목록 API
 │   └── api/admin/bulk-upload/ # 관리자 CSV/Excel 대량 등록 API
 ├── components/
-│   ├── admin/           # 관리자 컴포넌트 (BulkUploadModal 등)
+│   ├── admin/           # 관리자 컴포넌트 (ThemeListBox, ThemePreviewPanel, ThemeEditPanel 등)
 │   ├── card/            # 카드 미리보기 컴포넌트 (5개 테마: Classic/Pokemon/Hearthstone/Harrypotter/Tarot)
 │   ├── dashboard/       # 대시보드 컴포넌트 (ProgressStepper, MyRequestList 등)
 │   ├── editor/          # 편집기 컴포넌트 (테마별 메타데이터 편집 UI 포함)
@@ -98,6 +98,15 @@ src/
 ```
 
 ## 최근 변경사항
+
+### 테마 관리 UI 개선 (SPEC-THEME-002)
+
+- 관리자 테마 관리 페이지(`/admin/themes`)의 미리보기 레이아웃을 5열 그리드에서 리스트 박스 + 대형 미리보기 패턴으로 개선
+- 좌측 사이드바에 5개 테마 목록 (의뢰 건수 배지 포함), 우측에 선택된 테마의 대형 카드 미리보기 + 편집 패널 배치
+- 테마별 variant(타입/직업/기숙사/아르카나) 선택 및 메타데이터 편집을 실시간 미리보기로 확인 가능
+- 테마 전환 시 각 테마의 편집 상태가 독립적으로 보존
+- 모바일 반응형 지원 (1024px 미만에서 드롭다운 선택기로 전환)
+- 기존 테마 일괄 적용 기능 100% 보존
 
 ### 폰트 변경
 
