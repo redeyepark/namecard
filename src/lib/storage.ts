@@ -739,40 +739,20 @@ export async function getPublicCards(
 }
 
 /**
- * Get a public card by ID.
- * Only returns cards where is_public=true AND status is confirmed or delivered.
+ * Get a card by ID for direct URL access (e.g. QR code scan).
+ * Returns any confirmed or delivered card regardless of is_public flag.
+ * The is_public flag only controls gallery listing visibility, not direct URL access.
  * Excludes created_by (user email) for privacy.
- * Returns null if is_public column doesn't exist (public feature not available).
  */
 export async function getPublicCard(id: string): Promise<PublicCardData | null> {
   const supabase = getSupabase();
 
-  // Try with is_public filter first
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let row: any = null;
-  let error: { message?: string } | null = null;
-
-  const result = await supabase
+  const { data: row, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, is_public, status')
+    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status')
     .eq('id', id)
-    .eq('is_public', true)
     .in('status', ['confirmed', 'delivered'])
     .single();
-  row = result.data;
-  error = result.error;
-
-  // If is_public column doesn't exist, fallback: show all confirmed/delivered cards
-  if (error && error.message?.includes('is_public')) {
-    const retryResult = await supabase
-      .from('card_requests')
-      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status')
-      .eq('id', id)
-      .in('status', ['confirmed', 'delivered'])
-      .single();
-    row = retryResult.data;
-    error = retryResult.error;
-  }
 
   if (error || !row) {
     return null;
