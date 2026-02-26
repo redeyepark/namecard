@@ -5,7 +5,8 @@ import { AdminCardPreview } from '@/components/admin/AdminCardPreview';
 import { POKEMON_TYPES } from '@/components/card/pokemon-types';
 import { HEARTHSTONE_CLASSES } from '@/components/card/hearthstone-types';
 import { HARRYPOTTER_HOUSES } from '@/components/card/harrypotter-types';
-import type { CardData, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse } from '@/types/card';
+import { TAROT_ARCANAS } from '@/components/card/tarot-types';
+import type { CardData, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse, TarotArcana } from '@/types/card';
 
 // Sample card data for theme previews
 const sampleClassicCard: CardData = {
@@ -101,6 +102,30 @@ function createSampleHarrypotterCard(house: HarrypotterHouse): CardData {
   };
 }
 
+function createSampleTarotCard(arcana: TarotArcana): CardData {
+  return {
+    front: {
+      displayName: '홍길동',
+      avatarImage: null,
+      backgroundColor: '#0D0B1A',
+      textColor: '#FFFFFF',
+    },
+    back: {
+      fullName: '홍길동 | Hong Gildong',
+      title: 'Software Developer',
+      hashtags: ['#Development', '#Innovation', '#Technology'],
+      socialLinks: [
+        { platform: 'email', url: 'hong@example.com', label: 'hong@example.com' },
+        { platform: 'linkedin', url: 'linkedin.com/in/hong', label: 'hong' },
+      ],
+      backgroundColor: '#0D0B1A',
+      textColor: '#FFD700',
+    },
+    theme: 'tarot',
+    tarotMeta: { arcana, cardNumber: 0, mystique: 100 },
+  };
+}
+
 interface ThemeStats {
   theme: string;
   count: number;
@@ -142,6 +167,14 @@ export default function ThemesPage() {
 
   // Harry Potter thumbnail selection
   const [selectedHarrypotterHouse, setSelectedHarrypotterHouse] = useState<HarrypotterHouse>('gryffindor');
+
+  // Tarot bulk apply options
+  const [tarotArcana, setTarotArcana] = useState<TarotArcana>('major');
+  const [tarotCardNumber, setTarotCardNumber] = useState(0);
+  const [tarotMystique, setTarotMystique] = useState(100);
+
+  // Tarot thumbnail selection
+  const [selectedTarotArcana, setSelectedTarotArcana] = useState<TarotArcana>('major');
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -216,6 +249,8 @@ export default function ThemesPage() {
         body.hearthstoneMeta = { classType: hearthstoneClass, mana: hearthstoneMana, attack: hearthstoneAttack, health: hearthstoneHealth };
       } else if (targetTheme === 'harrypotter') {
         body.harrypotterMeta = { house: harrypotterHouse, year: harrypotterYear, spellPower: harrypotterSpellPower };
+      } else if (targetTheme === 'tarot') {
+        body.tarotMeta = { arcana: tarotArcana, cardNumber: tarotCardNumber, mystique: tarotMystique };
       }
 
       const res = await fetch('/api/admin/themes', {
@@ -269,7 +304,7 @@ export default function ThemesPage() {
       <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">테마 미리보기</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Classic Theme Preview */}
           <div>
             <div className="mb-3">
@@ -418,6 +453,52 @@ export default function ThemesPage() {
               </div>
             </div>
           </div>
+
+          {/* Tarot Theme Preview */}
+          <div>
+            <div className="mb-3">
+              <h3 className="text-base font-semibold text-gray-800">Tarot</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                타로 카드 스타일. 아르카나별 신비로운 디자인, 카드 번호, Mystique 등 신비주의 요소가 포함됩니다.
+              </p>
+            </div>
+            <AdminCardPreview
+              card={createSampleTarotCard(selectedTarotArcana)}
+              illustrationUrl={null}
+            />
+
+            {/* Tarot Arcana Thumbnails */}
+            <div className="mt-4">
+              <p className="text-xs text-gray-500 mb-2">아르카나 변형 (클릭하여 미리보기)</p>
+              <div className="flex flex-wrap gap-2">
+                {TAROT_ARCANAS.map((arcanaConfig) => (
+                  <button
+                    key={arcanaConfig.id}
+                    type="button"
+                    onClick={() => setSelectedTarotArcana(arcanaConfig.id)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      selectedTarotArcana === arcanaConfig.id
+                        ? 'ring-2 ring-offset-1 ring-gray-900 bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                    aria-pressed={selectedTarotArcana === arcanaConfig.id}
+                    aria-label={`${arcanaConfig.name} (${arcanaConfig.label}) arcana preview`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox={arcanaConfig.iconData.viewBox}
+                      className="w-3.5 h-3.5"
+                      style={{ fill: selectedTarotArcana === arcanaConfig.id ? '#FFFFFF' : arcanaConfig.color }}
+                      aria-hidden="true"
+                    >
+                      <path d={arcanaConfig.iconData.path} />
+                    </svg>
+                    {arcanaConfig.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -457,6 +538,12 @@ export default function ThemesPage() {
               <div>
                 <p className="text-xs text-gray-500">Harry Potter</p>
                 <p className="text-2xl font-bold text-gray-900">{getStatCount('harrypotter')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-lg">
+              <div>
+                <p className="text-xs text-gray-500">Tarot</p>
+                <p className="text-2xl font-bold text-gray-900">{getStatCount('tarot')}<span className="text-sm font-normal text-gray-500 ml-1">건</span></p>
               </div>
             </div>
             <div className="flex items-center gap-3 px-5 py-3 bg-blue-50 rounded-lg">
@@ -512,6 +599,7 @@ export default function ThemesPage() {
                 <option value="pokemon">Pokemon</option>
                 <option value="hearthstone">Hearthstone</option>
                 <option value="harrypotter">Harry Potter</option>
+                <option value="tarot">Tarot</option>
               </select>
             </div>
           </div>
@@ -531,6 +619,7 @@ export default function ThemesPage() {
               <option value="pokemon">Pokemon</option>
               <option value="hearthstone">Hearthstone</option>
               <option value="harrypotter">Harry Potter</option>
+              <option value="tarot">Tarot</option>
             </select>
           </div>
 
@@ -693,6 +782,59 @@ export default function ThemesPage() {
             </div>
           )}
 
+          {/* Tarot Options (shown when target is tarot) */}
+          {targetTheme === 'tarot' && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <div>
+                <label htmlFor="tarot-arcana" className="block text-sm font-medium text-gray-700 mb-1">
+                  아르카나 (Arcana)
+                </label>
+                <select
+                  id="tarot-arcana"
+                  value={tarotArcana}
+                  onChange={(e) => setTarotArcana(e.target.value as TarotArcana)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                >
+                  {TAROT_ARCANAS.map((arcanaConfig) => (
+                    <option key={arcanaConfig.id} value={arcanaConfig.id}>
+                      {arcanaConfig.name} ({arcanaConfig.label})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="tarot-cardnumber" className="block text-sm font-medium text-gray-700 mb-1">
+                  Card Number (0-21)
+                </label>
+                <input
+                  id="tarot-cardnumber"
+                  type="number"
+                  min={0}
+                  max={21}
+                  value={tarotCardNumber}
+                  onChange={(e) => setTarotCardNumber(Math.min(21, Math.max(0, Number(e.target.value))))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="tarot-mystique" className="block text-sm font-medium text-gray-700 mb-1">
+                  Mystique (0-999)
+                </label>
+                <input
+                  id="tarot-mystique"
+                  type="number"
+                  min={0}
+                  max={999}
+                  value={tarotMystique}
+                  onChange={(e) => setTarotMystique(Math.min(999, Math.max(0, Number(e.target.value))))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-[#020912]"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Affected Count & Apply Button */}
           <div className="flex items-center gap-4 pt-2">
             <div className="text-sm text-gray-600">
@@ -751,7 +893,7 @@ export default function ThemesPage() {
             <p className="text-sm text-gray-600 mb-4">
               {affectedCount !== null ? `${affectedCount}건` : '해당'}의 의뢰에{' '}
               <span className="font-semibold">
-                {targetTheme === 'classic' ? 'Classic' : targetTheme === 'pokemon' ? 'Pokemon' : targetTheme === 'hearthstone' ? 'Hearthstone' : 'Harry Potter'}
+                {targetTheme === 'classic' ? 'Classic' : targetTheme === 'pokemon' ? 'Pokemon' : targetTheme === 'hearthstone' ? 'Hearthstone' : targetTheme === 'harrypotter' ? 'Harry Potter' : 'Tarot'}
               </span>{' '}
               테마를 적용합니다.
               {targetTheme === 'pokemon' && (
@@ -770,6 +912,12 @@ export default function ThemesPage() {
                 <>
                   <br />
                   기숙사: {HARRYPOTTER_HOUSES.find((h) => h.id === harrypotterHouse)?.name} / Year: {harrypotterYear} / Spell Power: {harrypotterSpellPower}
+                </>
+              )}
+              {targetTheme === 'tarot' && (
+                <>
+                  <br />
+                  아르카나: {TAROT_ARCANAS.find((a) => a.id === tarotArcana)?.name} / Card Number: {tarotCardNumber} / Mystique: {tarotMystique}
                 </>
               )}
             </p>

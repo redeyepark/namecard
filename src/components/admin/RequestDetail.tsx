@@ -2,10 +2,11 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import type { CardRequest } from '@/types/request';
-import type { CardFrontData, CardBackData, CardTheme, PokemonType, PokemonMeta, HearthstoneClass, HearthstoneMeta, HarrypotterHouse, HarrypotterMeta } from '@/types/card';
+import type { CardFrontData, CardBackData, CardTheme, PokemonType, PokemonMeta, HearthstoneClass, HearthstoneMeta, HarrypotterHouse, HarrypotterMeta, TarotArcana, TarotMeta } from '@/types/card';
 import { POKEMON_TYPES } from '@/components/card/pokemon-types';
 import { HEARTHSTONE_CLASSES } from '@/components/card/hearthstone-types';
 import { HARRYPOTTER_HOUSES } from '@/components/card/harrypotter-types';
+import { TAROT_ARCANAS } from '@/components/card/tarot-types';
 import { isTerminalStatus, requiresFeedback } from '@/types/request';
 import { StatusBadge } from './StatusBadge';
 import { CardCompare } from './CardCompare';
@@ -46,6 +47,9 @@ export function RequestDetail({
   );
   const [editHarrypotterMeta, setEditHarrypotterMeta] = useState<HarrypotterMeta>(
     request.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 }
+  );
+  const [editTarotMeta, setEditTarotMeta] = useState<TarotMeta>(
+    request.card.tarotMeta ?? { arcana: 'major', cardNumber: 0, mystique: 100 }
   );
 
   const { status } = request;
@@ -231,6 +235,7 @@ export function RequestDetail({
           pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : null,
           hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : null,
           harrypotterMeta: editTheme === 'harrypotter' ? editHarrypotterMeta : null,
+          tarotMeta: editTheme === 'tarot' ? editTarotMeta : null,
         }),
       });
       if (!res.ok) {
@@ -253,6 +258,7 @@ export function RequestDetail({
     setEditPokemonMeta(request.card.pokemonMeta ?? { type: 'electric', exp: 100 });
     setEditHearthstoneMeta(request.card.hearthstoneMeta ?? { classType: 'mage', mana: 3, attack: 1, health: 5 });
     setEditHarrypotterMeta(request.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 });
+    setEditTarotMeta(request.card.tarotMeta ?? { arcana: 'major', cardNumber: 0, mystique: 100 });
     setIsEditing(false);
   }, [request.card]);
 
@@ -294,6 +300,7 @@ export function RequestDetail({
     setEditPokemonMeta(request.card.pokemonMeta ?? { type: 'electric', exp: 100 });
     setEditHearthstoneMeta(request.card.hearthstoneMeta ?? { classType: 'mage', mana: 3, attack: 1, health: 5 });
     setEditHarrypotterMeta(request.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 });
+    setEditTarotMeta(request.card.tarotMeta ?? { arcana: 'major', cardNumber: 0, mystique: 100 });
     setIsEditing(false);
   }, [request.card]);
 
@@ -501,7 +508,7 @@ export function RequestDetail({
             <div className="sm:col-span-2 pt-2 border-t border-gray-100">
               <label className="text-gray-500 text-xs block mb-2">테마</label>
               <div className="flex gap-2">
-                {(['classic', 'pokemon', 'hearthstone', 'harrypotter'] as CardTheme[]).map((themeOption) => (
+                {(['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot'] as CardTheme[]).map((themeOption) => (
                   <button
                     key={themeOption}
                     type="button"
@@ -512,7 +519,7 @@ export function RequestDetail({
                         : 'border-[rgba(2,9,18,0.15)] bg-white text-[#020912] hover:bg-[#e4f6ff]'
                     }`}
                   >
-                    {themeOption === 'classic' ? 'Classic' : themeOption === 'pokemon' ? 'Pokemon' : themeOption === 'hearthstone' ? 'Hearthstone' : 'Harry Potter'}
+                    {themeOption === 'classic' ? 'Classic' : themeOption === 'pokemon' ? 'Pokemon' : themeOption === 'hearthstone' ? 'Hearthstone' : themeOption === 'harrypotter' ? 'Harry Potter' : 'Tarot'}
                   </button>
                 ))}
               </div>
@@ -676,6 +683,59 @@ export function RequestDetail({
                 </div>
               </>
             )}
+            {/* Tarot options (shown only when tarot theme selected) */}
+            {editTheme === 'tarot' && (
+              <>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Arcana</label>
+                  <select
+                    value={editTarotMeta.arcana}
+                    onChange={(e) =>
+                      setEditTarotMeta({ ...editTarotMeta, arcana: e.target.value as TarotArcana })
+                    }
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  >
+                    {TAROT_ARCANAS.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name} - {a.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Card Number (0-21)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={21}
+                    value={editTarotMeta.cardNumber}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setEditTarotMeta({ ...editTarotMeta, cardNumber: Math.max(0, Math.min(21, val)) });
+                      }
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-500 text-xs block mb-1">Mystique (0-999)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={999}
+                    value={editTarotMeta.mystique}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setEditTarotMeta({ ...editTarotMeta, mystique: Math.max(0, Math.min(999, val)) });
+                      }
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </>
+            )}
             {/* Social links editing */}
             {editBack.socialLinks.length > 0 && (
               <div>
@@ -757,7 +817,7 @@ export function RequestDetail({
             <div>
               <span className="text-gray-500">테마</span>
               <p className="font-medium text-gray-900">
-                {(request.card.theme ?? 'classic') === 'classic' ? 'Classic' : request.card.theme === 'pokemon' ? 'Pokemon' : request.card.theme === 'hearthstone' ? 'Hearthstone' : 'Harry Potter'}
+                {(request.card.theme ?? 'classic') === 'classic' ? 'Classic' : request.card.theme === 'pokemon' ? 'Pokemon' : request.card.theme === 'hearthstone' ? 'Hearthstone' : request.card.theme === 'harrypotter' ? 'Harry Potter' : 'Tarot'}
                 {request.card.theme === 'pokemon' && request.card.pokemonMeta && (
                   <span className="text-xs text-gray-500 ml-2">
                     ({POKEMON_TYPES.find(t => t.id === request.card.pokemonMeta?.type)?.name ?? request.card.pokemonMeta.type} / EXP {request.card.pokemonMeta.exp})
@@ -771,6 +831,11 @@ export function RequestDetail({
                 {request.card.theme === 'harrypotter' && request.card.harrypotterMeta && (
                   <span className="text-xs text-gray-500 ml-2">
                     ({HARRYPOTTER_HOUSES.find(h => h.id === request.card.harrypotterMeta?.house)?.name ?? request.card.harrypotterMeta.house} / Year {request.card.harrypotterMeta.year} / SP {request.card.harrypotterMeta.spellPower})
+                  </span>
+                )}
+                {request.card.theme === 'tarot' && request.card.tarotMeta && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({TAROT_ARCANAS.find(a => a.id === request.card.tarotMeta?.arcana)?.name ?? request.card.tarotMeta.arcana} / No.{request.card.tarotMeta.cardNumber} / Mystique {request.card.tarotMeta.mystique})
                   </span>
                 )}
               </p>
@@ -867,7 +932,7 @@ export function RequestDetail({
         <h2 className="text-sm font-medium text-gray-700 mb-3">명함 미리보기</h2>
         <AdminCardPreview
           card={isEditing
-            ? { front: editFront, back: editBack, theme: editTheme, pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : undefined, hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : undefined, harrypotterMeta: editTheme === 'harrypotter' ? editHarrypotterMeta : undefined }
+            ? { front: editFront, back: editBack, theme: editTheme, pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : undefined, hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : undefined, harrypotterMeta: editTheme === 'harrypotter' ? editHarrypotterMeta : undefined, tarotMeta: editTheme === 'tarot' ? editTarotMeta : undefined }
             : request.card
           }
           illustrationUrl={illustrationPreview || illustrationUrlInput || illustrationUrl}

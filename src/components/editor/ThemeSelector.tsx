@@ -24,6 +24,11 @@ const THEME_OPTIONS: { id: CardTheme; label: string; description: string }[] = [
     label: 'Harry Potter',
     description: 'Wizard card style',
   },
+  {
+    id: 'tarot',
+    label: 'Tarot',
+    description: 'Mystical card style',
+  },
 ];
 
 export function ThemeSelector() {
@@ -63,7 +68,7 @@ export function ThemeSelector() {
       <div
         role="radiogroup"
         aria-label="Card theme selection"
-        className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+        className="grid grid-cols-2 sm:grid-cols-5 gap-3"
       >
         {THEME_OPTIONS.map((option) => {
           const isSelected = theme === option.id;
@@ -136,7 +141,7 @@ export function ThemeSelector() {
                       d="M12 6l-2.5 5L12 16l2.5-5L12 6z"
                     />
                   </svg>
-                ) : (
+                ) : option.id === 'harrypotter' ? (
                   /* Harry Potter icon - magic wand with stars */
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -160,6 +165,28 @@ export function ThemeSelector() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       d="M3.5 20.5l13-13M5 22l-3-3"
+                    />
+                  </svg>
+                ) : (
+                  /* Tarot icon - mystical eye */
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"
+                    />
+                    <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
                     />
                   </svg>
                 )}

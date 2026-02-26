@@ -5,6 +5,7 @@ import { renderMultiLine } from '@/lib/text-utils';
 import { PokemonCardFront } from './PokemonCardFront';
 import { HearthstoneCardFront } from './HearthstoneCardFront';
 import { HarrypotterCardFront } from './HarrypotterCardFront';
+import { TarotCardFront } from './TarotCardFront';
 
 /**
  * CardFront wrapper that delegates to the appropriate theme renderer.
@@ -16,6 +17,7 @@ export function CardFront() {
   if (theme === 'pokemon') return <PokemonCardFront />;
   if (theme === 'hearthstone') return <HearthstoneCardFront />;
   if (theme === 'harrypotter') return <HarrypotterCardFront />;
+  if (theme === 'tarot') return <TarotCardFront />;
   return <ClassicCardFront />;
 }
 

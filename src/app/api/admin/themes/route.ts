@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { requireAdminToken, AuthError } from '@/lib/auth-utils';
-import type { CardTheme, PokemonMeta, PokemonType, HearthstoneMeta, HearthstoneClass, HarrypotterMeta, HarrypotterHouse } from '@/types/card';
+import type { CardTheme, PokemonMeta, PokemonType, HearthstoneMeta, HearthstoneClass, HarrypotterMeta, HarrypotterHouse, TarotMeta, TarotArcana } from '@/types/card';
 
 interface ThemeStats {
   theme: string;
   count: number;
 }
 
-const VALID_THEMES: CardTheme[] = ['classic', 'pokemon', 'hearthstone', 'harrypotter'];
+const VALID_THEMES: CardTheme[] = ['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot'];
 const VALID_POKEMON_TYPES: PokemonType[] = [
   'fire', 'water', 'grass', 'electric', 'psychic', 'steel', 'normal',
 ];
@@ -17,6 +17,9 @@ const VALID_HEARTHSTONE_CLASSES: HearthstoneClass[] = [
 ];
 const VALID_HARRYPOTTER_HOUSES: HarrypotterHouse[] = [
   'gryffindor', 'slytherin', 'hufflepuff', 'ravenclaw',
+];
+const VALID_TAROT_ARCANAS: TarotArcana[] = [
+  'major', 'wands', 'cups', 'swords', 'pentacles',
 ];
 
 /**
@@ -78,11 +81,12 @@ export async function PATCH(request: NextRequest) {
     await requireAdminToken();
 
     const body = await request.json();
-    const { targetTheme, pokemonMeta, hearthstoneMeta, harrypotterMeta, filters } = body as {
+    const { targetTheme, pokemonMeta, hearthstoneMeta, harrypotterMeta, tarotMeta, filters } = body as {
       targetTheme?: CardTheme;
       pokemonMeta?: PokemonMeta;
       hearthstoneMeta?: HearthstoneMeta;
       harrypotterMeta?: HarrypotterMeta;
+      tarotMeta?: TarotMeta;
       filters?: { status?: string; currentTheme?: string };
     };
 
@@ -160,6 +164,28 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    // Validate tarotMeta when target is tarot
+    if (targetTheme === 'tarot') {
+      if (!tarotMeta || !tarotMeta.arcana || !VALID_TAROT_ARCANAS.includes(tarotMeta.arcana)) {
+        return NextResponse.json(
+          { error: 'Invalid tarotMeta', details: 'Tarot theme requires a valid tarotMeta with arcana' },
+          { status: 400 }
+        );
+      }
+      if (tarotMeta.cardNumber === undefined || tarotMeta.cardNumber < 0 || tarotMeta.cardNumber > 21) {
+        return NextResponse.json(
+          { error: 'Invalid tarotMeta.cardNumber', details: 'Card Number must be between 0 and 21' },
+          { status: 400 }
+        );
+      }
+      if (tarotMeta.mystique === undefined || tarotMeta.mystique < 0 || tarotMeta.mystique > 999) {
+        return NextResponse.json(
+          { error: 'Invalid tarotMeta.mystique', details: 'Mystique must be between 0 and 999' },
+          { status: 400 }
+        );
+      }
+    }
+
     const supabase = getSupabase();
 
     // Build query with filters
@@ -195,18 +221,27 @@ export async function PATCH(request: NextRequest) {
       updatePayload.pokemon_meta = pokemonMeta;
       updatePayload.hearthstone_meta = null;
       updatePayload.harrypotter_meta = null;
+      updatePayload.tarot_meta = null;
     } else if (targetTheme === 'hearthstone' && hearthstoneMeta) {
       updatePayload.hearthstone_meta = hearthstoneMeta;
       updatePayload.pokemon_meta = null;
       updatePayload.harrypotter_meta = null;
+      updatePayload.tarot_meta = null;
     } else if (targetTheme === 'harrypotter' && harrypotterMeta) {
       updatePayload.harrypotter_meta = harrypotterMeta;
       updatePayload.pokemon_meta = null;
       updatePayload.hearthstone_meta = null;
+      updatePayload.tarot_meta = null;
+    } else if (targetTheme === 'tarot' && tarotMeta) {
+      updatePayload.tarot_meta = tarotMeta;
+      updatePayload.pokemon_meta = null;
+      updatePayload.hearthstone_meta = null;
+      updatePayload.harrypotter_meta = null;
     } else if (targetTheme === 'classic') {
       updatePayload.pokemon_meta = null;
       updatePayload.hearthstone_meta = null;
       updatePayload.harrypotter_meta = null;
+      updatePayload.tarot_meta = null;
     }
 
     // Execute update with same filters

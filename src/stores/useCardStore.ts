@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { CardData, CardSide, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse, SocialLink } from '@/types/card';
+import type { CardData, CardSide, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse, TarotArcana, SocialLink } from '@/types/card';
 
 const DEFAULT_CARD: CardData = {
   front: {
@@ -43,6 +43,9 @@ interface CardStore {
   setHarrypotterHouse: (house: HarrypotterHouse) => void;
   setHarrypotterYear: (year: number) => void;
   setHarrypotterSpellPower: (spellPower: number) => void;
+  setTarotArcana: (arcana: TarotArcana) => void;
+  setTarotCardNumber: (cardNumber: number) => void;
+  setTarotMystique: (mystique: number) => void;
   setWizardStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -133,6 +136,10 @@ export const useCardStore = create<CardStore>()(
           if (theme === 'harrypotter' && !state.card.harrypotterMeta) {
             updatedCard.harrypotterMeta = { house: 'gryffindor', year: 1, spellPower: 100 };
           }
+          // Auto-create default tarotMeta when switching to 'tarot' if none exists
+          if (theme === 'tarot' && !state.card.tarotMeta) {
+            updatedCard.tarotMeta = { arcana: 'major', cardNumber: 0, mystique: 100 };
+          }
           return { card: updatedCard };
         }),
       setPokemonType: (type) =>
@@ -222,6 +229,36 @@ export const useCardStore = create<CardStore>()(
             harrypotterMeta: {
               ...(state.card.harrypotterMeta ?? { house: 'gryffindor', year: 1, spellPower: 100 }),
               spellPower: Math.max(0, Math.min(999, spellPower)),
+            },
+          },
+        })),
+      setTarotArcana: (arcana) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            tarotMeta: {
+              ...(state.card.tarotMeta ?? { arcana: 'major', cardNumber: 0, mystique: 100 }),
+              arcana,
+            },
+          },
+        })),
+      setTarotCardNumber: (cardNumber) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            tarotMeta: {
+              ...(state.card.tarotMeta ?? { arcana: 'major', cardNumber: 0, mystique: 100 }),
+              cardNumber: Math.max(0, Math.min(21, cardNumber)),
+            },
+          },
+        })),
+      setTarotMystique: (mystique) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            tarotMeta: {
+              ...(state.card.tarotMeta ?? { arcana: 'major', cardNumber: 0, mystique: 100 }),
+              mystique: Math.max(0, Math.min(999, mystique)),
             },
           },
         })),

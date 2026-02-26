@@ -20,10 +20,11 @@ export interface CardBackData {
   textColor: string;
 }
 
-export type CardTheme = 'classic' | 'pokemon' | 'hearthstone' | 'harrypotter';
+export type CardTheme = 'classic' | 'pokemon' | 'hearthstone' | 'harrypotter' | 'tarot';
 export type PokemonType = 'fire' | 'water' | 'grass' | 'electric' | 'psychic' | 'steel' | 'normal';
 export type HearthstoneClass = 'warrior' | 'mage' | 'rogue' | 'priest' | 'hunter' | 'paladin' | 'shaman' | 'warlock' | 'druid';
 export type HarrypotterHouse = 'gryffindor' | 'slytherin' | 'hufflepuff' | 'ravenclaw';
+export type TarotArcana = 'major' | 'wands' | 'cups' | 'swords' | 'pentacles';
 
 export interface PokemonMeta {
   type: PokemonType;
@@ -43,6 +44,12 @@ export interface HarrypotterMeta {
   spellPower: number;  // 0-999
 }
 
+export interface TarotMeta {
+  arcana: TarotArcana;
+  cardNumber: number;  // 0-21 (tarot card number)
+  mystique: number;    // 0-999 (mystical power level)
+}
+
 export interface CardData {
   front: CardFrontData;
   back: CardBackData;
@@ -50,6 +57,7 @@ export interface CardData {
   pokemonMeta?: PokemonMeta;         // only when theme === 'pokemon'
   hearthstoneMeta?: HearthstoneMeta; // only when theme === 'hearthstone'
   harrypotterMeta?: HarrypotterMeta; // only when theme === 'harrypotter'
+  tarotMeta?: TarotMeta;             // only when theme === 'tarot'
 }
 
 export type CardSide = 'front' | 'back';
