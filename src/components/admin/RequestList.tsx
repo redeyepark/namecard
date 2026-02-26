@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { StatusBadge } from './StatusBadge';
+import { EventBadge } from './EventBadge';
+import { EventFilter } from './EventFilter';
 import type { RequestSummary } from '@/types/request';
 
 export function RequestList() {
@@ -10,6 +12,7 @@ export function RequestList() {
   const [requests, setRequests] = useState<RequestSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [eventFilter, setEventFilter] = useState<string>('');
 
   useEffect(() => {
     async function fetchRequests() {
@@ -26,6 +29,13 @@ export function RequestList() {
     }
     fetchRequests();
   }, []);
+
+  // Filter requests by event
+  const filteredRequests = useMemo(() => {
+    if (eventFilter === '') return requests; // All
+    if (eventFilter === 'none') return requests.filter((r) => !r.eventId);
+    return requests.filter((r) => r.eventId === eventFilter);
+  }, [requests, eventFilter]);
 
   if (loading) {
     return (
@@ -62,74 +72,96 @@ export function RequestList() {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">사진</th>
-            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">요청 ID</th>
-            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">이름</th>
-            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">제출일</th>
-            <th className="text-left py-3 px-4 font-medium text-[#020912]/60">상태</th>
-          </tr>
-        </thead>
-        <tbody>
-          {requests.map((req) => {
-            const date = new Date(req.submittedAt);
-            const formatted = date.toLocaleDateString('ko-KR', {
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            });
+    <div>
+      <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
+        <label className="text-xs font-medium text-[#020912]/60">이벤트:</label>
+        <EventFilter value={eventFilter} onChange={setEventFilter} />
+        {eventFilter !== '' && (
+          <span className="text-xs text-gray-500">
+            {filteredRequests.length}건
+          </span>
+        )}
+      </div>
 
-            return (
-              <tr
-                key={req.id}
-                onClick={() => router.push(`/admin/${req.id}`)}
-                className="border-b border-[rgba(2,9,18,0.08)] hover:bg-[#e4f6ff] cursor-pointer transition-colors"
-                role="link"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    router.push(`/admin/${req.id}`);
-                  }
-                }}
-              >
-                <td className="py-3 px-4">
-                  <div className="w-10 h-12 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    {req.originalAvatarUrl ? (
-                      <img
-                        src={req.originalAvatarUrl}
-                        alt="Avatar thumbnail"
-                        className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer"
-                        crossOrigin="anonymous"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <p className="text-xs text-gray-300">없음</p>
-                    )}
-                  </div>
-                </td>
-                <td className="py-3 px-4 font-mono text-xs text-gray-600">
-                  {req.id.slice(0, 8)}...
-                </td>
-                <td className="py-3 px-4 text-[#020912] font-medium">
-                  {req.displayName}
-                </td>
-                <td className="py-3 px-4 text-[#020912]/50">{formatted}</td>
-                <td className="py-3 px-4">
-                  <StatusBadge status={req.status} />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">사진</th>
+              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">요청 ID</th>
+              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">이름</th>
+              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">이벤트</th>
+              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">제출일</th>
+              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredRequests.map((req) => {
+              const date = new Date(req.submittedAt);
+              const formatted = date.toLocaleDateString('ko-KR', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              });
+
+              return (
+                <tr
+                  key={req.id}
+                  onClick={() => router.push(`/admin/${req.id}`)}
+                  className="border-b border-[rgba(2,9,18,0.08)] hover:bg-[#e4f6ff] cursor-pointer transition-colors"
+                  role="link"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      router.push(`/admin/${req.id}`);
+                    }
+                  }}
+                >
+                  <td className="py-3 px-4">
+                    <div className="w-10 h-12 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {req.originalAvatarUrl ? (
+                        <img
+                          src={req.originalAvatarUrl}
+                          alt="Avatar thumbnail"
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <p className="text-xs text-gray-300">없음</p>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 font-mono text-xs text-gray-600">
+                    {req.id.slice(0, 8)}...
+                  </td>
+                  <td className="py-3 px-4 text-[#020912] font-medium">
+                    {req.displayName}
+                  </td>
+                  <td className="py-3 px-4">
+                    <EventBadge eventName={req.eventName || undefined} />
+                  </td>
+                  <td className="py-3 px-4 text-[#020912]/50">{formatted}</td>
+                  <td className="py-3 px-4">
+                    <StatusBadge status={req.status} />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {filteredRequests.length === 0 && requests.length > 0 && (
+        <div className="text-center py-8">
+          <p className="text-gray-500 text-sm">선택한 이벤트에 해당하는 의뢰가 없습니다</p>
+        </div>
+      )}
     </div>
   );
 }

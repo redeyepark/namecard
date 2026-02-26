@@ -18,6 +18,12 @@ export default function AdminLayout({
           </Link>
           <div className="flex items-center gap-4">
             <Link
+              href="/admin/events"
+              className="text-sm text-[#fcfcfc]/60 hover:text-[#ffa639] transition-colors"
+            >
+              이벤트 관리
+            </Link>
+            <Link
               href="/admin/themes"
               className="text-sm text-[#fcfcfc]/60 hover:text-[#ffa639] transition-colors"
             >

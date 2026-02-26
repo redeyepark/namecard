@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import * as XLSX from 'xlsx';
+import { EventSelector } from './EventSelector';
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -143,6 +144,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
   const [result, setResult] = useState<UploadResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = useCallback(() => {
@@ -152,6 +154,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
     setParsedRows([]);
     setResult(null);
     setDragOver(false);
+    setSelectedEventId(null);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -264,7 +267,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
       const res = await fetch('/api/admin/bulk-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ csv: cleanCsv }),
+        body: JSON.stringify({ csv: cleanCsv, eventId: selectedEventId }),
       });
 
       if (!res.ok) {
@@ -329,6 +332,14 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {step === 'select' && (
             <div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">이벤트 할당 (선택)</label>
+                <EventSelector
+                  value={selectedEventId}
+                  onChange={setSelectedEventId}
+                />
+                <p className="text-xs text-gray-400 mt-1">선택하면 업로드된 모든 의뢰에 해당 이벤트가 할당됩니다.</p>
+              </div>
               <div className="mb-3 flex justify-end">
                 <button
                   type="button"

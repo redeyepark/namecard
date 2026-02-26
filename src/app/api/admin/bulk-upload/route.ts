@@ -330,6 +330,7 @@ function buildCardRequest(columns: string[], createdBy: string): CardRequest {
     submittedAt: now,
     updatedAt: now,
     createdBy,
+    isPublic: false,
     statusHistory: [
       { status: 'submitted', timestamp: now },
       { status: 'processing', timestamp: now },
@@ -344,7 +345,7 @@ export async function POST(request: NextRequest) {
     await requireAdminToken();
 
     const body = await request.json();
-    const { csv } = body as { csv?: string };
+    const { csv, eventId } = body as { csv?: string; eventId?: string | null };
 
     if (!csv || typeof csv !== 'string') {
       return NextResponse.json(
@@ -513,6 +514,7 @@ export async function POST(request: NextRequest) {
           updated_at: cardRequest.updatedAt,
           note: cardRequest.note || null,
           created_by: cardRequest.createdBy || null,
+          event_id: eventId || null,
         });
 
         for (const entry of cardRequest.statusHistory) {
