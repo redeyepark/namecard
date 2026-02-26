@@ -163,14 +163,14 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // Try to query with event_id first
   let { data: rows, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, status, submitted_at, theme, event_id, illustration_url, original_avatar_url')
+    .select('id, card_front, card_back, status, submitted_at, theme, event_id, illustration_url, original_avatar_url')
     .order('submitted_at', { ascending: false });
 
   // If event_id column doesn't exist, retry without it
   if (error && error.message?.includes('event_id')) {
     const retryResult = await supabase
       .from('card_requests')
-      .select('id, card_front, status, submitted_at, theme, illustration_url, original_avatar_url')
+      .select('id, card_front, card_back, status, submitted_at, theme, illustration_url, original_avatar_url')
       .order('submitted_at', { ascending: false });
     rows = (retryResult.data as any) || null; // Cast for compatibility
     error = retryResult.error;
@@ -246,6 +246,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     originalAvatarUrl: row.original_avatar_url || null,
     eventId: (row as any).event_id || null, // Handle missing event_id column
     eventName: (row as any).event_id ? (eventNameMap.get((row as any).event_id) || null) : null,
+    theme: row.theme || 'classic',
+    backgroundColor: (row.card_front as any)?.backgroundColor || '#020912',
+    hashtags: (row.card_back as any)?.hashtags || [],
   }));
 
   return {
@@ -267,14 +270,14 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
   // Try to query with event_id first
   let { data: rows, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, status, submitted_at, illustration_url, original_avatar_url, event_id')
+    .select('id, card_front, card_back, status, submitted_at, theme, illustration_url, original_avatar_url, event_id')
     .order('submitted_at', { ascending: false });
 
   // If event_id column doesn't exist, retry without it
   if (error && error.message?.includes('event_id')) {
     const retryResult = await supabase
       .from('card_requests')
-      .select('id, card_front, status, submitted_at, illustration_url, original_avatar_url')
+      .select('id, card_front, card_back, status, submitted_at, theme, illustration_url, original_avatar_url')
       .order('submitted_at', { ascending: false });
     rows = (retryResult.data as any) || null; // Cast for compatibility
     error = retryResult.error;
@@ -312,6 +315,9 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
     originalAvatarUrl: row.original_avatar_url || null,
     eventId: (row as any).event_id || null, // Handle missing event_id column
     eventName: (row as any).event_id ? (eventNameMap.get((row as any).event_id) || null) : null,
+    theme: row.theme || 'classic',
+    backgroundColor: (row.card_front as any)?.backgroundColor || '#020912',
+    hashtags: (row.card_back as any)?.hashtags || [],
   }));
 }
 

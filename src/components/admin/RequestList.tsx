@@ -8,10 +8,16 @@ import { EventFilter } from './EventFilter';
 import { convertGoogleDriveUrl } from '@/lib/url-utils';
 import type { RequestSummary } from '@/types/request';
 
-export function RequestList() {
+interface RequestListProps {
+  externalData?: RequestSummary[];
+  onDeleteSuccess?: (deletedId: string) => void;
+}
+
+export function RequestList({ externalData, onDeleteSuccess }: RequestListProps) {
+  const isExternalMode = externalData !== undefined;
   const router = useRouter();
-  const [requests, setRequests] = useState<RequestSummary[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [internalRequests, setInternalRequests] = useState<RequestSummary[]>([]);
+  const [loading, setLoading] = useState(!isExternalMode);
   const [error, setError] = useState<string | null>(null);
   const [eventFilter, setEventFilter] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -29,7 +35,11 @@ export function RequestList() {
         const data = await res.json();
         throw new Error(data.error || '삭제에 실패했습니다.');
       }
-      setRequests((prev) => prev.filter((r) => r.id !== reqId));
+      if (isExternalMode) {
+        onDeleteSuccess?.(reqId);
+      } else {
+        setInternalRequests((prev) => prev.filter((r) => r.id !== reqId));
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : '삭제에 실패했습니다.');
     } finally {
@@ -38,12 +48,13 @@ export function RequestList() {
   };
 
   useEffect(() => {
+    if (isExternalMode) return;
     async function fetchRequests() {
       try {
         const res = await fetch('/api/requests');
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
-        setRequests(data.requests);
+        setInternalRequests(data.requests);
       } catch {
         setError('의뢰 목록을 불러오는데 실패했습니다.');
       } finally {
@@ -51,10 +62,15 @@ export function RequestList() {
       }
     }
     fetchRequests();
-  }, []);
+  }, [isExternalMode]);
 
-  // Filter requests by event and search query
+  // Source data: external (pre-filtered) or internal (needs filtering)
+  const requests = isExternalMode ? externalData : internalRequests;
+
+  // Filter requests by event and search query (only in internal mode)
   const filteredRequests = useMemo(() => {
+    if (isExternalMode) return requests;
+
     let filtered = requests;
 
     // Apply event filter
@@ -75,7 +91,7 @@ export function RequestList() {
     }
 
     return filtered;
-  }, [requests, eventFilter, searchQuery]);
+  }, [requests, eventFilter, searchQuery, isExternalMode]);
 
   if (loading) {
     return (
@@ -103,7 +119,7 @@ export function RequestList() {
     );
   }
 
-  if (requests.length === 0) {
+  if (requests.length === 0 && !isExternalMode) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 text-sm">아직 의뢰가 없습니다</p>
@@ -113,6 +129,8 @@ export function RequestList() {
 
   return (
     <div>
+      {/* Internal filter bar: only shown when not using external data */}
+      {!isExternalMode && (
       <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3 flex-wrap">
         <label className="text-xs font-medium text-[#020912]/60">이벤트:</label>
         <EventFilter value={eventFilter} onChange={setEventFilter} />
@@ -146,6 +164,7 @@ export function RequestList() {
           </span>
         )}
       </div>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -258,12 +277,14 @@ export function RequestList() {
         </table>
       </div>
 
-      {filteredRequests.length === 0 && requests.length > 0 && (
+      {filteredRequests.length === 0 && (
         <div className="text-center py-8">
           <p className="text-gray-500 text-sm">
-            {searchQuery.trim() !== ''
-              ? `"${searchQuery.trim()}" 검색 결과가 없습니다`
-              : '선택한 이벤트에 해당하는 의뢰가 없습니다'}
+            {isExternalMode
+              ? '필터 조건에 맞는 의뢰가 없습니다'
+              : searchQuery.trim() !== ''
+                ? `"${searchQuery.trim()}" 검색 결과가 없습니다`
+                : '선택한 이벤트에 해당하는 의뢰가 없습니다'}
           </p>
         </div>
       )}

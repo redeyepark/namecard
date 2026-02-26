@@ -40,6 +40,9 @@ export interface RequestSummary {
   originalAvatarUrl?: string | null;
   eventId?: string | null;
   eventName?: string | null;
+  theme?: string;
+  backgroundColor?: string;
+  hashtags?: string[];
 }
 
 /**
