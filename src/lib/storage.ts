@@ -740,8 +740,9 @@ export async function getPublicCards(
 
 /**
  * Get a card by ID for direct URL access (e.g. QR code scan).
- * Returns any confirmed or delivered card regardless of is_public flag.
- * The is_public flag only controls gallery listing visibility, not direct URL access.
+ * Returns any card regardless of status or is_public flag.
+ * Direct URL access (QR scan) should always show the card.
+ * Only cancelled/rejected cards are excluded.
  * Excludes created_by (user email) for privacy.
  */
 export async function getPublicCard(id: string): Promise<PublicCardData | null> {
@@ -751,7 +752,7 @@ export async function getPublicCard(id: string): Promise<PublicCardData | null> 
     .from('card_requests')
     .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status')
     .eq('id', id)
-    .in('status', ['confirmed', 'delivered'])
+    .not('status', 'in', '("cancelled","rejected")')
     .single();
 
   if (error || !row) {
