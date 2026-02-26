@@ -242,6 +242,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     status: row.status,
     submittedAt: row.submitted_at,
     hasIllustration: row.illustration_url !== null,
+    illustrationUrl: row.illustration_url || null,
     originalAvatarUrl: row.original_avatar_url || null,
     eventId: (row as any).event_id || null, // Handle missing event_id column
     eventName: (row as any).event_id ? (eventNameMap.get((row as any).event_id) || null) : null,
@@ -307,6 +308,7 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
     status: row.status,
     submittedAt: row.submitted_at,
     hasIllustration: row.illustration_url !== null,
+    illustrationUrl: row.illustration_url || null,
     originalAvatarUrl: row.original_avatar_url || null,
     eventId: (row as any).event_id || null, // Handle missing event_id column
     eventName: (row as any).event_id ? (eventNameMap.get((row as any).event_id) || null) : null,
@@ -335,6 +337,7 @@ export async function getRequestsByUser(email: string): Promise<RequestSummary[]
     status: row.status,
     submittedAt: row.submitted_at,
     hasIllustration: row.illustration_url !== null,
+    illustrationUrl: row.illustration_url || null,
   }));
 }
 

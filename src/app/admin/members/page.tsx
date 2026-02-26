@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { EventBadge } from '@/components/admin/EventBadge';
+import { convertGoogleDriveUrl } from '@/lib/url-utils';
 import type { MemberRequestDetail, RequestStatus } from '@/types/request';
 
 interface Member {
@@ -343,20 +344,36 @@ function MemberRow({
                             }}
                           >
                             <td className="py-2 px-3">
-                              <div className="w-8 h-10 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                {req.originalAvatarUrl ? (
-                                  <img
-                                    src={req.originalAvatarUrl}
-                                    alt="Avatar thumbnail"
-                                    className="w-full h-full object-cover"
-                                    referrerPolicy="no-referrer"
-                                    crossOrigin="anonymous"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = 'none';
-                                    }}
-                                  />
-                                ) : (
-                                  <span className="text-[10px] text-gray-300">--</span>
+                              <div className="flex items-center gap-1">
+                                <div className="w-8 h-10 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                  {req.originalAvatarUrl ? (
+                                    <img
+                                      src={req.originalAvatarUrl}
+                                      alt="Avatar thumbnail"
+                                      className="w-full h-full object-cover"
+                                      referrerPolicy="no-referrer"
+                                      crossOrigin="anonymous"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    />
+                                  ) : (
+                                    <span className="text-[10px] text-gray-300">--</span>
+                                  )}
+                                </div>
+                                {req.illustrationUrl && (
+                                  <div className="w-8 h-10 rounded border border-purple-200 bg-purple-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                    <img
+                                      src={convertGoogleDriveUrl(req.illustrationUrl) || req.illustrationUrl}
+                                      alt="Illustration thumbnail"
+                                      className="w-full h-full object-cover"
+                                      referrerPolicy="no-referrer"
+                                      crossOrigin="anonymous"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    />
+                                  </div>
                                 )}
                               </div>
                             </td>

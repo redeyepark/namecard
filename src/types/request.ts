@@ -36,6 +36,7 @@ export interface RequestSummary {
   status: RequestStatus;
   submittedAt: string;
   hasIllustration: boolean;
+  illustrationUrl?: string | null;
   originalAvatarUrl?: string | null;
   eventId?: string | null;
   eventName?: string | null;

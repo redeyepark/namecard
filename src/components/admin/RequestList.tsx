@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { StatusBadge } from './StatusBadge';
 import { EventBadge } from './EventBadge';
 import { EventFilter } from './EventFilter';
+import { convertGoogleDriveUrl } from '@/lib/url-utils';
 import type { RequestSummary } from '@/types/request';
 
 export function RequestList() {
@@ -142,20 +143,36 @@ export function RequestList() {
                   }}
                 >
                   <td className="py-3 px-4">
-                    <div className="w-10 h-12 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
-                      {req.originalAvatarUrl ? (
-                        <img
-                          src={req.originalAvatarUrl}
-                          alt="Avatar thumbnail"
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <p className="text-xs text-gray-300">없음</p>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-10 h-12 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {req.originalAvatarUrl ? (
+                          <img
+                            src={req.originalAvatarUrl}
+                            alt="Avatar thumbnail"
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                            crossOrigin="anonymous"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <p className="text-xs text-gray-300">없음</p>
+                        )}
+                      </div>
+                      {req.illustrationUrl && (
+                        <div className="w-10 h-12 rounded border border-purple-200 bg-purple-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                          <img
+                            src={convertGoogleDriveUrl(req.illustrationUrl) || req.illustrationUrl}
+                            alt="Illustration thumbnail"
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                            crossOrigin="anonymous"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
                       )}
                     </div>
                   </td>
