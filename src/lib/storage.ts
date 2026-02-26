@@ -124,6 +124,109 @@ export async function getRequest(id: string): Promise<CardRequest | null> {
 }
 
 /**
+ * Dashboard statistics shape returned by getDashboardStats().
+ */
+export interface DashboardStats {
+  total: number;
+  byStatus: Record<string, number>;
+  byEvent: { eventId: string | null; eventName: string; count: number }[];
+  byTheme: Record<string, number>;
+  recentRequests: RequestSummary[];
+}
+
+/**
+ * Get aggregated dashboard statistics for the admin dashboard.
+ * Uses a single DB query for card_requests + one events query for names.
+ */
+export async function getDashboardStats(): Promise<DashboardStats> {
+  const supabase = getSupabase();
+
+  // Single query to get all needed fields
+  const { data: rows, error } = await supabase
+    .from('card_requests')
+    .select('id, card_front, status, submitted_at, theme, event_id, illustration_url, original_avatar_url')
+    .order('submitted_at', { ascending: false });
+
+  if (error || !rows) {
+    return {
+      total: 0,
+      byStatus: {},
+      byEvent: [],
+      byTheme: {},
+      recentRequests: [],
+    };
+  }
+
+  // Collect unique event IDs and fetch event names
+  const eventIds = [...new Set(rows.map((r) => r.event_id).filter(Boolean))] as string[];
+  const eventNameMap = new Map<string, string>();
+
+  if (eventIds.length > 0) {
+    const { data: events } = await supabase
+      .from('events')
+      .select('id, name')
+      .in('id', eventIds);
+
+    if (events) {
+      for (const e of events) {
+        eventNameMap.set(e.id, e.name);
+      }
+    }
+  }
+
+  // Aggregate byStatus
+  const byStatus: Record<string, number> = {};
+  for (const row of rows) {
+    byStatus[row.status] = (byStatus[row.status] || 0) + 1;
+  }
+
+  // Aggregate byEvent
+  const eventCountMap = new Map<string | null, number>();
+  for (const row of rows) {
+    const key = row.event_id ?? null;
+    eventCountMap.set(key, (eventCountMap.get(key) || 0) + 1);
+  }
+
+  const byEvent: DashboardStats['byEvent'] = [];
+  for (const [eventId, count] of eventCountMap.entries()) {
+    byEvent.push({
+      eventId,
+      eventName: eventId ? (eventNameMap.get(eventId) || '(Unknown)') : '미할당',
+      count,
+    });
+  }
+  // Sort by count descending
+  byEvent.sort((a, b) => b.count - a.count);
+
+  // Aggregate byTheme
+  const byTheme: Record<string, number> = {};
+  for (const row of rows) {
+    const theme = row.theme || 'classic';
+    byTheme[theme] = (byTheme[theme] || 0) + 1;
+  }
+
+  // Latest 5 requests as RequestSummary
+  const recentRequests: RequestSummary[] = rows.slice(0, 5).map((row) => ({
+    id: row.id,
+    displayName: (row.card_front as { displayName?: string })?.displayName || '',
+    status: row.status,
+    submittedAt: row.submitted_at,
+    hasIllustration: row.illustration_url !== null,
+    originalAvatarUrl: row.original_avatar_url || null,
+    eventId: row.event_id || null,
+    eventName: row.event_id ? (eventNameMap.get(row.event_id) || null) : null,
+  }));
+
+  return {
+    total: rows.length,
+    byStatus,
+    byEvent,
+    byTheme,
+    recentRequests,
+  };
+}
+
+/**
  * Get all requests as summaries, sorted by submittedAt descending.
  */
 export async function getAllRequests(): Promise<RequestSummary[]> {

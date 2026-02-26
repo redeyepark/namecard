@@ -18,6 +18,12 @@ export default function AdminLayout({
           </Link>
           <div className="flex items-center gap-4">
             <Link
+              href="/admin/requests"
+              className="text-sm text-[#fcfcfc]/60 hover:text-[#ffa639] transition-colors"
+            >
+              의뢰 목록
+            </Link>
+            <Link
               href="/admin/events"
               className="text-sm text-[#fcfcfc]/60 hover:text-[#ffa639] transition-colors"
             >
