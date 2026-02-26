@@ -23,6 +23,9 @@
 - 관리자 CSV/Excel 대량 등록 (이메일 자동 회원가입 포함)
 - 관리자 외부 URL 이미지 지원
 - 확장 상태 워크플로우 (수정 요청, 반려, 배송 완료)
+- 관리자 갤러리 뷰 (테이블/갤러리 토글, 6종 다중 필터)
+- 관리자 의뢰 목록 검색 (이름/ID/이메일)
+- 관리자 리스트 캐릭터 일러스트 썸네일 표시
 
 ## 기술 스택
 
@@ -86,18 +89,29 @@ src/
 │   ├── api/requests/my/ # 사용자 본인 요청 목록 API
 │   └── api/admin/bulk-upload/ # 관리자 CSV/Excel 대량 등록 API
 ├── components/
-│   ├── admin/           # 관리자 컴포넌트 (ThemeListBox, ThemePreviewPanel, ThemeEditPanel 등)
+│   ├── admin/           # 관리자 컴포넌트 (갤러리 뷰, 필터, ThemeListBox 등)
 │   ├── card/            # 카드 미리보기 컴포넌트 (5개 테마: Classic/Pokemon/Hearthstone/Harrypotter/Tarot)
 │   ├── dashboard/       # 대시보드 컴포넌트 (ProgressStepper, MyRequestList 등)
 │   ├── editor/          # 편집기 컴포넌트 (테마별 메타데이터 편집 UI 포함)
 │   ├── export/          # 내보내기 기능
 │   └── ui/              # 공통 UI 컴포넌트
+├── hooks/               # 커스텀 훅 (useAdminFilters 등)
 ├── stores/              # Zustand 상태 관리
 ├── types/               # TypeScript 타입 정의
 └── lib/                 # 유틸리티 함수 (social-utils.ts 등)
 ```
 
 ## 최근 변경사항
+
+### 관리자 갤러리 뷰 (SPEC-GALLERY-001)
+
+- 관리자 대시보드(`/admin`)에 테이블/갤러리 뷰 토글 추가
+- 갤러리 뷰: 반응형 카드 그리드(2~5열), 테마별 스타일링, 상태 뱃지 표시
+- 6종 다중 필터: 테마, 상태, 배경색(HSL 색상군), 해시태그(OR), 이미지 유무, 텍스트 검색
+- `useAdminFilters` 커스텀 훅으로 필터 상태 통합 관리
+- 테이블/갤러리 뷰 간 필터 상태 공유, 뷰 모드 localStorage 저장
+- 의뢰 리스트에 캐릭터 일러스트 썸네일 표시 (사진 옆)
+- 의뢰 리스트 및 멤버 목록 텍스트 검색 기능 추가
 
 ### 테마 관리 UI 개선 (SPEC-THEME-002)
 
