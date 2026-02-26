@@ -34,7 +34,7 @@ export async function GET(
     const supabase = getSupabase();
     const { data, error } = await supabase
       .from('card_requests')
-      .select('id, card_front, card_back, illustration_url, theme, pokemon_meta, hearthstone_meta, harrypotter_meta, tarot_meta, status')
+      .select('id, card_front, card_back, illustration_url, theme, pokemon_meta, status')
       .eq('event_id', eventId)
       .not('status', 'in', '("cancelled","rejected")')
       .order('submitted_at', { ascending: true });
@@ -54,9 +54,6 @@ export async function GET(
         back: row.card_back as CardBackData,
         theme: (row.theme as CardTheme) ?? 'classic',
         ...(row.pokemon_meta ? { pokemonMeta: row.pokemon_meta } : {}),
-        ...(row.hearthstone_meta ? { hearthstoneMeta: row.hearthstone_meta } : {}),
-        ...(row.harrypotter_meta ? { harrypotterMeta: row.harrypotter_meta } : {}),
-        ...(row.tarot_meta ? { tarotMeta: row.tarot_meta } : {}),
       },
       illustrationUrl: row.illustration_url ?? null,
     }));
