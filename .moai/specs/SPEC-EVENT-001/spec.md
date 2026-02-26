@@ -1,7 +1,7 @@
 ---
 id: SPEC-EVENT-001
-version: "1.0.0"
-status: planned
+version: "1.1.0"
+status: partially_implemented
 created: "2026-02-26"
 updated: "2026-02-26"
 author: MoAI
@@ -13,6 +13,26 @@ priority: high
 | 버전  | 날짜       | 작성자 | 변경 내용           |
 | ----- | ---------- | ------ | ------------------- |
 | 1.0.0 | 2026-02-26 | MoAI   | 초기 SPEC 문서 작성 |
+| 1.1.0 | 2026-02-26 | MoAI   | 구현 상태 업데이트   |
+
+## 구현 상태
+
+**Status: PARTIALLY_IMPLEMENTED**
+
+### 구현 완료 항목
+- 이벤트 관리 페이지 (`/admin/events`) 생성 완료
+- 이벤트 CRUD API (`/api/events`) 생성 완료
+- 이벤트 목록 컴포넌트 (EventList) 구현 완료
+- 이벤트 생성/수정 폼 (EventForm) 구현 완료
+- 마이그레이션 감지 시스템 추가 (events 테이블 존재 여부 자동 감지)
+
+### 미완료/확인 필요 항목
+- 프로덕션 DB에 events 테이블이 존재하지 않을 수 있음 (마이그레이션 필요)
+- card_requests 테이블에 event_id 컬럼 추가 마이그레이션 미확인
+- 의뢰 목록 이벤트 필터 (EventFilter) 미구현
+- 의뢰 상세 페이지 이벤트 셀렉터 (EventSelector) 미구현
+- CSV 대량 업로드 시 이벤트 지정 기능 미구현
+- 참여자 이력 조회 (ParticipantHistory) 미구현
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 id: SPEC-VISIBILITY-001
-version: "1.0.0"
-status: planned
+version: "1.1.0"
+status: implemented
 created: "2026-02-26"
 updated: "2026-02-26"
 author: MoAI
@@ -13,6 +13,21 @@ priority: high
 | Version | Date       | Author | Description           |
 |---------|------------|--------|-----------------------|
 | 1.0.0   | 2026-02-26 | MoAI   | Initial SPEC creation |
+| 1.1.0   | 2026-02-26 | MoAI   | Update status to implemented |
+
+## 구현 상태
+
+**Status: IMPLEMENTED**
+
+### 구현 완료 항목
+- `card_requests` 테이블에 `is_public` 컬럼 존재 및 활용 중
+- 갤러리 페이지 (`/cards`)에서 `is_public = true`인 카드만 목록에 표시
+- 직접 URL 접근 (`/cards/[id]`)시 cancelled 상태가 아닌 모든 카드 조회 가능 (is_public 여부 무관)
+- 공개/비공개 토글 기능 구현 완료
+
+### 참고 사항
+- 갤러리 목록 필터링과 직접 URL 접근의 동작이 다름: 갤러리는 is_public 기반 필터링, 직접 URL은 cancelled 여부만 확인
+- 이는 의도된 동작으로, 직접 링크를 가진 사용자는 비공개 카드도 조회 가능
 
 ---
 

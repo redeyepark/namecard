@@ -14,6 +14,7 @@
 | 색상 선택 | react-colorful | 5.6.1 | 경량 색상 선택기 (2KB, zero-dependency) |
 | 이미지 내보내기 | html-to-image | 1.11.13 | DOM 요소를 PNG 이미지로 변환 |
 | ID 생성 | uuid | 13.0.0 | 고유 식별자 생성 |
+| QR 코드 | qrcode | 1.x | 클라이언트 사이드 QR 코드 생성 (Canvas 기반) |
 | 파일 파싱 | xlsx (SheetJS) | 0.18.5 | Excel/CSV 파일 파싱 (브라우저 내 변환) |
 | 테스트 | Vitest | 4.0.18 | 단위 테스트 프레임워크 |
 | 테스트 유틸 | Testing Library | 16.3.2 | React 컴포넌트 테스트 유틸리티 |
@@ -101,8 +102,9 @@
 
 | 테이블 | 용도 |
 |--------|------|
-| `card_requests` | 명함 제작 요청 (사용자 정보, 카드 데이터, 상태) |
+| `card_requests` | 명함 제작 요청 (사용자 정보, 카드 데이터, 상태). `is_public` BOOLEAN: 갤러리 공개 여부 (기본값: false), `event_id` UUID: 연결된 이벤트 ID |
 | `card_request_status_history` | 요청 상태 변경 이력 추적 |
+| `events` | 이벤트 관리 (이벤트명, 날짜, 설명) |
 
 ### Storage 버킷
 
@@ -118,6 +120,17 @@
 - 이메일의 경우 원본 그대로 반환
 - 카드 뒷면 3개 컴포넌트(CardBack, MiniPreview, MyRequestDetail)에서 공통 사용
 - URL이 아닌 일반 텍스트는 그대로 반환
+
+### QR 코드 및 vCard 유틸리티 (`src/lib/qrcode.ts`)
+
+- `generateVCard(card)`: CardData에서 vCard 3.0 형식 문자열 생성
+  - FN, N, TITLE 필드 매핑
+  - 소셜 링크를 TEL, EMAIL, URL 필드로 변환
+  - vCard 특수문자 이스케이프 처리
+- `generateQRDataURL(text, size)`: 텍스트를 QR 코드 PNG data URL로 변환
+  - qrcode npm 패키지 사용 (Canvas 기반)
+  - 커스텀 색상: 딥 네이비(#020912) + 화이트
+- `getCardPublicURL(cardId)`: 카드 공개 URL 생성 (`/cards/{cardId}`)
 
 ### URL 변환 유틸리티 (`src/lib/url-utils.ts`)
 
@@ -172,7 +185,7 @@
 
 - 화이트(#FFFFFF) / 블랙(#000000) 2가지 옵션의 간단한 선택기
 - FrontEditor, BackEditor, PhotoUploadStep(위저드) 컴포넌트에서 사용
-- CardFront: 선택된 텍스트 색상 + 적응형 텍스트 스트로크(text stroke) 적용
+- CardFront: 선택된 텍스트 색상 + 미세한 텍스트 그림자(text-shadow) 적용
 - CardBack: 모든 텍스트 요소에 동적 textColor 적용 (기존 하드코딩된 text-black 대체)
 
 ## 이미지 내보내기: html-to-image 1.11

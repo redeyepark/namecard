@@ -27,13 +27,23 @@ namecard/
 │   │   │   ├── page.tsx                   # 사용자 대시보드 (내 요청 목록)
 │   │   │   └── [id]/
 │   │   │       └── page.tsx               # 사용자 요청 상세 (확정 버튼, 편집 폼 "저장 후 확정" 포함)
+│   │   ├── cards/
+│   │   │   └── [id]/
+│   │   │       ├── page.tsx               # 공개 명함 페이지 (Server Component, OG 메타데이터)
+│   │   │       └── PublicCardView.tsx      # 공개 명함 뷰 (vCard 다운로드 버튼)
+│   │   ├── gallery/
+│   │   │   └── page.tsx                   # 공개 명함 갤러리 (이벤트별 그룹)
 │   │   ├── admin/
 │   │   │   ├── layout.tsx                 # Admin 레이아웃 (UserMenu, 인증 확인)
-│   │   │   ├── page.tsx                   # 관리자 대시보드 (요청 목록)
+│   │   │   ├── page.tsx                   # 관리자 대시보드 (요청 목록, 현황 통계)
 │   │   │   ├── [id]/
 │   │   │   │   └── page.tsx               # 요청 상세 (상태 관리, 일러스트 업로드)
 │   │   │   ├── themes/
 │   │   │   │   └── page.tsx               # 테마 관리 페이지 (미리보기, 통계, 일괄 적용)
+│   │   │   ├── events/
+│   │   │   │   └── page.tsx               # 이벤트 관리 페이지
+│   │   │   ├── members/
+│   │   │   │   └── page.tsx               # 회원 관리 페이지
 │   │   │   └── login/
 │   │   │       ├── layout.tsx             # 관리자 로그인 레이아웃
 │   │   │       └── page.tsx               # 관리자 로그인 페이지
@@ -41,7 +51,11 @@ namecard/
 │   │       ├── auth/
 │   │       │   └── me/
 │   │       │       └── route.ts           # 사용자 정보 + isAdmin 상태 API
+│   │       ├── events/
+│   │       │   └── route.ts               # 이벤트 CRUD API
 │   │       ├── admin/
+│   │       │   ├── migrate/
+│   │       │   │   └── route.ts           # DB 마이그레이션 상태 확인 API
 │   │       │   ├── bulk-upload/
 │   │       │   │   └── route.ts           # POST (CSV 대량 등록, requireAdmin, 이메일 자동 회원가입, extractSocialHandle)
 │   │       │   ├── themes/
@@ -78,7 +92,8 @@ namecard/
 │   │   │   ├── harrypotter-types.ts       # Harry Potter 4개 기숙사 정의, 색상, SVG 아이콘
 │   │   │   ├── TarotCardFront.tsx         # Tarot 테마 앞면 (아르누보 보더, 천체 패턴, 미스틱 스탯)
 │   │   │   ├── TarotCardBack.tsx          # Tarot 테마 뒷면 (신비로운 눈 모티프, 별 패턴)
-│   │   │   └── tarot-types.ts             # Tarot 5개 아르카나 정의, 색상, SVG 아이콘
+│   │   │   ├── tarot-types.ts             # Tarot 5개 아르카나 정의, 색상, SVG 아이콘
+│   │   │   └── QRCodeModal.tsx            # QR 코드 모달 (vCard QR + URL QR, 다운로드)
 │   │   ├── editor/                        # 편집기 폼 컴포넌트
 │   │   │   ├── EditorPanel.tsx            # 편집기 패널 컨테이너
 │   │   │   ├── FrontEditor.tsx            # 앞면 편집 필드 (ThemeSelector, 테마별 메타데이터 편집 포함)
@@ -141,6 +156,7 @@ namecard/
 │   │   ├── storage.ts                     # Supabase DB/Storage 연산 (saveRequest, getRequest, updateRequest 등)
 │   │   ├── social-utils.ts               # 소셜 미디어 URL에서 핸들 추출 유틸리티 (extractHandle)
 │   │   ├── url-utils.ts                  # Google Drive URL 변환 유틸리티 (convertGoogleDriveUrl)
+│   │   ├── qrcode.ts                      # QR 코드 생성 + vCard 3.0 생성 유틸리티
 │   │   ├── export.ts                      # html-to-image PNG 내보내기 유틸리티
 │   │   └── validation.ts                  # 이미지 파일 검증 + Base64 변환
 │   └── test/
@@ -275,6 +291,13 @@ layout.tsx (Root - AuthProvider 래핑)
 │   ├── ExportButton               # PNG 내보내기
 │   └── ResetButton                # 초기화
 │
+├── cards/[id]/page.tsx (Public Card) # 공개 명함 페이지
+│   └── PublicCardView              # 명함 뷰 + vCard 다운로드
+│       └── AdminCardPreview        # 카드 미리보기 (테마 지원)
+│
+├── gallery/page.tsx (Gallery)      # 공개 갤러리
+│   └── AdminCardPreview            # 이벤트별 그룹 카드 목록
+│
 ├── dashboard/page.tsx (User Dashboard) # 사용자 대시보드
 │   ├── UserMenu                   # 사용자 메뉴 ("내 요청" 링크 포함)
 │   ├── MyRequestList              # 반응형 요청 목록
@@ -317,7 +340,9 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/app/login/`, `signup/`, `confirm/`, `callback/` | 인증 관련 페이지 |
 | `src/app/create/` | 명함 제작 위저드 및 카드 편집기 |
 | `src/app/dashboard/` | 사용자 대시보드 (내 요청 목록, 요청 상세) |
-| `src/app/admin/` | 관리자 대시보드 및 요청 상세 페이지 |
+| `src/app/cards/` | 공개 명함 페이지 (QR 스캔용, Server Component + OG 메타데이터) |
+| `src/app/gallery/` | 공개 명함 갤러리 (이벤트별 그룹) |
+| `src/app/admin/` | 관리자 대시보드, 요청 상세, 이벤트 관리, 회원 관리 페이지 |
 | `src/components/auth/` | 인증 관련 컴포넌트 (AuthProvider, LoginButton, UserMenu) |
 | `src/components/landing/` | 랜딩 페이지 컴포넌트 |
 | `src/components/card/` | 명함 미리보기 렌더링 컴포넌트 (테마 기반 위임 패턴: CardFront/CardBack이 theme 값에 따라 Classic/Pokemon/Hearthstone/Harrypotter/Tarot 컴포넌트로 위임) |
@@ -329,7 +354,7 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, AdminCardPreview, AdminLogoutButton 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
 | `src/types/` | TypeScript 타입 정의 (카드, 요청) |
-| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수 포함 |
+| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환, QR 코드/vCard 생성). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수, `qrcode.ts`에 `generateVCard()`, `generateQRDataURL()`, `getCardPublicURL()` 함수 포함 |
 | `src/test/` | 테스트 환경 설정 |
 | `.github/workflows/` | GitHub Actions CI/CD 워크플로우 (Cloudflare Workers 배포) |
 
@@ -337,13 +362,13 @@ layout.tsx (Root - AuthProvider 래핑)
 
 | 카테고리 | 파일 수 |
 |---------|--------|
-| 페이지/레이아웃 (`.tsx` in `app/`) | 16 |
-| API 라우트 (`.ts` in `app/api/`) | 10 |
-| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 63 |
+| 페이지/레이아웃 (`.tsx` in `app/`) | 21 |
+| API 라우트 (`.ts` in `app/api/`) | 12 |
+| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 64 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
 | 타입 정의 (`.ts` in `types/`) | 2 |
-| 유틸리티 (`.ts` in `lib/`) | 8 |
+| 유틸리티 (`.ts` in `lib/`) | 9 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 108 |
+| 총 소스 파일 | 117 |
