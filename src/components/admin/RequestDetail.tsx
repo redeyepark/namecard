@@ -17,6 +17,7 @@ import { AdminCardPreview } from './AdminCardPreview';
 import { VisibilityToggle } from '@/components/visibility/VisibilityToggle';
 import { EventSelector } from './EventSelector';
 import { EventBadge } from './EventBadge';
+import { QRCodeModal } from '@/components/card/QRCodeModal';
 
 interface RequestDetailProps {
   request: CardRequest;
@@ -59,6 +60,7 @@ export function RequestDetail({
 
   const [visibilityLoading, setVisibilityLoading] = useState(false);
   const [eventLoading, setEventLoading] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
   const { status } = request;
   const isTerminal = isTerminalStatus(status);
@@ -466,6 +468,48 @@ export function RequestDetail({
           onToggle={handleAdminVisibilityToggle}
         />
       </div>
+
+      {/* QR code section */}
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-gray-700">QR 코드</h2>
+          <button
+            type="button"
+            onClick={() => setShowQR(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors min-h-[44px]"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <rect x="1" y="1" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" />
+              <rect x="9" y="1" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" />
+              <rect x="1" y="9" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" />
+              <rect x="3" y="3" width="2" height="2" fill="currentColor" />
+              <rect x="11" y="3" width="2" height="2" fill="currentColor" />
+              <rect x="3" y="11" width="2" height="2" fill="currentColor" />
+              <rect x="9" y="9" width="2" height="2" fill="currentColor" />
+              <rect x="13" y="9" width="2" height="2" fill="currentColor" />
+              <rect x="9" y="13" width="2" height="2" fill="currentColor" />
+              <rect x="13" y="13" width="2" height="2" fill="currentColor" />
+              <rect x="11" y="11" width="2" height="2" fill="currentColor" />
+            </svg>
+            QR 코드 보기
+          </button>
+        </div>
+      </div>
+
+      <QRCodeModal
+        isOpen={showQR}
+        onClose={() => setShowQR(false)}
+        cardId={request.id}
+        card={request.card}
+        isPublic={request.isPublic}
+      />
 
       {/* Event assignment */}
       <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
