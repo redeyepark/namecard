@@ -9,6 +9,8 @@ import { ConfirmedCardPreview } from './ConfirmedCardPreview';
 import { AdminCardPreview } from '@/components/admin/AdminCardPreview';
 import { CardCompare } from '@/components/admin/CardCompare';
 import { StatusHistory } from '@/components/admin/StatusHistory';
+import { VisibilityToggle } from '@/components/visibility/VisibilityToggle';
+import { ShareUrlDisplay } from '@/components/visibility/ShareUrlDisplay';
 
 interface MyRequestDetailProps {
   request: CardRequest & {
@@ -26,6 +28,7 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [visibilityLoading, setVisibilityLoading] = useState(false);
 
   const submittedDate = new Date(request.submittedAt).toLocaleString('ko-KR', {
     year: 'numeric',
@@ -93,6 +96,31 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
     }
   }, [request.id, onRefresh]);
 
+  const canToggleVisibility = request.status === 'confirmed' || request.status === 'delivered';
+  const shareUrl = request.isPublic
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/cards/${request.id}`
+    : null;
+
+  const handleVisibilityToggle = useCallback(async (isPublic: boolean) => {
+    setVisibilityLoading(true);
+    try {
+      const res = await fetch(`/api/requests/my/${request.id}/visibility`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPublic }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '공개 설정 변경에 실패했습니다.');
+      }
+      onRefresh?.();
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : '공개 설정 변경에 실패했습니다.');
+    } finally {
+      setVisibilityLoading(false);
+    }
+  }, [request.id, onRefresh]);
+
   return (
     <div className="space-y-6">
       {/* Back button */}
@@ -150,6 +178,22 @@ export function MyRequestDetail({ request, onEdit, onRefresh }: MyRequestDetailP
           <p className="text-sm text-[#020912] font-medium">
             명함이 배송 완료되었습니다.
           </p>
+        </div>
+      )}
+
+      {/* Visibility toggle - shown for confirmed/delivered cards */}
+      {(request.status === 'confirmed' || request.status === 'delivered') && (
+        <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+          <h2 className="text-sm font-medium text-[#020912]/70 mb-3">공개 설정</h2>
+          <VisibilityToggle
+            isPublic={request.isPublic}
+            disabled={!canToggleVisibility || visibilityLoading}
+            disabledReason={!canToggleVisibility ? '확정 또는 배송 완료된 명함만 공개할 수 있습니다.' : undefined}
+            onToggle={handleVisibilityToggle}
+          />
+          {shareUrl && (
+            <ShareUrlDisplay url={shareUrl} isVisible={request.isPublic} />
+          )}
         </div>
       )}
 

@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
       updatedAt: now,
       note: note || undefined,
       createdBy: user.email ?? undefined,
+      isPublic: false,
       statusHistory: [{ status: 'submitted', timestamp: now }],
     };
 

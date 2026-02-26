@@ -1,6 +1,6 @@
 import { getSupabase } from './supabase';
 import type { CardRequest, RequestSummary, StatusHistoryEntry } from '@/types/request';
-import type { CardTheme, PokemonMeta } from '@/types/card';
+import type { CardTheme, PokemonMeta, PublicCardData } from '@/types/card';
 
 /**
  * Convert base64 image data to Uint8Array for Supabase Storage upload.
@@ -39,6 +39,8 @@ export async function saveRequest(request: CardRequest): Promise<void> {
     created_by: request.createdBy || null,
     theme: request.card.theme || 'classic',
     pokemon_meta: request.card.pokemonMeta || null,
+    is_public: false,
+    event_id: request.eventId || null,
   });
 
   if (insertError) {
@@ -113,6 +115,8 @@ export async function getRequest(id: string): Promise<CardRequest | null> {
     updatedAt: row.updated_at,
     note: row.note || undefined,
     createdBy: row.created_by || undefined,
+    isPublic: row.is_public ?? false,
+    eventId: row.event_id || undefined,
     statusHistory,
   };
 
@@ -127,11 +131,28 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
 
   const { data: rows, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, status, submitted_at, illustration_url, original_avatar_url')
+    .select('id, card_front, status, submitted_at, illustration_url, original_avatar_url, event_id')
     .order('submitted_at', { ascending: false });
 
   if (error || !rows) {
     return [];
+  }
+
+  // Collect unique event IDs and fetch event names
+  const eventIds = [...new Set(rows.map((r) => r.event_id).filter(Boolean))] as string[];
+  const eventNameMap = new Map<string, string>();
+
+  if (eventIds.length > 0) {
+    const { data: events } = await supabase
+      .from('events')
+      .select('id, name')
+      .in('id', eventIds);
+
+    if (events) {
+      for (const e of events) {
+        eventNameMap.set(e.id, e.name);
+      }
+    }
   }
 
   return rows.map((row) => ({
@@ -141,6 +162,8 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
     submittedAt: row.submitted_at,
     hasIllustration: row.illustration_url !== null,
     originalAvatarUrl: row.original_avatar_url || null,
+    eventId: row.event_id || null,
+    eventName: row.event_id ? (eventNameMap.get(row.event_id) || null) : null,
   }));
 }
 
@@ -196,6 +219,12 @@ export async function updateRequest(
   }
   if (updates.note !== undefined) {
     dbUpdates.note = updates.note;
+  }
+  if (updates.isPublic !== undefined) {
+    dbUpdates.is_public = updates.isPublic;
+  }
+  if (updates.eventId !== undefined) {
+    dbUpdates.event_id = updates.eventId || null;
   }
   if (updates.card) {
     if (updates.card.front) {
@@ -272,4 +301,41 @@ export async function saveImageFile(
     .getPublicUrl(filePath);
 
   return urlData.publicUrl;
+}
+
+/**
+ * Get a public card by ID.
+ * Only returns cards where is_public=true AND status is confirmed or delivered.
+ * Excludes created_by (user email) for privacy.
+ */
+export async function getPublicCard(id: string): Promise<PublicCardData | null> {
+  const supabase = getSupabase();
+
+  const { data: row, error } = await supabase
+    .from('card_requests')
+    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, is_public, status')
+    .eq('id', id)
+    .eq('is_public', true)
+    .in('status', ['confirmed', 'delivered'])
+    .single();
+
+  if (error || !row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    card: {
+      front: {
+        ...row.card_front,
+        avatarImage: null,
+      },
+      back: row.card_back,
+      theme: (row.theme as CardTheme) || 'classic',
+      pokemonMeta: (row.pokemon_meta as PokemonMeta) || undefined,
+    },
+    originalAvatarUrl: row.original_avatar_url ?? null,
+    illustrationUrl: row.illustration_url ?? null,
+    theme: (row.theme as CardTheme) || 'classic',
+  };
 }

@@ -61,3 +61,15 @@ export interface CardData {
 }
 
 export type CardSide = 'front' | 'back';
+
+/**
+ * Public card data exposed via /api/cards/[id].
+ * Excludes created_by (user email) for privacy.
+ */
+export interface PublicCardData {
+  id: string;
+  card: CardData;
+  originalAvatarUrl: string | null;
+  illustrationUrl: string | null;
+  theme: CardTheme;
+}

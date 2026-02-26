@@ -25,6 +25,8 @@ export interface CardRequest {
   updatedAt: string; // ISO 8601
   note?: string; // Optional user memo
   createdBy?: string; // User email from NextAuth session
+  isPublic: boolean; // Public visibility toggle (default: false)
+  eventId?: string; // Associated event ID (optional)
   statusHistory: StatusHistoryEntry[];
 }
 
@@ -35,6 +37,8 @@ export interface RequestSummary {
   submittedAt: string;
   hasIllustration: boolean;
   originalAvatarUrl?: string | null;
+  eventId?: string | null;
+  eventName?: string | null;
 }
 
 // Valid status transitions

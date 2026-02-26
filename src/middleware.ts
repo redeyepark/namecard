@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // Routes that do not require authentication
 const publicRoutes = ['/', '/login', '/signup', '/callback', '/confirm'];
-const publicPrefixes = ['/_next/', '/favicon.ico', '/api/auth/'];
+const publicPrefixes = ['/_next/', '/favicon.ico', '/api/auth/', '/cards/', '/api/cards/'];
 
 // Routes that require admin role (cookie-based auth)
 const adminPrefixes = ['/admin'];

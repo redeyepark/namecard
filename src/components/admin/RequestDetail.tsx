@@ -13,6 +13,9 @@ import { CardCompare } from './CardCompare';
 import { IllustrationUploader } from './IllustrationUploader';
 import { StatusHistory } from './StatusHistory';
 import { AdminCardPreview } from './AdminCardPreview';
+import { VisibilityToggle } from '@/components/visibility/VisibilityToggle';
+import { EventSelector } from './EventSelector';
+import { EventBadge } from './EventBadge';
 
 interface RequestDetailProps {
   request: CardRequest;
@@ -52,11 +55,56 @@ export function RequestDetail({
     request.card.tarotMeta ?? { arcana: 'major', cardNumber: 0, mystique: 100 }
   );
 
+  const [visibilityLoading, setVisibilityLoading] = useState(false);
+  const [eventLoading, setEventLoading] = useState(false);
+
   const { status } = request;
   const isTerminal = isTerminalStatus(status);
   const canRegister = status === 'submitted' && (illustrationPreview || illustrationUrl || illustrationUrlInput);
   const canConfirm = status === 'processing';
   const showIllustrationUploader = !isTerminal;
+
+  const handleAdminVisibilityToggle = useCallback(async (isPublic: boolean) => {
+    setVisibilityLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/requests/${request.id}/visibility`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPublic }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '공개 설정 변경에 실패했습니다.');
+      }
+      onUpdate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '공개 설정 변경에 실패했습니다.');
+    } finally {
+      setVisibilityLoading(false);
+    }
+  }, [request.id, onUpdate]);
+
+  const handleEventChange = useCallback(async (eventId: string | null) => {
+    setEventLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/requests/${request.id}/event`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to update event');
+      }
+      onUpdate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update event');
+    } finally {
+      setEventLoading(false);
+    }
+  }, [request.id, onUpdate]);
 
   // Find the latest admin feedback from status history
   const latestFeedbackEntry = [...request.statusHistory]
@@ -381,6 +429,33 @@ export function RequestDetail({
           )}
         </div>
       )}
+
+      {/* Visibility toggle - admin can always toggle */}
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+        <h2 className="text-sm font-medium text-gray-700 mb-3">공개 설정</h2>
+        <VisibilityToggle
+          isPublic={request.isPublic}
+          disabled={visibilityLoading}
+          onToggle={handleAdminVisibilityToggle}
+        />
+      </div>
+
+      {/* Event assignment */}
+      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+        <h2 className="text-sm font-medium text-gray-700 mb-3">이벤트 할당</h2>
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <EventSelector
+              value={request.eventId || null}
+              onChange={handleEventChange}
+              disabled={eventLoading}
+            />
+          </div>
+          {request.eventId && (
+            <EventBadge eventName={request.eventId ? undefined : undefined} />
+          )}
+        </div>
+      </div>
 
       {/* Card data */}
       <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
