@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { StatusBadge } from '@/components/admin/StatusBadge';
-import { EventBadge } from '@/components/admin/EventBadge';
+import { useState, useEffect, useCallback } from 'react';
+import { RequestList } from '@/components/admin/RequestList';
+import { BulkUploadModal } from '@/components/admin/BulkUploadModal';
 import type { RequestStatus, RequestSummary } from '@/types/request';
 
 interface DashboardStats {
@@ -49,10 +47,15 @@ const ACTIVE_STATUSES: RequestStatus[] = ['submitted', 'processing', 'revision_r
 const COMPLETED_STATUSES: RequestStatus[] = ['delivered', 'rejected', 'cancelled'];
 
 export default function AdminDashboardPage() {
-  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleBulkUploadComplete = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
 
   useEffect(() => {
     async function fetchDashboard() {
@@ -153,88 +156,6 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Section B: Recent Requests */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-[#020912]">최근 의뢰</h2>
-          <Link
-            href="/admin/requests"
-            className="text-xs text-[#020912]/50 hover:text-[#ffa639] transition-colors"
-          >
-            전체 보기 &rarr;
-          </Link>
-        </div>
-        <div className="bg-white border border-[rgba(2,9,18,0.15)]">
-          {stats.recentRequests.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 text-sm">
-              아직 의뢰가 없습니다
-            </div>
-          ) : (
-            <div className="divide-y divide-[rgba(2,9,18,0.08)]">
-              {stats.recentRequests.map((req) => {
-                const date = new Date(req.submittedAt);
-                const formatted = date.toLocaleDateString('ko-KR', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                });
-
-                return (
-                  <div
-                    key={req.id}
-                    onClick={() => router.push(`/admin/${req.id}`)}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-[#e4f6ff] cursor-pointer transition-colors"
-                    role="link"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        router.push(`/admin/${req.id}`);
-                      }
-                    }}
-                  >
-                    {/* Thumbnail */}
-                    <div className="w-9 h-11 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
-                      {req.originalAvatarUrl ? (
-                        <img
-                          src={req.originalAvatarUrl}
-                          alt="Avatar"
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <span className="text-[10px] text-gray-300">없음</span>
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-[#020912] truncate">
-                          {req.displayName}
-                        </span>
-                        <EventBadge eventName={req.eventName || undefined} />
-                      </div>
-                      <div className="text-xs text-[#020912]/40 mt-0.5">
-                        {formatted}
-                      </div>
-                    </div>
-
-                    {/* Status */}
-                    <StatusBadge status={req.status} />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Section C & D: Event and Theme Breakdown */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Section C: Event Breakdown */}
@@ -311,6 +232,31 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Section E: Full Request List */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-[#020912]">전체 의뢰 목록</h2>
+          <button
+            onClick={() => setShowBulkUpload(true)}
+            className="min-h-[44px] px-4 bg-white text-[#020912] border border-[rgba(2,9,18,0.15)] text-sm font-medium hover:bg-[#e4f6ff] transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:ring-offset-2 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            CSV 대량 등록
+          </button>
+        </div>
+        <div className="bg-white border border-[rgba(2,9,18,0.15)]">
+          <RequestList key={refreshKey} />
+        </div>
+      </div>
+
+      <BulkUploadModal
+        isOpen={showBulkUpload}
+        onClose={() => setShowBulkUpload(false)}
+        onComplete={handleBulkUploadComplete}
+      />
     </div>
   );
 }
