@@ -13,6 +13,27 @@ export function RequestList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [eventFilter, setEventFilter] = useState<string>('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (e: React.MouseEvent, reqId: string, displayName: string) => {
+    e.stopPropagation(); // Prevent row click navigation
+    if (!window.confirm(`"${displayName}" 명함의뢰를 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+      return;
+    }
+    setDeletingId(reqId);
+    try {
+      const res = await fetch(`/api/requests/${reqId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '삭제에 실패했습니다.');
+      }
+      setRequests((prev) => prev.filter((r) => r.id !== reqId));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '삭제에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     async function fetchRequests() {
@@ -93,6 +114,7 @@ export function RequestList() {
               <th className="text-left py-3 px-4 font-medium text-[#020912]/60">이벤트</th>
               <th className="text-left py-3 px-4 font-medium text-[#020912]/60">제출일</th>
               <th className="text-left py-3 px-4 font-medium text-[#020912]/60">상태</th>
+              <th className="text-left py-3 px-4 font-medium text-[#020912]/60"></th>
             </tr>
           </thead>
           <tbody>
@@ -149,6 +171,26 @@ export function RequestList() {
                   <td className="py-3 px-4 text-[#020912]/50">{formatted}</td>
                   <td className="py-3 px-4">
                     <StatusBadge status={req.status} />
+                  </td>
+                  <td className="py-3 px-4">
+                    <button
+                      type="button"
+                      onClick={(e) => handleDelete(e, req.id, req.displayName)}
+                      disabled={deletingId === req.id}
+                      className="text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                      title="삭제"
+                    >
+                      {deletingId === req.id ? (
+                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                    </button>
                   </td>
                 </tr>
               );

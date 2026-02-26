@@ -29,6 +29,12 @@ export default function AdminLayout({
             >
               테마 관리
             </Link>
+            <Link
+              href="/admin/members"
+              className="text-sm text-[#fcfcfc]/60 hover:text-[#ffa639] transition-colors"
+            >
+              회원 관리
+            </Link>
             <AdminLogoutButton />
             <Link
               href="/"

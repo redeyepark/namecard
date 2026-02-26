@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import type { CardRequest } from '@/types/request';
 import type { CardFrontData, CardBackData, CardTheme, PokemonType, PokemonMeta, HearthstoneClass, HearthstoneMeta, HarrypotterHouse, HarrypotterMeta, TarotArcana, TarotMeta } from '@/types/card';
 import { POKEMON_TYPES } from '@/components/card/pokemon-types';
@@ -32,6 +33,7 @@ export function RequestDetail({
   illustrationUrl,
   onUpdate,
 }: RequestDetailProps) {
+  const router = useRouter();
   const [illustrationPreview, setIllustrationPreview] = useState<string | null>(null);
   const [illustrationUrlInput, setIllustrationUrlInput] = useState<string>('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -252,6 +254,31 @@ export function RequestDetail({
       setActionLoading(false);
     }
   }, [request.id, onUpdate]);
+
+  const handleDelete = useCallback(async () => {
+    if (!window.confirm('이 명함의뢰를 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      return;
+    }
+    setActionLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/requests/${request.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '삭제에 실패했습니다.');
+      }
+
+      router.push('/admin');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '삭제에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [request.id, router]);
 
   const handleCancelAction = useCallback(() => {
     setActiveAction(null);
@@ -1152,6 +1179,18 @@ export function RequestDetail({
           )}
         </div>
       )}
+
+      {/* Delete button - always visible for admin */}
+      <div className="mt-4 pt-4 border-t border-[rgba(2,9,18,0.08)]">
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={actionLoading}
+          className="px-5 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 hover:bg-red-50 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {actionLoading ? '처리 중...' : '삭제'}
+        </button>
+      </div>
     </div>
   );
 }

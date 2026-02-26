@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequest, updateRequest, saveImageFile } from '@/lib/storage';
+import { getRequest, updateRequest, saveImageFile, deleteRequest } from '@/lib/storage';
 import { isValidStatusTransition, requiresFeedback, isAdminEditableStatus } from '@/types/request';
 import { requireAuth, requireAdminToken, isAdminTokenValid, AuthError } from '@/lib/auth-utils';
 import { convertGoogleDriveUrl } from '@/lib/url-utils';
@@ -188,6 +188,52 @@ export async function PATCH(
       status: updated.status,
       updatedAt: updated.updatedAt,
     });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode }
+      );
+    }
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/requests/[id]
+ * Permanently delete a card request (admin only).
+ * Clears event_id, removes storage files, then deletes the record.
+ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAdminToken();
+
+    const { id } = await params;
+    const cardRequest = await getRequest(id);
+
+    if (!cardRequest) {
+      return NextResponse.json(
+        { error: 'Request not found' },
+        { status: 404 }
+      );
+    }
+
+    const success = await deleteRequest(id);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Failed to delete request' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ message: 'Request deleted successfully' });
   } catch (error) {
     if (error instanceof AuthError) {
       return NextResponse.json(

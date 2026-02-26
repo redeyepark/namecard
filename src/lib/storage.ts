@@ -304,6 +304,110 @@ export async function saveImageFile(
 }
 
 /**
+ * Delete a card request and its associated storage files.
+ * Steps:
+ * 1. Clear event_id to avoid FK RESTRICT violation
+ * 2. Delete avatar and illustration files from Supabase Storage
+ * 3. Delete the card_request record (status_history cascades automatically)
+ */
+export async function deleteRequest(id: string): Promise<boolean> {
+  const supabase = getSupabase();
+
+  // Step 1: Clear event_id to avoid FK RESTRICT violation
+  await supabase
+    .from('card_requests')
+    .update({ event_id: null })
+    .eq('id', id);
+
+  // Step 2: Delete storage files (ignore errors - files may not exist)
+  await supabase.storage.from('avatars').remove([`${id}/avatar.png`]);
+  await supabase.storage.from('illustrations').remove([`${id}/illustration.png`]);
+
+  // Step 3: Delete the card_request record
+  const { error } = await supabase
+    .from('card_requests')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error(`Failed to delete request ${id}:`, error.message);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Delete all card requests for a given user email.
+ * Returns the count of deleted requests.
+ */
+export async function deleteRequestsByUser(email: string): Promise<number> {
+  const supabase = getSupabase();
+
+  // Find all requests by this user
+  const { data: rows, error: fetchError } = await supabase
+    .from('card_requests')
+    .select('id')
+    .eq('created_by', email);
+
+  if (fetchError || !rows || rows.length === 0) {
+    return 0;
+  }
+
+  let deletedCount = 0;
+  for (const row of rows) {
+    const success = await deleteRequest(row.id);
+    if (success) {
+      deletedCount++;
+    }
+  }
+
+  return deletedCount;
+}
+
+/**
+ * Get all unique members (created_by) with request counts and latest activity.
+ */
+export async function getAllMembers(): Promise<
+  { email: string; requestCount: number; latestRequestDate: string }[]
+> {
+  const supabase = getSupabase();
+
+  const { data: rows, error } = await supabase
+    .from('card_requests')
+    .select('created_by, submitted_at')
+    .not('created_by', 'is', null);
+
+  if (error || !rows) {
+    return [];
+  }
+
+  // Aggregate by email
+  const memberMap = new Map<string, { count: number; latest: string }>();
+  for (const row of rows) {
+    const email = row.created_by as string;
+    const existing = memberMap.get(email);
+    if (existing) {
+      existing.count++;
+      if (row.submitted_at > existing.latest) {
+        existing.latest = row.submitted_at;
+      }
+    } else {
+      memberMap.set(email, { count: 1, latest: row.submitted_at });
+    }
+  }
+
+  // Convert to array and sort by count DESC
+  return Array.from(memberMap.entries())
+    .map(([email, data]) => ({
+      email,
+      requestCount: data.count,
+      latestRequestDate: data.latest,
+    }))
+    .sort((a, b) => b.requestCount - a.requestCount);
+}
+
+/**
  * Get a public card by ID.
  * Only returns cards where is_public=true AND status is confirmed or delivered.
  * Excludes created_by (user email) for privacy.
