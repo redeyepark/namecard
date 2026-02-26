@@ -647,6 +647,7 @@ export async function getPublicCards(
 ): Promise<{ cards: PublicCardData[]; total: number }> {
   const supabase = getSupabase();
   const offset = (page - 1) * limit;
+  let useIsPublic = true;
 
   // Build query for counting total
   let countQuery = supabase
@@ -659,11 +660,21 @@ export async function getPublicCards(
     countQuery = countQuery.eq('theme', theme);
   }
 
-  const { count, error: countError } = await countQuery;
+  let { count, error: countError } = await countQuery;
 
-  // If is_public column doesn't exist, return empty (public feature not available)
+  // If is_public column doesn't exist, fallback: count all confirmed/delivered cards
   if (countError && countError.message?.includes('is_public')) {
-    return { cards: [], total: 0 };
+    useIsPublic = false;
+    let fallbackCountQuery = supabase
+      .from('card_requests')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['confirmed', 'delivered']);
+    if (theme && theme !== 'all') {
+      fallbackCountQuery = fallbackCountQuery.eq('theme', theme);
+    }
+    const retryCount = await fallbackCountQuery;
+    count = retryCount.count;
+    countError = retryCount.error;
   }
 
   if (countError) {
@@ -671,26 +682,40 @@ export async function getPublicCards(
   }
 
   // Build query for fetching cards
-  let dataQuery = supabase
-    .from('card_requests')
-    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, is_public, status')
-    .eq('is_public', true)
-    .in('status', ['confirmed', 'delivered'])
-    .order('updated_at', { ascending: false })
-    .range(offset, offset + limit - 1);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let rows: any[] | null = null;
+  let dataError: { message?: string } | null = null;
 
-  if (theme && theme !== 'all') {
-    dataQuery = dataQuery.eq('theme', theme);
+  if (useIsPublic) {
+    let dataQuery = supabase
+      .from('card_requests')
+      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, is_public, status')
+      .eq('is_public', true)
+      .in('status', ['confirmed', 'delivered'])
+      .order('updated_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+    if (theme && theme !== 'all') {
+      dataQuery = dataQuery.eq('theme', theme);
+    }
+    const result = await dataQuery;
+    rows = result.data;
+    dataError = result.error;
+  } else {
+    let dataQuery = supabase
+      .from('card_requests')
+      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status')
+      .in('status', ['confirmed', 'delivered'])
+      .order('updated_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+    if (theme && theme !== 'all') {
+      dataQuery = dataQuery.eq('theme', theme);
+    }
+    const result = await dataQuery;
+    rows = result.data;
+    dataError = result.error;
   }
 
-  const { data: rows, error } = await dataQuery;
-
-  // If is_public column doesn't exist, return empty (public feature not available)
-  if (error && error.message?.includes('is_public')) {
-    return { cards: [], total: 0 };
-  }
-
-  if (error || !rows) {
+  if (dataError || !rows) {
     return { cards: [], total: count ?? 0 };
   }
 
@@ -722,17 +747,31 @@ export async function getPublicCards(
 export async function getPublicCard(id: string): Promise<PublicCardData | null> {
   const supabase = getSupabase();
 
-  const { data: row, error } = await supabase
+  // Try with is_public filter first
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let row: any = null;
+  let error: { message?: string } | null = null;
+
+  const result = await supabase
     .from('card_requests')
     .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, is_public, status')
     .eq('id', id)
     .eq('is_public', true)
     .in('status', ['confirmed', 'delivered'])
     .single();
+  row = result.data;
+  error = result.error;
 
-  // If is_public column doesn't exist, return null (public feature not available)
+  // If is_public column doesn't exist, fallback: show all confirmed/delivered cards
   if (error && error.message?.includes('is_public')) {
-    return null;
+    const retryResult = await supabase
+      .from('card_requests')
+      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status')
+      .eq('id', id)
+      .in('status', ['confirmed', 'delivered'])
+      .single();
+    row = retryResult.data;
+    error = retryResult.error;
   }
 
   if (error || !row) {
