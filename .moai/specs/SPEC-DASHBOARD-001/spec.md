@@ -203,7 +203,12 @@
    |        +--> CardCompare (아바타 vs 일러스트 비교 - 재사용)
    |        +--> CardInfoView (명함 정보 읽기 전용)
    |
-   +--> UserMenu (기존 컴포넌트 - "내 요청" 메뉴 추가)
+   +--> /dashboard/settings (사용자 설정 페이지)
+   |        |
+   |        +--> 비밀번호 변경 폼 (이메일 인증 사용자만)
+   |        +--> Google OAuth 사용자 안내 메시지
+   |
+   +--> UserMenu (기존 컴포넌트 - "내 요청" + "설정" 메뉴 추가)
 ```
 
 ### 신규 파일 목록
@@ -219,13 +224,14 @@
 | `src/components/dashboard/MyRequestDetail.tsx` | 사용자 요청 상세 뷰 (읽기 전용) |
 | `src/components/dashboard/EmptyState.tsx` | 요청 없음 안내 컴포넌트 |
 | `src/lib/user-storage.ts` | 사용자별 요청 조회 함수 (getMyRequests) |
+| `src/app/dashboard/settings/page.tsx` | 사용자 설정 페이지 (비밀번호 변경) |
 
 ### 수정 파일 목록
 
 | 파일 경로 | 수정 내용 |
 |-----------|----------|
 | `src/middleware.ts` | `protectedRoutes`에 `/dashboard` 추가 |
-| `src/components/auth/UserMenu.tsx` | "내 요청" 메뉴 항목 추가 |
+| `src/components/auth/UserMenu.tsx` | "내 요청" + "설정" 메뉴 항목 추가 |
 | `src/app/api/requests/[id]/route.ts` | GET 핸들러에 사용자 소유권 검증 로직 추가 |
 | `src/lib/storage.ts` | `getRequestsByUser(email)` 함수 추가 |
 

@@ -13,6 +13,7 @@
 | 데이터베이스 | Supabase (supabase-js) | 2.97.0 | PostgreSQL DB + Storage |
 | 색상 선택 | react-colorful | 5.6.1 | 경량 색상 선택기 (2KB, zero-dependency) |
 | 이미지 내보내기 | html-to-image | 1.11.13 | DOM 요소를 PNG 이미지로 변환 |
+| PDF 생성 | jsPDF | 2.x | 클라이언트 사이드 PDF 문서 생성 |
 | ID 생성 | uuid | 13.0.0 | 고유 식별자 생성 |
 | QR 코드 | qrcode | 1.x | 클라이언트 사이드 QR 코드 생성 (Canvas 기반) |
 | 파일 파싱 | xlsx (SheetJS) | 0.18.5 | Excel/CSV 파일 파싱 (브라우저 내 변환) |
@@ -49,6 +50,7 @@
 - `AuthProvider` 컴포넌트에서 `onAuthStateChange` 리스너로 인증 상태 관리
 - `useAuth` 훅을 통한 클라이언트 컴포넌트 인증 상태 접근
 - 관리자 역할: `ADMIN_EMAILS` 환경변수 화이트리스트, `/api/auth/me` 엔드포인트에서 확인
+- 비밀번호 변경: `supabase.auth.updateUser({ password })` API 사용, 변경 전 `signInWithPassword()`로 현재 비밀번호 검증
 
 ### Supabase 클라이언트 구성
 
@@ -95,6 +97,19 @@
 
 - GET: 각 테마(classic, pokemon, hearthstone, harrypotter, tarot)별 의뢰 건수 통계 반환
 - PATCH: 상태, 현재 테마를 필터 조건으로 지정하고, 대상 테마 및 메타데이터를 일괄 적용
+
+## 관리자 API: 이벤트 카드
+
+### 이벤트별 카드 데이터 API
+
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| GET | `/api/admin/events/[id]/cards` | 이벤트 참여자 전체 카드 데이터 조회 (requireAdminToken) |
+
+- cancelled/rejected 상태 제외한 모든 카드 반환
+- 반환 필드: id, card_front, card_back, illustration_url, theme, pokemon_meta
+- 주의: hearthstone_meta, harrypotter_meta, tarot_meta 컬럼은 DB에 존재하지 않음 (pokemon_meta만 존재)
+- EventPdfDownload 컴포넌트에서 PDF 생성 시 데이터 소스로 사용
 
 ## 데이터베이스: Supabase PostgreSQL
 
@@ -196,6 +211,14 @@
 - `cacheBust: true`로 캐시 무효화
 - 앞면(`#card-front`)과 뒷면(`#card-back`)을 각각 독립적으로 내보내기
 
+## PDF 생성: jsPDF
+
+- 클라이언트 사이드 PDF 문서 생성 라이브러리
+- html-to-image와 연동하여 DOM 요소를 PDF에 삽입
+- A4 portrait 레이아웃: 명함 앞면(좌) + 뒷면(우) 병렬 배치
+- 이벤트 관리자 페이지에서 참여자 명함 일괄 PDF 다운로드 기능에 사용
+- EventPdfDownload 컴포넌트에서 활용
+
 ## ID 생성: uuid 13.0
 
 - `uuid` 패키지를 사용한 고유 식별자(UUID v4) 생성
@@ -272,6 +295,10 @@ Supabase를 Backend-as-a-Service로 활용하여 인증, 데이터베이스, 파
 ### html-to-image로 클라이언트 사이드 이미지 생성
 
 서버 사이드 렌더링(Puppeteer, Sharp 등) 없이, 브라우저의 DOM 요소를 직접 캡처하여 PNG로 변환합니다. `pixelRatio: 2` 설정으로 레티나 디스플레이 수준의 고해상도 출력을 지원합니다.
+
+### jsPDF로 클라이언트 사이드 PDF 생성
+
+서버 사이드 PDF 생성(Puppeteer, wkhtmltopdf 등) 없이, 브라우저에서 직접 PDF를 생성합니다. html-to-image로 캡처한 명함 이미지를 jsPDF로 A4 페이지에 배치하여 PDF 파일을 구성합니다. Cloudflare Workers 엣지 런타임 환경에서 서버 사이드 PDF 라이브러리 사용이 제한적이므로, 클라이언트 사이드 접근이 적합합니다.
 
 ### Zustand으로 경량 상태 관리
 

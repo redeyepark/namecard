@@ -14,6 +14,7 @@ priority: high
 | ----- | ---------- | ------ | ------------------- |
 | 1.0.0 | 2026-02-26 | MoAI   | 초기 SPEC 문서 작성 |
 | 1.1.0 | 2026-02-26 | MoAI   | 구현 상태 업데이트   |
+| 1.2.0 | 2026-02-26 | MoAI   | PDF 다운로드 기능 및 카드 API 추가 반영 |
 
 ## 구현 상태
 
@@ -25,6 +26,9 @@ priority: high
 - 이벤트 목록 컴포넌트 (EventList) 구현 완료
 - 이벤트 생성/수정 폼 (EventForm) 구현 완료
 - 마이그레이션 감지 시스템 추가 (events 테이블 존재 여부 자동 감지)
+- 이벤트별 참여자 목록 및 참여자 상세 정보 조회 완료
+- 이벤트별 명함 PDF 다운로드 기능 구현 완료 (EventPdfDownload 컴포넌트, jsPDF + html-to-image)
+- 이벤트별 카드 데이터 API (`GET /api/admin/events/[id]/cards`) 구현 완료
 
 ### 미완료/확인 필요 항목
 - 프로덕션 DB에 events 테이블이 존재하지 않을 수 있음 (마이그레이션 필요)
@@ -164,6 +168,7 @@ priority: high
 | PUT    | /api/events/[id]              | 이벤트 수정                   | REQ-E-001    |
 | DELETE | /api/events/[id]              | 이벤트 삭제 (참여자 확인)     | REQ-N-001    |
 | GET    | /api/events/[id]/participants | 이벤트별 참여자 목록          | REQ-E-003    |
+| GET    | /api/admin/events/[id]/cards  | 이벤트별 카드 데이터 (PDF용)  | REQ-O-001    |
 | PATCH  | /api/requests/[id]/event      | 의뢰에 이벤트 할당/해제      | REQ-E-002    |
 | GET    | /api/participants/[email]     | 참여자 이벤트 이력 조회       | REQ-E-004    |
 
@@ -178,6 +183,7 @@ priority: high
 | EventFilter             | src/components/admin/EventFilter.tsx   | 의뢰 목록 이벤트 필터            |
 | EventBadge              | src/components/admin/EventBadge.tsx    | 이벤트명/미할당 배지              |
 | ParticipantHistory      | src/components/admin/ParticipantHistory.tsx | 참여자 이벤트 이력          |
+| EventPdfDownload        | src/components/admin/EventPdfDownload.tsx   | 이벤트별 명함 PDF 다운로드   |
 
 ### 타입 정의
 

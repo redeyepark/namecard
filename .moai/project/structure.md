@@ -25,6 +25,8 @@ namecard/
 │   │   │       └── page.tsx               # 카드 편집기 (임시 /dashboard 리다이렉트)
 │   │   ├── dashboard/
 │   │   │   ├── page.tsx                   # 사용자 대시보드 (내 요청 목록)
+│   │   │   ├── settings/
+│   │   │   │   └── page.tsx               # 사용자 설정 페이지 (비밀번호 변경)
 │   │   │   └── [id]/
 │   │   │       └── page.tsx               # 사용자 요청 상세 (확정 버튼, 편집 폼 "저장 후 확정" 포함)
 │   │   ├── cards/
@@ -60,6 +62,10 @@ namecard/
 │   │       │   │   └── route.ts           # POST (CSV 대량 등록, requireAdmin, 이메일 자동 회원가입, extractSocialHandle)
 │   │       │   ├── themes/
 │   │       │   │   └── route.ts           # GET (테마별 의뢰 통계), PATCH (일괄 테마 적용)
+│   │       │   ├── events/
+│   │       │   │   └── [id]/
+│   │       │   │       └── cards/
+│   │       │   │           └── route.ts   # GET (이벤트별 카드 데이터, requireAdminToken)
 │   │       │   ├── login/
 │   │       │   │   └── route.ts           # 관리자 로그인 API
 │   │       │   └── logout/
@@ -74,7 +80,7 @@ namecard/
 │   │   ├── auth/                          # 인증 관련 컴포넌트
 │   │   │   ├── AuthProvider.tsx           # Supabase onAuthStateChange 컨텍스트 (useAuth 훅)
 │   │   │   ├── LoginButton.tsx            # 로그인/로그아웃 버튼 (useAuth)
-│   │   │   └── UserMenu.tsx               # 사용자 정보 + 관리자 배지 + 로그아웃 (useAuth)
+│   │   │   └── UserMenu.tsx               # 사용자 정보 + 관리자 배지 + 설정 + 로그아웃 (useAuth)
 │   │   ├── landing/                       # 랜딩 페이지 컴포넌트
 │   │   │   └── LandingPage.tsx            # 인증 상태 기반 CTA가 있는 랜딩 페이지
 │   │   ├── card/                          # 카드 미리보기 컴포넌트 (테마 기반 위임 패턴)
@@ -141,6 +147,7 @@ namecard/
 │   │       ├── StatusHistory.tsx          # 상태 변경 이력
 │   │       ├── CardCompare.tsx            # 원본 vs 일러스트 비교 (외부 URL 이미지 에러 핸들링 포함)
 │   │       ├── IllustrationUploader.tsx   # 일러스트 이미지 업로드 (파일 업로드 + 외부 URL 입력)
+│   │       ├── EventPdfDownload.tsx       # 이벤트별 명함 PDF 다운로드 (jsPDF + html-to-image)
 │   │       └── BulkUploadModal.tsx        # CSV/Excel 대량 등록 모달 (SheetJS 변환 지원)
 │   ├── stores/
 │   │   ├── useCardStore.ts                # Zustand store (persist middleware)
@@ -299,12 +306,14 @@ layout.tsx (Root - AuthProvider 래핑)
 │   └── AdminCardPreview            # 이벤트별 그룹 카드 목록
 │
 ├── dashboard/page.tsx (User Dashboard) # 사용자 대시보드
-│   ├── UserMenu                   # 사용자 메뉴 ("내 요청" 링크 포함)
+│   ├── UserMenu                   # 사용자 메뉴 ("내 요청", "설정" 링크 포함)
 │   ├── MyRequestList              # 반응형 요청 목록
 │   │   ├── RequestCard            # 모바일 카드 뷰
 │   │   ├── ProgressStepper        # 3단계 진행 상태 (의뢰됨/작업중/확정)
 │   │   └── StatusBadge            # 상태 배지 (재사용)
 │   └── EmptyState                 # 요청 없음 안내 + CTA
+│
+├── dashboard/settings/page.tsx (Settings) # 사용자 설정 (비밀번호 변경)
 │
 ├── dashboard/[id]/page.tsx (User Detail) # 사용자 요청 상세 (확정 + 편집)
 │   ├── MyRequestDetail            # 요청 상세 뷰 (확정 버튼, 편집 폼, 저장 후 확정)
@@ -313,7 +322,7 @@ layout.tsx (Root - AuthProvider 래핑)
 │   └── CardCompare                # 원본 vs 일러스트 비교 (재사용)
 │
 ├── admin/page.tsx (Dashboard)     # 관리자 대시보드
-│   ├── UserMenu                   # 사용자 메뉴 + 관리자 배지
+│   ├── UserMenu                   # 사용자 메뉴 + 관리자 배지 + 설정
 │   ├── BulkUploadModal            # CSV/Excel 대량 등록 모달
 │   └── RequestList                # 요청 목록 테이블
 │       └── StatusBadge            # 상태 배지
@@ -323,6 +332,9 @@ layout.tsx (Root - AuthProvider 래핑)
 │   ├── StatusHistory              # 상태 변경 이력
 │   ├── CardCompare                # 원본 vs 일러스트 비교
 │   └── IllustrationUploader       # 일러스트 업로드
+│
+├── admin/events/page.tsx (Events) # 이벤트 관리
+│   └── EventPdfDownload           # 이벤트별 명함 PDF 다운로드 (jsPDF + html-to-image)
 │
 └── admin/themes/page.tsx (Themes) # 테마 관리
     ├── 테마 미리보기 갤러리        # Classic/Pokemon/Hearthstone/Harry Potter/Tarot 미리보기
@@ -336,10 +348,10 @@ layout.tsx (Root - AuthProvider 래핑)
 |----------|------|
 | `src/middleware.ts` | Supabase 세션 갱신 미들웨어 (Next.js 16 호환) |
 | `src/app/` | Next.js App Router 기반 페이지, 레이아웃, API 라우트 |
-| `src/app/api/` | REST API 엔드포인트 (인증, 요청 CRUD) |
+| `src/app/api/` | REST API 엔드포인트 (인증, 요청 CRUD, 이벤트/카드 데이터) |
 | `src/app/login/`, `signup/`, `confirm/`, `callback/` | 인증 관련 페이지 |
 | `src/app/create/` | 명함 제작 위저드 및 카드 편집기 |
-| `src/app/dashboard/` | 사용자 대시보드 (내 요청 목록, 요청 상세) |
+| `src/app/dashboard/` | 사용자 대시보드 (내 요청 목록, 요청 상세, 설정) |
 | `src/app/cards/` | 공개 명함 페이지 (QR 스캔용, Server Component + OG 메타데이터) |
 | `src/app/gallery/` | 공개 명함 갤러리 (이벤트별 그룹) |
 | `src/app/admin/` | 관리자 대시보드, 요청 상세, 이벤트 관리, 회원 관리 페이지 |
@@ -351,7 +363,7 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/components/ui/` | 범용 UI 컴포넌트 (탭, 버튼) |
 | `src/components/wizard/` | 6단계 명함 제작 위저드 컴포넌트 |
 | `src/components/dashboard/` | 사용자 대시보드 컴포넌트 (ProgressStepper, MyRequestList, RequestCard, EmptyState, MyRequestDetail) |
-| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, AdminCardPreview, AdminLogoutButton 등) |
+| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, EventPdfDownload, AdminCardPreview, AdminLogoutButton 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
 | `src/types/` | TypeScript 타입 정의 (카드, 요청) |
 | `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환, QR 코드/vCard 생성). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수, `qrcode.ts`에 `generateVCard()`, `generateQRDataURL()`, `getCardPublicURL()` 함수 포함 |
@@ -362,13 +374,13 @@ layout.tsx (Root - AuthProvider 래핑)
 
 | 카테고리 | 파일 수 |
 |---------|--------|
-| 페이지/레이아웃 (`.tsx` in `app/`) | 21 |
-| API 라우트 (`.ts` in `app/api/`) | 12 |
-| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 64 |
+| 페이지/레이아웃 (`.tsx` in `app/`) | 22 |
+| API 라우트 (`.ts` in `app/api/`) | 13 |
+| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 65 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
 | 타입 정의 (`.ts` in `types/`) | 2 |
 | 유틸리티 (`.ts` in `lib/`) | 9 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 117 |
+| 총 소스 파일 | 120 |

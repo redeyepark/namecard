@@ -7,7 +7,7 @@
 | SPEC ID | SPEC-AUTH-001 |
 | 제목 | Supabase Authentication & Role-Based Access Control |
 | 생성일 | 2026-02-21 |
-| 상태 | Implemented |
+| 상태 | Implemented (REQ-AUTH-009 추가: 비밀번호 변경) |
 | 우선순위 | High |
 | 관련 SPEC | SPEC-ADMIN-001 (관리자 대시보드), SPEC-FLOW-001 (명함 제작 플로우) |
 
@@ -108,6 +108,10 @@
 | `/create` | Authenticated | 명함 생성 위저드 (로그인 필요) |
 | `/create/edit` | Authenticated | 명함 편집기 (로그인 필요) |
 | `/admin` | Admin Only | 관리자 대시보드 |
+| `/dashboard` | Authenticated | 사용자 대시보드 (내 요청 목록) |
+| `/dashboard/[id]` | Authenticated | 사용자 요청 상세 (소유권 검증) |
+| `/dashboard/settings` | Authenticated | 사용자 설정 (비밀번호 변경) |
+| `/admin` | Admin Only | 관리자 대시보드 |
 | `/admin/[id]` | Admin Only | 요청 상세 페이지 |
 
 - REQ-AUTH-003.1: `middleware.ts`를 통해 Supabase 세션 갱신을 처리한다 (Cloudflare Edge Runtime 호환)
@@ -157,6 +161,15 @@
 - REQ-AUTH-007.1: 로그인 상태에서 `useAuth()` 훅을 통해 사용자 이름과 이메일을 표시한다
 - REQ-AUTH-007.2: 비로그인 상태에서 "로그인" 링크를 표시한다
 - REQ-AUTH-007.3: 관리자 역할인 경우 `useAuth()`의 `isAdmin` 상태로 "관리자" 배지를 표시한다
+
+### REQ-AUTH-009: 비밀번호 변경 기능
+
+**[Event-Driven]** **WHEN** 이메일/비밀번호 인증 사용자가 `/dashboard/settings` 페이지에 접근하면 **THEN** 시스템은 비밀번호 변경 폼을 표시해야 한다.
+
+- REQ-AUTH-009.1: 현재 비밀번호 확인 후 새 비밀번호를 설정할 수 있다 (`supabase.auth.signInWithPassword()` + `supabase.auth.updateUser()`)
+- REQ-AUTH-009.2: Google OAuth 사용자에게는 비밀번호 변경 불가 안내 메시지를 표시한다
+- REQ-AUTH-009.3: `UserMenu`에 "설정" 링크(기어 아이콘)를 "내 요청"과 "로그아웃" 사이에 배치한다
+- REQ-AUTH-009.4: 비밀번호 변경 성공 시 확인 메시지를 표시한다
 
 ### REQ-AUTH-008: 보안 요구사항
 
@@ -229,7 +242,8 @@
 | `src/app/confirm/page.tsx` | 이메일 확인 완료 페이지 |
 | `src/components/auth/AuthProvider.tsx` | Supabase onAuthStateChange 컨텍스트 (useAuth 훅 제공) |
 | `src/components/auth/LoginButton.tsx` | useAuth() 훅 기반 로그인 버튼 |
-| `src/components/auth/UserMenu.tsx` | useAuth() + isAdmin 기반 사용자 메뉴 |
+| `src/components/auth/UserMenu.tsx` | useAuth() + isAdmin 기반 사용자 메뉴 (내 요청, 설정, 로그아웃) |
+| `src/app/dashboard/settings/page.tsx` | 사용자 설정 페이지 (비밀번호 변경) |
 | `.env.local` | 환경 변수 (Supabase 키, ADMIN_EMAILS) |
 | `.env.example` | 환경 변수 템플릿 |
 | `.dev.vars` | Cloudflare Pages 로컬 개발 환경 변수 |

@@ -31,6 +31,13 @@
 - 이메일 확인 프로세스 (회원가입 후 이메일 인증)
 - 인증 상태에 따른 라우트 보호 (middleware.ts 미들웨어)
 
+### 사용자 설정
+
+- 비밀번호 변경 기능 (`/dashboard/settings`)
+- 이메일/비밀번호 인증 사용자만 변경 가능 (Google OAuth 사용자는 안내 메시지 표시)
+- 현재 비밀번호 확인 후 새 비밀번호 설정 (`supabase.auth.signInWithPassword()`로 현재 비밀번호 검증, `supabase.auth.updateUser()`로 변경)
+- UserMenu에서 "설정" 링크로 접근 (기어 아이콘, "내 요청"과 "로그아웃" 사이에 위치)
+
 ### 명함 제작 위저드 (6단계)
 
 - **Step 1 - 개인 정보**: 이름, 직함, 회사명 입력
@@ -160,6 +167,7 @@
 - /admin/events에서 이벤트 생성, 수정, 삭제
 - 이벤트에 카드 할당 및 해제
 - 이벤트별 참여 추적
+- 이벤트별 명함 PDF 다운로드: 참여자 명함 앞/뒷면을 A4 페이지에 병렬 배치하여 PDF 생성 (jsPDF + html-to-image). 파일명 형식: `{이벤트명}_명함_{YYYY-MM-DD}.pdf`. 생성 중 프로그레스 오버레이 표시. API: `GET /api/admin/events/[id]/cards`
 - DB 마이그레이션 미적용 감지 및 안내 UI
 
 ### PNG 이미지 고화질 내보내기
@@ -186,9 +194,10 @@
 4. 제작 요청 제출 시 API POST /api/requests로 Supabase DB에 저장
 5. 아바타 이미지는 Supabase Storage(avatars 버킷)에 업로드
 6. ~~요청 완료 후 카드 편집기(/create/edit)에서 추가 편집 가능~~ (현재 임시 비활성화, /dashboard로 리다이렉트)
-7. UserMenu의 "내 요청" 클릭으로 대시보드(/dashboard)에서 제작 진행 상태 확인
-8. 대시보드에서 요청 클릭 시 상세 페이지(/dashboard/[id])에서 상태 이력, 카드 비교 확인
-9. 요청 상세에서 확정(confirm) 버튼 클릭 또는 편집 후 "저장 후 확정"으로 사용자가 직접 카드 요청 확정
+7. UserMenu의 "설정" 클릭으로 비밀번호 변경 등 사용자 설정 페이지(/dashboard/settings) 접근
+8. UserMenu의 "내 요청" 클릭으로 대시보드(/dashboard)에서 제작 진행 상태 확인
+9. 대시보드에서 요청 클릭 시 상세 페이지(/dashboard/[id])에서 상태 이력, 카드 비교 확인
+10. 요청 상세에서 확정(confirm) 버튼 클릭 또는 편집 후 "저장 후 확정"으로 사용자가 직접 카드 요청 확정
 
 ### 관리자 흐름
 
@@ -239,6 +248,7 @@ submitted (의뢰됨) -> confirmed (확정)      # 사용자가 대시보드에�
 | `/create/edit` | 인증 필요 | 카드 편집기 (임시 비활성화 - /dashboard로 리다이렉트) |
 | `/dashboard` | 인증 필요 | 사용자 대시보드 (내 요청 목록) |
 | `/dashboard/[id]` | 인증 필요 | 사용자 요청 상세 (소유권 검증) |
+| `/dashboard/settings` | 인증 필요 | 사용자 설정 (비밀번호 변경) |
 | `/admin` | 관리자 전용 | 관리자 대시보드 |
 | `/admin/[id]` | 관리자 전용 | 요청 상세 페이지 |
 | `/admin/themes` | 관리자 전용 | 테마 관리 (미리보기, 통계, 일괄 적용) |
