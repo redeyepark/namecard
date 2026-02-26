@@ -15,6 +15,13 @@ export async function GET() {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });
     }
+
+    // Check if error is due to missing events table
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('events') || errorMessage.includes('PGRST205')) {
+      return NextResponse.json({ events: [], migration_required: true });
+    }
+
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -69,6 +76,16 @@ export async function POST(request: NextRequest) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });
     }
+
+    // Check if error is due to missing events table
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('events') || errorMessage.includes('PGRST205')) {
+      return NextResponse.json(
+        { error: 'Migration required: events table does not exist', migration_required: true },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

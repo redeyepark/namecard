@@ -8,6 +8,40 @@ import type { EventParticipant } from '@/types/event';
 
 type PageView = 'list' | 'create' | 'edit' | 'participants';
 
+interface MigrationStatus {
+  migrations: {
+    '005_add_visibility': boolean;
+    '006_add_events': boolean;
+  };
+}
+
+const MIGRATION_SQL = `-- Migration 005: Add visibility
+ALTER TABLE card_requests ADD COLUMN IF NOT EXISTS is_public BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE INDEX IF NOT EXISTS idx_card_requests_is_public ON card_requests (is_public) WHERE is_public = TRUE;
+CREATE INDEX IF NOT EXISTS idx_card_requests_public_status ON card_requests (is_public, status) WHERE is_public = TRUE AND status IN ('confirmed', 'delivered');
+
+-- Migration 006: Add events
+CREATE TABLE IF NOT EXISTS events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL CHECK (char_length(name) <= 100),
+  description TEXT CHECK (char_length(description) <= 500),
+  event_date DATE,
+  location TEXT CHECK (char_length(location) <= 200),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE card_requests ADD COLUMN IF NOT EXISTS event_id UUID REFERENCES events(id) ON DELETE RESTRICT;
+CREATE INDEX IF NOT EXISTS idx_card_requests_event_id ON card_requests(event_id);
+ALTER TABLE events ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'events' AND policyname = 'Authenticated users can read events') THEN
+    CREATE POLICY "Authenticated users can read events" ON events FOR SELECT TO authenticated USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'events' AND policyname = 'Authenticated users can manage events') THEN
+    CREATE POLICY "Authenticated users can manage events" ON events FOR ALL TO authenticated USING (true) WITH CHECK (true);
+  END IF;
+END $$;`;
+
 export default function EventsPage() {
   const [events, setEvents] = useState<EventWithCount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -15,6 +49,23 @@ export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<EventWithCount | null>(null);
   const [participants, setParticipants] = useState<EventParticipant[]>([]);
   const [participantsLoading, setParticipantsLoading] = useState(false);
+  const [migrationStatus, setMigrationStatus] = useState<MigrationStatus | null>(null);
+  const [migrationChecked, setMigrationChecked] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const fetchMigrationStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/migrate');
+      if (res.ok) {
+        const data = await res.json() as MigrationStatus;
+        setMigrationStatus(data);
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setMigrationChecked(true);
+    }
+  }, []);
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -31,8 +82,9 @@ export default function EventsPage() {
   }, []);
 
   useEffect(() => {
+    fetchMigrationStatus();
     fetchEvents();
-  }, [fetchEvents]);
+  }, [fetchEvents, fetchMigrationStatus]);
 
   const handleCreate = useCallback(
     (saved: EventWithCount) => {
@@ -88,7 +140,22 @@ export default function EventsPage() {
     []
   );
 
-  if (loading) {
+  const handleCopySQL = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(MIGRATION_SQL);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch {
+      alert('SQL 복사에 실패했습니다.');
+    }
+  }, []);
+
+  const handleRecheckMigration = useCallback(async () => {
+    setMigrationChecked(false);
+    await fetchMigrationStatus();
+  }, [fetchMigrationStatus]);
+
+  if (loading || !migrationChecked) {
     return (
       <div className="text-center py-12 text-gray-500">
         <svg
@@ -102,6 +169,51 @@ export default function EventsPage() {
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
         로딩 중...
+      </div>
+    );
+  }
+
+  // Show migration setup UI if migration 006 is not applied
+  if (migrationStatus && !migrationStatus.migrations['006_add_events']) {
+    return (
+      <div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#020912]">데이터베이스 설정 필요</h1>
+          <p className="mt-1 text-sm text-[#020912]/50">
+            이벤트 기능을 사용하려면 데이터베이스 마이그레이션을 실행해야 합니다.
+          </p>
+        </div>
+
+        <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-[#020912] mb-4">실행할 SQL</h2>
+            <pre className="bg-[#f5f5f5] border border-[rgba(2,9,18,0.15)] rounded p-4 overflow-x-auto text-sm font-mono text-[#020912] whitespace-pre-wrap break-words">
+              {MIGRATION_SQL}
+            </pre>
+          </div>
+
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-[#020912] mb-2">실행 방법</h3>
+            <p className="text-sm text-[#020912]/70">
+              Supabase Dashboard &gt; SQL Editor에서 위 SQL을 실행하세요.
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={handleCopySQL}
+              className="flex-1 min-h-[44px] px-4 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              {copySuccess ? '복사됨!' : 'SQL 복사'}
+            </button>
+            <button
+              onClick={handleRecheckMigration}
+              className="flex-1 min-h-[44px] px-4 bg-[#fcfcfc] text-[#020912] text-sm font-medium rounded-lg border border-[rgba(2,9,18,0.15)] hover:bg-[#f5f5f5] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              다시 확인
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
