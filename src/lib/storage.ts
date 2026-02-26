@@ -1,6 +1,6 @@
 import { getSupabase } from './supabase';
 import type { CardRequest, RequestSummary, StatusHistoryEntry } from '@/types/request';
-import type { CardTheme, PokemonMeta, PublicCardData } from '@/types/card';
+import type { CardTheme, PokemonMeta, PublicCardData, GalleryCardData, GalleryResponse } from '@/types/card';
 
 /**
  * Convert base64 image data to Uint8Array for Supabase Storage upload.
@@ -510,5 +510,136 @@ export async function getPublicCard(id: string): Promise<PublicCardData | null> 
     originalAvatarUrl: row.original_avatar_url ?? null,
     illustrationUrl: row.illustration_url ?? null,
     theme: (row.theme as CardTheme) || 'classic',
+  };
+}
+
+/**
+ * Get all gallery cards grouped by event.
+ * Returns ALL cards except cancelled/rejected ones.
+ * Cards are grouped by event_id with NULL events grouped as "미할당".
+ * Events ordered by event_date DESC, then NULL events last.
+ * Cards within each group ordered by submitted_at DESC.
+ * Excludes created_by (user email) for privacy.
+ */
+export async function getGalleryCards(): Promise<GalleryResponse> {
+  const supabase = getSupabase();
+
+  // Fetch all non-cancelled/rejected cards
+  const { data: rows, error } = await supabase
+    .from('card_requests')
+    .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, submitted_at, event_id')
+    .not('status', 'in', '("cancelled","rejected")')
+    .order('submitted_at', { ascending: false });
+
+  if (error || !rows) {
+    return { groups: [], totalCards: 0 };
+  }
+
+  // Collect unique event IDs and fetch event details
+  const eventIds = [...new Set(rows.map((r) => r.event_id).filter(Boolean))] as string[];
+  const eventMap = new Map<string, { name: string; eventDate?: string }>();
+
+  if (eventIds.length > 0) {
+    const { data: events } = await supabase
+      .from('events')
+      .select('id, name, event_date')
+      .in('id', eventIds);
+
+    if (events) {
+      for (const e of events) {
+        eventMap.set(e.id, {
+          name: e.name,
+          eventDate: e.event_date || undefined,
+        });
+      }
+    }
+  }
+
+  // Map rows to GalleryCardData
+  const mapRow = (row: typeof rows[number]): GalleryCardData => ({
+    id: row.id,
+    displayName: (row.card_front as { displayName?: string })?.displayName || '',
+    title: (row.card_back as { title?: string })?.title || '',
+    theme: (row.theme as CardTheme) || 'classic',
+    illustrationUrl: row.illustration_url ?? null,
+    originalAvatarUrl: row.original_avatar_url ?? null,
+    status: row.status,
+  });
+
+  // Group cards by event_id
+  const groupMap = new Map<string | null, GalleryCardData[]>();
+
+  for (const row of rows) {
+    const key = row.event_id ?? null;
+    if (!groupMap.has(key)) {
+      groupMap.set(key, []);
+    }
+    groupMap.get(key)!.push(mapRow(row));
+  }
+
+  // Build groups array: events with dates first (DESC), then events without dates, then NULL
+  const eventGroups: GalleryResponse['groups'] = [];
+
+  // Separate event groups by whether they have dates
+  const withDate: { eventId: string; eventName: string; eventDate: string; cards: GalleryCardData[] }[] = [];
+  const withoutDate: { eventId: string; eventName: string; cards: GalleryCardData[] }[] = [];
+
+  for (const [eventId, cards] of groupMap.entries()) {
+    if (eventId === null) continue; // Handle NULL group separately
+
+    const eventInfo = eventMap.get(eventId);
+    if (!eventInfo) continue;
+
+    if (eventInfo.eventDate) {
+      withDate.push({
+        eventId,
+        eventName: eventInfo.name,
+        eventDate: eventInfo.eventDate,
+        cards,
+      });
+    } else {
+      withoutDate.push({
+        eventId,
+        eventName: eventInfo.name,
+        cards,
+      });
+    }
+  }
+
+  // Sort events with dates by eventDate DESC
+  withDate.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
+
+  // Add dated events first
+  for (const g of withDate) {
+    eventGroups.push({
+      eventId: g.eventId,
+      eventName: g.eventName,
+      eventDate: g.eventDate,
+      cards: g.cards,
+    });
+  }
+
+  // Add undated events
+  for (const g of withoutDate) {
+    eventGroups.push({
+      eventId: g.eventId,
+      eventName: g.eventName,
+      cards: g.cards,
+    });
+  }
+
+  // Add NULL event group last
+  const nullCards = groupMap.get(null);
+  if (nullCards && nullCards.length > 0) {
+    eventGroups.push({
+      eventId: null,
+      eventName: '미할당',
+      cards: nullCards,
+    });
+  }
+
+  return {
+    groups: eventGroups,
+    totalCards: rows.length,
   };
 }

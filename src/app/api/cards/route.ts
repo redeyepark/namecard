@@ -1,20 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPublicCards } from '@/lib/storage';
+import { getPublicCards, getGalleryCards } from '@/lib/storage';
 
 /**
  * GET /api/cards
- * Public endpoint to retrieve paginated list of public cards.
- * No authentication required.
+ * Public endpoint to retrieve cards. No authentication required.
  *
  * Query params:
- *   page  - Page number (default: 1)
- *   limit - Items per page (default: 12, max: 50)
- *   theme - Optional theme filter (classic, pokemon, hearthstone, harrypotter, tarot)
+ *   view  - 'gallery' for event-grouped view (all non-cancelled/rejected cards)
+ *   page  - Page number (default: 1, ignored when view=gallery)
+ *   limit - Items per page (default: 12, max: 50, ignored when view=gallery)
+ *   theme - Optional theme filter (ignored when view=gallery)
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
+    const view = searchParams.get('view');
 
+    // Gallery view: return all cards grouped by event
+    if (view === 'gallery') {
+      const result = await getGalleryCards();
+      return NextResponse.json(result);
+    }
+
+    // Default view: paginated public cards (backward compatible)
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
     const rawLimit = parseInt(searchParams.get('limit') || '12', 10) || 12;
     const limit = Math.min(Math.max(1, rawLimit), 50);

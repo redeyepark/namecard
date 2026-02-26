@@ -73,3 +73,36 @@ export interface PublicCardData {
   illustrationUrl: string | null;
   theme: CardTheme;
 }
+
+/**
+ * Lightweight card data for the gallery grid view.
+ * Contains only the fields needed for thumbnail rendering.
+ * Excludes created_by (user email) for privacy.
+ */
+export interface GalleryCardData {
+  id: string;
+  displayName: string;
+  title: string;
+  theme: CardTheme;
+  illustrationUrl: string | null;
+  originalAvatarUrl: string | null;
+  status: string;
+}
+
+/**
+ * A group of cards belonging to the same event, used in the gallery view.
+ */
+export interface GalleryEventGroup {
+  eventId: string | null;
+  eventName: string;
+  eventDate?: string;
+  cards: GalleryCardData[];
+}
+
+/**
+ * Response shape for the gallery endpoint with event-grouped cards.
+ */
+export interface GalleryResponse {
+  groups: GalleryEventGroup[];
+  totalCards: number;
+}
