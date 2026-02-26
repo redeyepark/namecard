@@ -78,12 +78,14 @@
 
 ### 테마 시스템
 
-- 3개 테마 지원: Classic (기본), Pokemon (트레이딩 카드), Hearthstone (전설 카드)
+- 5개 테마 지원: Classic (기본), Pokemon (트레이딩 카드), Hearthstone (전설 카드), Harry Potter (위저드 카드), Tarot (신비 카드)
 - 테마별 고유 디자인 요소
 - **Pokemon 테마**: 7개 타입(Fire, Water, Grass, Electric, Psychic, Steel, Normal), 골드 프레임(#EED171), HP 배지, 타입 아이콘
 - **Hearthstone 테마**: 9개 직업(Warrior, Mage, Rogue, Priest, Hunter, Paladin, Shaman, Warlock, Druid), 석재/금색 프레임(#8B6914), 마나 크리스탈, 공격/체력 스탯
+- **Harry Potter 테마**: 4개 기숙사(Gryffindor, Slytherin, Hufflepuff, Ravenclaw), 양피지/석재 프레임, 기숙사 문장 배지, 지팡이 장식, 주문 파워 스탯
+- **Tarot 테마**: 5개 아르카나(Major, Wands, Cups, Swords, Pentacles), 아르누보 보더, 천체 별 패턴, 신비로운 눈 모티프, 미스틱 스탯
 - 에디터에서 실시간 테마 전환 및 미리보기
-- 테마별 메타데이터 편집 (타입 선택, 스탯 입력)
+- 테마별 메타데이터 편집 (타입/기숙사/아르카나 선택, 스탯 입력)
 - 하위 호환성: theme 필드 없는 기존 카드는 자동 classic 처리
 
 ### 명함 앞면/뒷면 실시간 편집 및 미리보기

@@ -64,15 +64,21 @@ namecard/
 │   │   ├── landing/                       # 랜딩 페이지 컴포넌트
 │   │   │   └── LandingPage.tsx            # 인증 상태 기반 CTA가 있는 랜딩 페이지
 │   │   ├── card/                          # 카드 미리보기 컴포넌트 (테마 기반 위임 패턴)
-│   │   │   ├── CardFront.tsx              # 앞면 래퍼 (theme에 따라 Classic/Pokemon/Hearthstone 위임)
-│   │   │   ├── CardBack.tsx               # 뒷면 래퍼 (theme에 따라 Classic/Pokemon/Hearthstone 위임)
+│   │   │   ├── CardFront.tsx              # 앞면 래퍼 (theme에 따라 Classic/Pokemon/Hearthstone/Harrypotter/Tarot 위임)
+│   │   │   ├── CardBack.tsx               # 뒷면 래퍼 (theme에 따라 Classic/Pokemon/Hearthstone/Harrypotter/Tarot 위임)
 │   │   │   ├── CardPreview.tsx            # 프리뷰 컨테이너 (플립 애니메이션)
 │   │   │   ├── PokemonCardFront.tsx       # Pokemon 테마 앞면 (골드 프레임, HP 배지)
 │   │   │   ├── PokemonCardBack.tsx        # Pokemon 테마 뒷면 (그라데이션 배경)
 │   │   │   ├── pokemon-types.ts           # Pokemon 7개 타입 정의, 색상, SVG 아이콘
 │   │   │   ├── HearthstoneCardFront.tsx   # Hearthstone 테마 앞면 (석재 프레임, 마나, 공격/체력)
 │   │   │   ├── HearthstoneCardBack.tsx    # Hearthstone 테마 뒷면 (다크 브라운 배경)
-│   │   │   └── hearthstone-types.ts       # Hearthstone 9개 직업 정의, 색상, SVG 아이콘
+│   │   │   ├── hearthstone-types.ts       # Hearthstone 9개 직업 정의, 색상, SVG 아이콘
+│   │   │   ├── HarrypotterCardFront.tsx   # Harry Potter 테마 앞면 (양피지/석재 프레임, 기숙사 배지, 주문 파워)
+│   │   │   ├── HarrypotterCardBack.tsx    # Harry Potter 테마 뒷면 (기숙사 색상 배경, 지팡이 장식)
+│   │   │   ├── harrypotter-types.ts       # Harry Potter 4개 기숙사 정의, 색상, SVG 아이콘
+│   │   │   ├── TarotCardFront.tsx         # Tarot 테마 앞면 (아르누보 보더, 천체 패턴, 미스틱 스탯)
+│   │   │   ├── TarotCardBack.tsx          # Tarot 테마 뒷면 (신비로운 눈 모티프, 별 패턴)
+│   │   │   └── tarot-types.ts             # Tarot 5개 아르카나 정의, 색상, SVG 아이콘
 │   │   ├── editor/                        # 편집기 폼 컴포넌트
 │   │   │   ├── EditorPanel.tsx            # 편집기 패널 컨테이너
 │   │   │   ├── FrontEditor.tsx            # 앞면 편집 필드 (ThemeSelector, 테마별 메타데이터 편집 포함)
@@ -82,11 +88,15 @@ namecard/
 │   │   │   ├── TextColorPicker.tsx        # 텍스트 색상 선택기 (화이트/블랙 2옵션)
 │   │   │   ├── HashtagEditor.tsx          # 해시태그 태그 관리
 │   │   │   ├── SocialLinkEditor.tsx       # 소셜 링크 CRUD
-│   │   │   ├── ThemeSelector.tsx          # 테마 선택기 (Classic / Pokemon / Hearthstone)
+│   │   │   ├── ThemeSelector.tsx          # 테마 선택기 (Classic / Pokemon / Hearthstone / Harry Potter / Tarot)
 │   │   │   ├── PokemonTypeSelector.tsx    # Pokemon 타입 선택 그리드
 │   │   │   ├── ExpInput.tsx              # EXP 숫자 입력
 │   │   │   ├── HearthstoneClassSelector.tsx # Hearthstone 직업 선택 그리드
-│   │   │   └── HearthstoneStatInput.tsx   # Mana/Attack/Health 스탯 입력
+│   │   │   ├── HearthstoneStatInput.tsx   # Mana/Attack/Health 스탯 입력
+│   │   │   ├── HarrypotterHouseSelector.tsx # Harry Potter 기숙사 선택 그리드
+│   │   │   ├── HarrypotterStatInput.tsx   # Year/SpellPower 스탯 입력
+│   │   │   ├── TarotArcanaSelector.tsx    # Tarot 아르카나 선택 그리드
+│   │   │   └── TarotStatInput.tsx         # CardNumber/Mystique 스탯 입력
 │   │   ├── export/                        # 내보내기 컴포넌트
 │   │   │   └── ExportButton.tsx           # PNG 내보내기 (2x 해상도)
 │   │   ├── ui/                            # 범용 UI 컴포넌트
@@ -233,19 +243,27 @@ layout.tsx (Root - AuthProvider 래핑)
 │   │   ├── CardFront              # 앞면 래퍼 (테마 기반 위임)
 │   │   │   ├── (classic)          # Classic 앞면 (기본, theme 없는 경우 포함)
 │   │   │   ├── PokemonCardFront   # Pokemon 앞면 (골드 프레임, HP 배지, 타입 아이콘)
-│   │   │   └── HearthstoneCardFront # Hearthstone 앞면 (석재 프레임, 마나, 공격/체력)
+│   │   │   ├── HearthstoneCardFront # Hearthstone 앞면 (석재 프레임, 마나, 공격/체력)
+│   │   │   ├── HarrypotterCardFront # Harry Potter 앞면 (양피지 프레임, 기숙사 배지, 주문 파워)
+│   │   │   └── TarotCardFront     # Tarot 앞면 (아르누보 보더, 천체 패턴, 미스틱)
 │   │   └── CardBack               # 뒷면 래퍼 (테마 기반 위임)
 │   │       ├── (classic)          # Classic 뒷면 (기본, theme 없는 경우 포함)
 │   │       ├── PokemonCardBack    # Pokemon 뒷면 (그라데이션 배경)
-│   │       └── HearthstoneCardBack # Hearthstone 뒷면 (다크 브라운 배경)
+│   │       ├── HearthstoneCardBack # Hearthstone 뒷면 (다크 브라운 배경)
+│   │       ├── HarrypotterCardBack # Harry Potter 뒷면 (기숙사 색상, 지팡이 장식)
+│   │       └── TarotCardBack      # Tarot 뒷면 (신비로운 눈 모티프, 별 패턴)
 │   ├── TabSwitch                  # 앞면/뒷면 탭 전환
 │   ├── EditorPanel
 │   │   ├── FrontEditor            # 앞면 편집
-│   │   │   ├── ThemeSelector      # 테마 선택 (Classic/Pokemon/Hearthstone)
+│   │   │   ├── ThemeSelector      # 테마 선택 (Classic/Pokemon/Hearthstone/Harry Potter/Tarot)
 │   │   │   ├── PokemonTypeSelector # Pokemon 타입 선택 그리드
 │   │   │   ├── ExpInput           # EXP 숫자 입력
 │   │   │   ├── HearthstoneClassSelector # Hearthstone 직업 선택 그리드
 │   │   │   ├── HearthstoneStatInput # Mana/Attack/Health 스탯 입력
+│   │   │   ├── HarrypotterHouseSelector # Harry Potter 기숙사 선택 그리드
+│   │   │   ├── HarrypotterStatInput # Year/SpellPower 스탯 입력
+│   │   │   ├── TarotArcanaSelector # Tarot 아르카나 선택 그리드
+│   │   │   ├── TarotStatInput     # CardNumber/Mystique 스탯 입력
 │   │   │   ├── ImageUploader      # 이미지 업로드
 │   │   │   ├── ColorPicker        # 배경색 선택
 │   │   │   └── TextColorPicker    # 텍스트 색상 선택
@@ -284,7 +302,7 @@ layout.tsx (Root - AuthProvider 래핑)
 │   └── IllustrationUploader       # 일러스트 업로드
 │
 └── admin/themes/page.tsx (Themes) # 테마 관리
-    ├── 테마 미리보기 갤러리        # Classic/Pokemon/Hearthstone 미리보기
+    ├── 테마 미리보기 갤러리        # Classic/Pokemon/Hearthstone/Harry Potter/Tarot 미리보기
     ├── 테마별 의뢰 통계            # 테마 사용 현황
     └── 일괄 테마 적용              # 필터 기반 대량 테마 변경
 ```
@@ -302,8 +320,8 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/app/admin/` | 관리자 대시보드 및 요청 상세 페이지 |
 | `src/components/auth/` | 인증 관련 컴포넌트 (AuthProvider, LoginButton, UserMenu) |
 | `src/components/landing/` | 랜딩 페이지 컴포넌트 |
-| `src/components/card/` | 명함 미리보기 렌더링 컴포넌트 (테마 기반 위임 패턴: CardFront/CardBack이 theme 값에 따라 Classic/Pokemon/Hearthstone 컴포넌트로 위임) |
-| `src/components/editor/` | 명함 편집 폼 컴포넌트 (ThemeSelector, PokemonTypeSelector, HearthstoneClassSelector 등 테마 편집 UI 포함) |
+| `src/components/card/` | 명함 미리보기 렌더링 컴포넌트 (테마 기반 위임 패턴: CardFront/CardBack이 theme 값에 따라 Classic/Pokemon/Hearthstone/Harrypotter/Tarot 컴포넌트로 위임) |
+| `src/components/editor/` | 명함 편집 폼 컴포넌트 (ThemeSelector, PokemonTypeSelector, HearthstoneClassSelector, HarrypotterHouseSelector, TarotArcanaSelector 등 테마 편집 UI 포함) |
 | `src/components/export/` | PNG 이미지 내보내기 관련 컴포넌트 |
 | `src/components/ui/` | 범용 UI 컴포넌트 (탭, 버튼) |
 | `src/components/wizard/` | 6단계 명함 제작 위저드 컴포넌트 |
@@ -321,11 +339,11 @@ layout.tsx (Root - AuthProvider 래핑)
 |---------|--------|
 | 페이지/레이아웃 (`.tsx` in `app/`) | 16 |
 | API 라우트 (`.ts` in `app/api/`) | 10 |
-| React 컴포넌트 (`.tsx` in `components/`) | 53 |
+| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 63 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
 | 타입 정의 (`.ts` in `types/`) | 2 |
 | 유틸리티 (`.ts` in `lib/`) | 8 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 98 |
+| 총 소스 파일 | 108 |

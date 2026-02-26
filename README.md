@@ -87,9 +87,9 @@ src/
 │   └── api/admin/bulk-upload/ # 관리자 CSV/Excel 대량 등록 API
 ├── components/
 │   ├── admin/           # 관리자 컴포넌트 (BulkUploadModal 등)
-│   ├── card/            # 카드 미리보기 컴포넌트
+│   ├── card/            # 카드 미리보기 컴포넌트 (5개 테마: Classic/Pokemon/Hearthstone/Harrypotter/Tarot)
 │   ├── dashboard/       # 대시보드 컴포넌트 (ProgressStepper, MyRequestList 등)
-│   ├── editor/          # 편집기 컴포넌트
+│   ├── editor/          # 편집기 컴포넌트 (테마별 메타데이터 편집 UI 포함)
 │   ├── export/          # 내보내기 기능
 │   └── ui/              # 공통 UI 컴포넌트
 ├── stores/              # Zustand 상태 관리
@@ -122,6 +122,22 @@ src/
 ### 텍스트 가독성 향상
 
 - 명함 카드 텍스트 크기 약 20% 증가로 가독성 개선
+
+### Harry Potter 테마 추가
+
+- 위저드 카드 스타일의 네 번째 카드 테마 추가
+- 4개 기숙사 지원: Gryffindor, Slytherin, Hufflepuff, Ravenclaw
+- 기숙사별 고유 색상 및 문장 배지 적용
+- 양피지/석재 프레임, 지팡이 장식, 주문 파워 스탯 표시
+- 에디터에서 기숙사 선택 및 학년(1-7)/주문 파워(0-999) 입력 지원
+
+### Tarot 테마 추가
+
+- 신비로운 카드 스타일의 다섯 번째 카드 테마 추가
+- 5개 아르카나 지원: Major, Wands, Cups, Swords, Pentacles
+- 아르카나별 고유 색상 및 아르누보 보더 적용
+- 천체 별 패턴, 신비로운 눈 모티프 장식
+- 에디터에서 아르카나 선택 및 카드 번호(0-21)/미스틱(0-999) 입력 지원
 
 ## 라이선스
 

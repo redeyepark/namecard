@@ -1,9 +1,9 @@
 ---
 id: SPEC-THEME-001
-version: "1.0.0"
+version: "2.0.0"
 status: completed
 created: "2026-02-25"
-updated: "2026-02-25"
+updated: "2026-02-26"
 author: MoAI
 priority: high
 ---
@@ -14,10 +14,11 @@ priority: high
 | ----- | ---------- | ------ | ---------------------------------- |
 | 1.0.0 | 2026-02-25 | MoAI   | 초기 SPEC 문서 작성                |
 | 1.1.0 | 2026-02-25 | MoAI   | Pokemon 테마 구현 완료, Hearthstone 테마 추가 구현 |
+| 2.0.0 | 2026-02-26 | MoAI   | Harry Potter 테마 및 Tarot 테마 추가 구현 (총 5개 테마) |
 
 ---
 
-# SPEC-THEME-001: 카드 테마 시스템 구현 (Pokemon + Hearthstone)
+# SPEC-THEME-001: 카드 테마 시스템 구현 (Pokemon + Hearthstone + Harry Potter + Tarot)
 
 ## 요약
 
@@ -52,7 +53,7 @@ priority: high
 
 ### Ubiquitous (보편적 요구사항)
 
-**REQ-U-001**: 시스템은 **항상** 최소 3개의 테마(`classic`, `pokemon`, `hearthstone`)를 지원해야 한다.
+**REQ-U-001**: 시스템은 **항상** 최소 5개의 테마(`classic`, `pokemon`, `hearthstone`, `harrypotter`, `tarot`)를 지원해야 한다.
 
 **REQ-U-002**: 시스템은 **항상** `theme` 필드가 없는 기존 카드 데이터를 `'classic'` 테마로 렌더링해야 한다.
 
@@ -317,10 +318,30 @@ export function CardFront() {
 - 에디터: HearthstoneClassSelector, HearthstoneStatInput 컴포넌트
 - 관리자/대시보드 프리뷰 지원
 
+#### Harry Potter 테마 (v2.0.0)
+- 4개 기숙사 시스템 (Gryffindor, Slytherin, Hufflepuff, Ravenclaw)
+- 기숙사별 고유 색상: Gryffindor(#740001/gold), Slytherin(#1A472A/silver), Hufflepuff(#FFD800/black), Ravenclaw(#0E1A40/bronze)
+- 양피지/석재 프레임, 기숙사 문장 배지, 지팡이 장식
+- 메타데이터: `{ house: HarrypotterHouse, year: number (1-7), spellPower: number (0-999) }`
+- 앞면: 기숙사 색상 프레임, 문장 배지, 주문 파워 스탯 표시
+- 뒷면: 기숙사 테마 배경, 지팡이 장식 패턴
+- 에디터: HarrypotterHouseSelector, HarrypotterStatInput 컴포넌트
+- 관리자/대시보드 프리뷰 지원
+
+#### Tarot 테마 (v2.0.0)
+- 5개 아르카나 시스템 (Major, Wands, Cups, Swords, Pentacles)
+- 아르카나별 고유 색상: Major(#4A0E4E/gold), Wands(#8B2500/orange), Cups(#1B4D6E/skyblue), Swords(#4A4A4A/silver), Pentacles(#2E4E1E/goldenrod)
+- 아르누보 보더, 천체 별 패턴, 신비로운 눈 모티프
+- 메타데이터: `{ arcana: TarotArcana, cardNumber: number (0-21), mystique: number (0-999) }`
+- 앞면: 아르카나 색상 프레임, 천체 패턴, 미스틱 스탯 표시
+- 뒷면: 신비로운 눈 모티프, 별 패턴 배경
+- 에디터: TarotArcanaSelector, TarotStatInput 컴포넌트
+- 관리자/대시보드 프리뷰 지원
+
 #### 공통 인프라
 - 테마 관리 페이지 (/admin/themes): 미리보기 갤러리, 통계, 일괄 적용
 - 테마 API (GET/PATCH /api/admin/themes)
-- DB 컬럼: theme TEXT, pokemon_meta JSONB, hearthstone_meta JSONB
+- DB 컬럼: theme TEXT, pokemon_meta JSONB, hearthstone_meta JSONB, harrypotter_meta JSONB, tarot_meta JSONB
 - 하위 호환성 100% 보장
 
 ---

@@ -92,7 +92,7 @@
 | GET | `/api/admin/themes` | 테마별 의뢰 통계 조회 (requireAdmin) |
 | PATCH | `/api/admin/themes` | 필터 기반 일괄 테마 적용 (requireAdmin) |
 
-- GET: 각 테마(classic, pokemon, hearthstone)별 의뢰 건수 통계 반환
+- GET: 각 테마(classic, pokemon, hearthstone, harrypotter, tarot)별 의뢰 건수 통계 반환
 - PATCH: 상태, 현재 테마를 필터 조건으로 지정하고, 대상 테마 및 메타데이터를 일괄 적용
 
 ## 데이터베이스: Supabase PostgreSQL
@@ -152,10 +152,12 @@
 
 - persist middleware를 통한 localStorage 자동 저장
 - Storage key: `namecard-storage`
-- 상태 구조: `CardData` (front + back + theme + pokemonMeta + hearthstoneMeta) + `activeSide` - front/back 각각 `textColor: string` 필드 포함 (앞면 기본: #FFFFFF, 뒷면 기본: #000000)
-- 액션: `updateFront`, `updateBack`, `setActiveSide`, `addSocialLink`, `removeSocialLink`, `updateSocialLink`, `addHashtag`, `removeHashtag`, `resetCard`, `setTheme`, `setPokemonType`, `setPokemonExp`, `setHearthstoneClass`, `setHearthstoneMana`, `setHearthstoneAttack`, `setHearthstoneHealth`
+- 상태 구조: `CardData` (front + back + theme + pokemonMeta + hearthstoneMeta + harrypotterMeta + tarotMeta) + `activeSide` - front/back 각각 `textColor: string` 필드 포함 (앞면 기본: #FFFFFF, 뒷면 기본: #000000)
+- 액션: `updateFront`, `updateBack`, `setActiveSide`, `addSocialLink`, `removeSocialLink`, `updateSocialLink`, `addHashtag`, `removeHashtag`, `resetCard`, `setTheme`, `setPokemonType`, `setPokemonExp`, `setHearthstoneClass`, `setHearthstoneMana`, `setHearthstoneAttack`, `setHearthstoneHealth`, `setHarrypotterHouse`, `setHarrypotterYear`, `setHarrypotterSpellPower`, `setTarotArcana`, `setTarotCardNumber`, `setTarotMystique`
 - Pokemon 테마 선택 시 기본 메타데이터 자동 생성 (`{ type: 'electric', exp: 100 }`)
 - Hearthstone 테마 선택 시 기본 메타데이터 자동 생성 (`{ classType: 'warrior', mana: 3, attack: 2, health: 5 }`)
+- Harry Potter 테마 선택 시 기본 메타데이터 자동 생성 (`{ house: 'gryffindor', year: 1, spellPower: 100 }`)
+- Tarot 테마 선택 시 기본 메타데이터 자동 생성 (`{ arcana: 'major', cardNumber: 0, mystique: 100 }`)
 - Redux 대비 보일러플레이트 최소화, 간결한 API
 
 ## 색상 선택: react-colorful 5.6
@@ -264,7 +266,7 @@ Redux, MobX 등 대비 보일러플레이트가 최소화된 Zustand을 선택�
 
 ### 테마 기반 컴포넌트 위임 패턴
 
-CardFront/CardBack을 래퍼 컴포넌트로 전환하여, `theme` 값(`classic`, `pokemon`, `hearthstone`)에 따라 테마별 전용 컴포넌트(Classic/Pokemon/Hearthstone)로 렌더링을 위임합니다. 기존 클래식 테마 동작은 100% 보존하면서 새 테마를 독립 컴포넌트로 추가하여, 테마 간 스타일 간섭 없이 확장할 수 있습니다. `theme` 필드가 없는 기존 카드 데이터는 자동으로 `classic`으로 처리됩니다. 모든 테마 컴포넌트는 인라인 스타일을 사용하여 html-to-image 라이브러리와의 호환성을 보장합니다.
+CardFront/CardBack을 래퍼 컴포넌트로 전환하여, `theme` 값(`classic`, `pokemon`, `hearthstone`, `harrypotter`, `tarot`)에 따라 테마별 전용 컴포넌트(Classic/Pokemon/Hearthstone/Harrypotter/Tarot)로 렌더링을 위임합니다. 기존 클래식 테마 동작은 100% 보존하면서 새 테마를 독립 컴포넌트로 추가하여, 테마 간 스타일 간섭 없이 확장할 수 있습니다. `theme` 필드가 없는 기존 카드 데이터는 자동으로 `classic`으로 처리됩니다. 모든 테마 컴포넌트는 인라인 스타일을 사용하여 html-to-image 라이브러리와의 호환성을 보장합니다.
 
 ### 명함 뒷면 고정 폰트 사이즈
 
