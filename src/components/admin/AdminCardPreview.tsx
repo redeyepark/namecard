@@ -48,12 +48,11 @@ function AdminFront({
           className="text-2xl sm:text-3xl font-bold tracking-wide"
           title={displayName || 'YOUR NAME'}
           style={{
-            WebkitTextStroke: (textColor || '#FFFFFF').toUpperCase() === '#FFFFFF'
-              ? '1px rgba(0, 0, 0, 0.8)'
-              : '1px rgba(255, 255, 255, 0.6)',
             color: textColor || '#FFFFFF',
-            paintOrder: 'stroke fill',
             fontFamily: "'Nanum Myeongjo', serif",
+            textShadow: (textColor || '#FFFFFF').toUpperCase() === '#FFFFFF'
+              ? '0 1px 3px rgba(0, 0, 0, 0.5)'
+              : '0 1px 3px rgba(255, 255, 255, 0.3)',
           }}
         >
           {renderMultiLine(displayName || 'YOUR NAME')}
