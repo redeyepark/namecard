@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Routes that do not require authentication
-const publicRoutes = ['/', '/login', '/signup', '/callback', '/confirm'];
+const publicRoutes = ['/', '/login', '/signup', '/callback', '/confirm', '/cards', '/api/cards'];
 const publicPrefixes = ['/_next/', '/favicon.ico', '/api/auth/', '/cards/', '/api/cards/'];
 
 // Routes that require admin role (cookie-based auth)

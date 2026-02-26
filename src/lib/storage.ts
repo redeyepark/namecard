@@ -408,6 +408,75 @@ export async function getAllMembers(): Promise<
 }
 
 /**
+ * Get all public cards with pagination and optional theme filter.
+ * Only returns cards where is_public=true AND status is confirmed or delivered.
+ * Excludes created_by (user email) for privacy.
+ * Ordered by updated_at descending (newest first).
+ */
+export async function getPublicCards(
+  page = 1,
+  limit = 12,
+  theme?: string
+): Promise<{ cards: PublicCardData[]; total: number }> {
+  const supabase = getSupabase();
+  const offset = (page - 1) * limit;
+
+  // Build query for counting total
+  let countQuery = supabase
+    .from('card_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_public', true)
+    .in('status', ['confirmed', 'delivered']);
+
+  if (theme && theme !== 'all') {
+    countQuery = countQuery.eq('theme', theme);
+  }
+
+  const { count, error: countError } = await countQuery;
+
+  if (countError) {
+    return { cards: [], total: 0 };
+  }
+
+  // Build query for fetching cards
+  let dataQuery = supabase
+    .from('card_requests')
+    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, is_public, status')
+    .eq('is_public', true)
+    .in('status', ['confirmed', 'delivered'])
+    .order('updated_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (theme && theme !== 'all') {
+    dataQuery = dataQuery.eq('theme', theme);
+  }
+
+  const { data: rows, error } = await dataQuery;
+
+  if (error || !rows) {
+    return { cards: [], total: count ?? 0 };
+  }
+
+  const cards: PublicCardData[] = rows.map((row) => ({
+    id: row.id,
+    card: {
+      front: {
+        ...row.card_front,
+        avatarImage: null,
+      },
+      back: row.card_back,
+      theme: (row.theme as CardTheme) || 'classic',
+      pokemonMeta: (row.pokemon_meta as PokemonMeta) || undefined,
+    },
+    originalAvatarUrl: row.original_avatar_url ?? null,
+    illustrationUrl: row.illustration_url ?? null,
+    theme: (row.theme as CardTheme) || 'classic',
+  }));
+
+  return { cards, total: count ?? 0 };
+}
+
+/**
  * Get a public card by ID.
  * Only returns cards where is_public=true AND status is confirmed or delivered.
  * Excludes created_by (user email) for privacy.
