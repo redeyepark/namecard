@@ -19,6 +19,7 @@ function base64ToUint8Array(base64: string): Uint8Array {
 /**
  * Save a card request to the database.
  * Inserts into card_requests and card_request_status_history tables.
+ * Handles gracefully when is_public and event_id columns don't exist.
  */
 export async function saveRequest(request: CardRequest): Promise<void> {
   const supabase = getSupabase();
@@ -26,7 +27,8 @@ export async function saveRequest(request: CardRequest): Promise<void> {
   // Extract card front data without avatarImage (stored separately as URL)
   const { avatarImage: _avatarImage, ...cardFrontWithoutAvatar } = request.card.front;
 
-  const { error: insertError } = await supabase.from('card_requests').insert({
+  // Try insert with all columns
+  const fullInsertData = {
     id: request.id,
     card_front: cardFrontWithoutAvatar,
     card_back: request.card.back,
@@ -41,7 +43,21 @@ export async function saveRequest(request: CardRequest): Promise<void> {
     pokemon_meta: request.card.pokemonMeta || null,
     is_public: false,
     event_id: request.eventId || null,
-  });
+  };
+
+  let insertError: any;
+
+  // Try with all columns first
+  const result = await supabase.from('card_requests').insert(fullInsertData);
+  insertError = result.error;
+
+  // If columns don't exist, retry without is_public and event_id
+  if (insertError && (insertError.message?.includes('is_public') || insertError.message?.includes('event_id'))) {
+    const { is_public: _is_public, event_id: _event_id, ...baseInsertData } = fullInsertData;
+
+    const retryResult = await supabase.from('card_requests').insert(baseInsertData);
+    insertError = retryResult.error;
+  }
 
   if (insertError) {
     throw new Error(`Failed to save request: ${insertError.message}`);
@@ -69,6 +85,7 @@ export async function saveRequest(request: CardRequest): Promise<void> {
 /**
  * Get a single card request by ID.
  * Joins with status history table to reconstruct full CardRequest.
+ * Handles gracefully when is_public and event_id columns don't exist.
  */
 export async function getRequest(id: string): Promise<CardRequest | null> {
   const supabase = getSupabase();
@@ -97,6 +114,7 @@ export async function getRequest(id: string): Promise<CardRequest | null> {
   }));
 
   // Reconstruct CardRequest from DB row
+  // Handle missing columns gracefully - they may not exist in older DB versions
   const cardRequest: CardRequest = {
     id: row.id,
     card: {
@@ -115,8 +133,8 @@ export async function getRequest(id: string): Promise<CardRequest | null> {
     updatedAt: row.updated_at,
     note: row.note || undefined,
     createdBy: row.created_by || undefined,
-    isPublic: row.is_public ?? false,
-    eventId: row.event_id || undefined,
+    isPublic: (row.is_public as boolean | undefined) ?? false, // Defaults to false if column doesn't exist
+    eventId: (row.event_id as string | undefined) || undefined, // Defaults to undefined if column doesn't exist
     statusHistory,
   };
 
@@ -137,15 +155,26 @@ export interface DashboardStats {
 /**
  * Get aggregated dashboard statistics for the admin dashboard.
  * Uses a single DB query for card_requests + one events query for names.
+ * Handles gracefully when event_id column and events table don't exist.
  */
 export async function getDashboardStats(): Promise<DashboardStats> {
   const supabase = getSupabase();
 
-  // Single query to get all needed fields
-  const { data: rows, error } = await supabase
+  // Try to query with event_id first
+  let { data: rows, error } = await supabase
     .from('card_requests')
     .select('id, card_front, status, submitted_at, theme, event_id, illustration_url, original_avatar_url')
     .order('submitted_at', { ascending: false });
+
+  // If event_id column doesn't exist, retry without it
+  if (error && error.message?.includes('event_id')) {
+    const retryResult = await supabase
+      .from('card_requests')
+      .select('id, card_front, status, submitted_at, theme, illustration_url, original_avatar_url')
+      .order('submitted_at', { ascending: false });
+    rows = (retryResult.data as any) || null; // Cast for compatibility
+    error = retryResult.error;
+  }
 
   if (error || !rows) {
     return {
@@ -158,7 +187,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   }
 
   // Collect unique event IDs and fetch event names
-  const eventIds = [...new Set(rows.map((r) => r.event_id).filter(Boolean))] as string[];
+  // Handle missing event_id column - cast to optional
+  const eventIds = [...new Set(rows.map((r) => (r as any).event_id).filter(Boolean))] as string[];
   const eventNameMap = new Map<string, string>();
 
   if (eventIds.length > 0) {
@@ -183,7 +213,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // Aggregate byEvent
   const eventCountMap = new Map<string | null, number>();
   for (const row of rows) {
-    const key = row.event_id ?? null;
+    const key = (row as any).event_id ?? null; // Handle missing event_id column
     eventCountMap.set(key, (eventCountMap.get(key) || 0) + 1);
   }
 
@@ -213,8 +243,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     submittedAt: row.submitted_at,
     hasIllustration: row.illustration_url !== null,
     originalAvatarUrl: row.original_avatar_url || null,
-    eventId: row.event_id || null,
-    eventName: row.event_id ? (eventNameMap.get(row.event_id) || null) : null,
+    eventId: (row as any).event_id || null, // Handle missing event_id column
+    eventName: (row as any).event_id ? (eventNameMap.get((row as any).event_id) || null) : null,
   }));
 
   return {
@@ -228,21 +258,34 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 /**
  * Get all requests as summaries, sorted by submittedAt descending.
+ * Handles gracefully when event_id column and events table don't exist.
  */
 export async function getAllRequests(): Promise<RequestSummary[]> {
   const supabase = getSupabase();
 
-  const { data: rows, error } = await supabase
+  // Try to query with event_id first
+  let { data: rows, error } = await supabase
     .from('card_requests')
     .select('id, card_front, status, submitted_at, illustration_url, original_avatar_url, event_id')
     .order('submitted_at', { ascending: false });
+
+  // If event_id column doesn't exist, retry without it
+  if (error && error.message?.includes('event_id')) {
+    const retryResult = await supabase
+      .from('card_requests')
+      .select('id, card_front, status, submitted_at, illustration_url, original_avatar_url')
+      .order('submitted_at', { ascending: false });
+    rows = (retryResult.data as any) || null; // Cast for compatibility
+    error = retryResult.error;
+  }
 
   if (error || !rows) {
     return [];
   }
 
   // Collect unique event IDs and fetch event names
-  const eventIds = [...new Set(rows.map((r) => r.event_id).filter(Boolean))] as string[];
+  // Handle missing event_id column - cast to optional
+  const eventIds = [...new Set(rows.map((r) => (r as any).event_id).filter(Boolean))] as string[];
   const eventNameMap = new Map<string, string>();
 
   if (eventIds.length > 0) {
@@ -265,8 +308,8 @@ export async function getAllRequests(): Promise<RequestSummary[]> {
     submittedAt: row.submitted_at,
     hasIllustration: row.illustration_url !== null,
     originalAvatarUrl: row.original_avatar_url || null,
-    eventId: row.event_id || null,
-    eventName: row.event_id ? (eventNameMap.get(row.event_id) || null) : null,
+    eventId: (row as any).event_id || null, // Handle missing event_id column
+    eventName: (row as any).event_id ? (eventNameMap.get((row as any).event_id) || null) : null,
   }));
 }
 
@@ -298,6 +341,7 @@ export async function getRequestsByUser(email: string): Promise<RequestSummary[]
 /**
  * Update a card request with partial data.
  * Optionally inserts a new status history entry if status changed.
+ * Handles gracefully when is_public and event_id columns don't exist.
  */
 export async function updateRequest(
   id: string,
@@ -345,10 +389,22 @@ export async function updateRequest(
     }
   }
 
-  const { error: updateError } = await supabase
+  let updateError: any;
+  let result = await supabase
     .from('card_requests')
     .update(dbUpdates)
     .eq('id', id);
+  updateError = result.error;
+
+  // If is_public or event_id column doesn't exist, retry without them
+  if (updateError && (updateError.message?.includes('is_public') || updateError.message?.includes('event_id'))) {
+    const { is_public: _is_public, event_id: _event_id, ...baseUpdates } = dbUpdates;
+    result = await supabase
+      .from('card_requests')
+      .update(baseUpdates)
+      .eq('id', id);
+    updateError = result.error;
+  }
 
   if (updateError) {
     return null;
@@ -409,18 +465,24 @@ export async function saveImageFile(
 /**
  * Delete a card request and its associated storage files.
  * Steps:
- * 1. Clear event_id to avoid FK RESTRICT violation
+ * 1. Clear event_id to avoid FK RESTRICT violation (if column exists)
  * 2. Delete avatar and illustration files from Supabase Storage
  * 3. Delete the card_request record (status_history cascades automatically)
  */
 export async function deleteRequest(id: string): Promise<boolean> {
   const supabase = getSupabase();
 
-  // Step 1: Clear event_id to avoid FK RESTRICT violation
-  await supabase
+  // Step 1: Clear event_id to avoid FK RESTRICT violation (if column exists)
+  const clearResult = await supabase
     .from('card_requests')
     .update({ event_id: null })
     .eq('id', id);
+
+  // If event_id column doesn't exist, that's OK - just continue
+  // Only log if there's a real error
+  if (clearResult.error && !clearResult.error.message?.includes('event_id')) {
+    console.warn(`Warning clearing event_id for ${id}:`, clearResult.error.message);
+  }
 
   // Step 2: Delete storage files (ignore errors - files may not exist)
   await supabase.storage.from('avatars').remove([`${id}/avatar.png`]);
@@ -514,22 +576,36 @@ export async function getAllMembers(): Promise<
  * Get all card requests for a specific member email.
  * Returns detailed request info including theme and event name.
  * Ordered by submitted_at DESC.
+ * Handles gracefully when event_id column and events table don't exist.
  */
 export async function getMemberRequests(email: string): Promise<MemberRequestDetail[]> {
   const supabase = getSupabase();
 
-  const { data: rows, error } = await supabase
+  // Try to query with event_id first
+  let { data: rows, error } = await supabase
     .from('card_requests')
     .select('id, card_front, status, submitted_at, theme, event_id, illustration_url, original_avatar_url')
     .eq('created_by', email)
     .order('submitted_at', { ascending: false });
+
+  // If event_id column doesn't exist, retry without it
+  if (error && error.message?.includes('event_id')) {
+    const retryResult = await supabase
+      .from('card_requests')
+      .select('id, card_front, status, submitted_at, theme, illustration_url, original_avatar_url')
+      .eq('created_by', email)
+      .order('submitted_at', { ascending: false });
+    rows = (retryResult.data as any) || null; // Cast for compatibility
+    error = retryResult.error;
+  }
 
   if (error || !rows) {
     return [];
   }
 
   // Collect unique event IDs and fetch event names
-  const eventIds = [...new Set(rows.map((r) => r.event_id).filter(Boolean))] as string[];
+  // Handle missing event_id column - cast to optional
+  const eventIds = [...new Set(rows.map((r) => (r as any).event_id).filter(Boolean))] as string[];
   const eventNameMap = new Map<string, string>();
 
   if (eventIds.length > 0) {
@@ -551,7 +627,7 @@ export async function getMemberRequests(email: string): Promise<MemberRequestDet
     status: row.status,
     submittedAt: row.submitted_at,
     theme: row.theme || 'classic',
-    eventName: row.event_id ? (eventNameMap.get(row.event_id) || null) : null,
+    eventName: (row as any).event_id ? (eventNameMap.get((row as any).event_id) || null) : null,
     illustrationUrl: row.illustration_url || null,
     originalAvatarUrl: row.original_avatar_url || null,
   }));
@@ -562,6 +638,7 @@ export async function getMemberRequests(email: string): Promise<MemberRequestDet
  * Only returns cards where is_public=true AND status is confirmed or delivered.
  * Excludes created_by (user email) for privacy.
  * Ordered by updated_at descending (newest first).
+ * Returns empty if is_public column doesn't exist (public feature not available).
  */
 export async function getPublicCards(
   page = 1,
@@ -584,6 +661,11 @@ export async function getPublicCards(
 
   const { count, error: countError } = await countQuery;
 
+  // If is_public column doesn't exist, return empty (public feature not available)
+  if (countError && countError.message?.includes('is_public')) {
+    return { cards: [], total: 0 };
+  }
+
   if (countError) {
     return { cards: [], total: 0 };
   }
@@ -602,6 +684,11 @@ export async function getPublicCards(
   }
 
   const { data: rows, error } = await dataQuery;
+
+  // If is_public column doesn't exist, return empty (public feature not available)
+  if (error && error.message?.includes('is_public')) {
+    return { cards: [], total: 0 };
+  }
 
   if (error || !rows) {
     return { cards: [], total: count ?? 0 };
@@ -630,6 +717,7 @@ export async function getPublicCards(
  * Get a public card by ID.
  * Only returns cards where is_public=true AND status is confirmed or delivered.
  * Excludes created_by (user email) for privacy.
+ * Returns null if is_public column doesn't exist (public feature not available).
  */
 export async function getPublicCard(id: string): Promise<PublicCardData | null> {
   const supabase = getSupabase();
@@ -641,6 +729,11 @@ export async function getPublicCard(id: string): Promise<PublicCardData | null> 
     .eq('is_public', true)
     .in('status', ['confirmed', 'delivered'])
     .single();
+
+  // If is_public column doesn't exist, return null (public feature not available)
+  if (error && error.message?.includes('is_public')) {
+    return null;
+  }
 
   if (error || !row) {
     return null;
@@ -670,23 +763,36 @@ export async function getPublicCard(id: string): Promise<PublicCardData | null> 
  * Events ordered by event_date DESC, then NULL events last.
  * Cards within each group ordered by submitted_at DESC.
  * Excludes created_by (user email) for privacy.
+ * Handles gracefully when event_id column and events table don't exist.
  */
 export async function getGalleryCards(): Promise<GalleryResponse> {
   const supabase = getSupabase();
 
-  // Fetch all non-cancelled/rejected cards
-  const { data: rows, error } = await supabase
+  // Try to fetch all non-cancelled/rejected cards with event_id
+  let { data: rows, error } = await supabase
     .from('card_requests')
     .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, submitted_at, event_id')
     .not('status', 'in', '("cancelled","rejected")')
     .order('submitted_at', { ascending: false });
+
+  // If event_id column doesn't exist, retry without it
+  if (error && error.message?.includes('event_id')) {
+    const retryResult = await supabase
+      .from('card_requests')
+      .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, submitted_at')
+      .not('status', 'in', '("cancelled","rejected")')
+      .order('submitted_at', { ascending: false });
+    rows = (retryResult.data as any) || null; // Cast for compatibility
+    error = retryResult.error;
+  }
 
   if (error || !rows) {
     return { groups: [], totalCards: 0 };
   }
 
   // Collect unique event IDs and fetch event details
-  const eventIds = [...new Set(rows.map((r) => r.event_id).filter(Boolean))] as string[];
+  // Handle missing event_id column - cast to optional
+  const eventIds = [...new Set(rows.map((r) => (r as any).event_id).filter(Boolean))] as string[];
   const eventMap = new Map<string, { name: string; eventDate?: string }>();
 
   if (eventIds.length > 0) {
@@ -720,7 +826,7 @@ export async function getGalleryCards(): Promise<GalleryResponse> {
   const groupMap = new Map<string | null, GalleryCardData[]>();
 
   for (const row of rows) {
-    const key = row.event_id ?? null;
+    const key = (row as any).event_id ?? null; // Handle missing event_id column
     if (!groupMap.has(key)) {
       groupMap.set(key, []);
     }
