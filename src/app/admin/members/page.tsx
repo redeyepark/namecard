@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { EventBadge } from '@/components/admin/EventBadge';
@@ -36,6 +36,7 @@ export default function AdminMembersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingEmail, setDeletingEmail] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Accordion state
   const [expandedEmail, setExpandedEmail] = useState<string | null>(null);
@@ -118,6 +119,13 @@ export default function AdminMembersPage() {
     }
   };
 
+  // Filter members by email search
+  const filteredMembers = useMemo(() => {
+    if (searchQuery.trim() === '') return members;
+    const query = searchQuery.trim().toLowerCase();
+    return members.filter((m) => m.email.toLowerCase().includes(query));
+  }, [members, searchQuery]);
+
   if (loading) {
     return (
       <div className="text-center py-12 text-gray-500">
@@ -146,7 +154,7 @@ export default function AdminMembersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-[#020912]">
           회원 관리
         </h1>
@@ -155,9 +163,43 @@ export default function AdminMembersPage() {
         </span>
       </div>
 
-      {members.length === 0 ? (
+      <div className="mb-4 flex items-center gap-3">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="이메일 검색..."
+            className="text-sm border border-[rgba(2,9,18,0.15)] rounded-none bg-white px-3 py-1.5 pr-8 text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 w-64"
+            aria-label="이메일로 회원 검색"
+          />
+          {searchQuery !== '' && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#020912]/30 hover:text-[#020912]/60 transition-colors"
+              aria-label="검색어 지우기"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+        {searchQuery.trim() !== '' && (
+          <span className="text-xs text-gray-500">
+            {filteredMembers.length}명
+          </span>
+        )}
+      </div>
+
+      {filteredMembers.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-sm">등록된 회원이 없습니다</p>
+          <p className="text-gray-500 text-sm">
+            {searchQuery.trim() !== ''
+              ? `"${searchQuery.trim()}" 검색 결과가 없습니다`
+              : '등록된 회원이 없습니다'}
+          </p>
         </div>
       ) : (
         <div className="bg-white border border-[rgba(2,9,18,0.08)] overflow-hidden">
@@ -173,7 +215,7 @@ export default function AdminMembersPage() {
                 </tr>
               </thead>
               <tbody>
-                {members.map((member) => {
+                {filteredMembers.map((member) => {
                   const date = new Date(member.latestRequestDate);
                   const formatted = date.toLocaleDateString('ko-KR', {
                     year: 'numeric',

@@ -14,6 +14,7 @@ export function RequestList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [eventFilter, setEventFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (e: React.MouseEvent, reqId: string, displayName: string) => {
@@ -52,12 +53,29 @@ export function RequestList() {
     fetchRequests();
   }, []);
 
-  // Filter requests by event
+  // Filter requests by event and search query
   const filteredRequests = useMemo(() => {
-    if (eventFilter === '') return requests; // All
-    if (eventFilter === 'none') return requests.filter((r) => !r.eventId);
-    return requests.filter((r) => r.eventId === eventFilter);
-  }, [requests, eventFilter]);
+    let filtered = requests;
+
+    // Apply event filter
+    if (eventFilter === 'none') {
+      filtered = filtered.filter((r) => !r.eventId);
+    } else if (eventFilter !== '') {
+      filtered = filtered.filter((r) => r.eventId === eventFilter);
+    }
+
+    // Apply search query (name or ID, case-insensitive)
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.trim().toLowerCase();
+      filtered = filtered.filter(
+        (r) =>
+          r.displayName.toLowerCase().includes(query) ||
+          r.id.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [requests, eventFilter, searchQuery]);
 
   if (loading) {
     return (
@@ -95,10 +113,34 @@ export function RequestList() {
 
   return (
     <div>
-      <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
+      <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3 flex-wrap">
         <label className="text-xs font-medium text-[#020912]/60">이벤트:</label>
         <EventFilter value={eventFilter} onChange={setEventFilter} />
-        {eventFilter !== '' && (
+
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="이름 또는 ID 검색..."
+            className="text-sm border border-[rgba(2,9,18,0.15)] rounded-none bg-white px-3 py-1.5 pr-8 text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 w-52"
+            aria-label="이름 또는 ID로 검색"
+          />
+          {searchQuery !== '' && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#020912]/30 hover:text-[#020912]/60 transition-colors"
+              aria-label="검색어 지우기"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {(eventFilter !== '' || searchQuery.trim() !== '') && (
           <span className="text-xs text-gray-500">
             {filteredRequests.length}건
           </span>
@@ -218,7 +260,11 @@ export function RequestList() {
 
       {filteredRequests.length === 0 && requests.length > 0 && (
         <div className="text-center py-8">
-          <p className="text-gray-500 text-sm">선택한 이벤트에 해당하는 의뢰가 없습니다</p>
+          <p className="text-gray-500 text-sm">
+            {searchQuery.trim() !== ''
+              ? `"${searchQuery.trim()}" 검색 결과가 없습니다`
+              : '선택한 이벤트에 해당하는 의뢰가 없습니다'}
+          </p>
         </div>
       )}
     </div>
