@@ -508,6 +508,7 @@ export function RequestDetail({
         onClose={() => setShowQR(false)}
         cardId={request.id}
         card={request.card}
+        illustrationUrl={illustrationUrl}
         isPublic={request.isPublic}
       />
 

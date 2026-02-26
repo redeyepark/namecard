@@ -62,6 +62,7 @@ export function PublicCardView({ card }: PublicCardViewProps) {
         onClose={() => setShowQR(false)}
         cardId={card.id}
         card={card.card}
+        illustrationUrl={card.illustrationUrl}
         isPublic={true}
       />
     </div>

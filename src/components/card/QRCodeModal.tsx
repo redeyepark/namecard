@@ -3,12 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { CardData } from '@/types/card';
 import { generateVCard, generateQRDataURL, getCardPublicURL } from '@/lib/qrcode';
+import { AdminCardPreview } from '@/components/admin/AdminCardPreview';
 
 interface QRCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
   cardId: string;
   card: CardData;
+  illustrationUrl?: string | null;
   /** When false, shows a notice that the card is private (admin context). */
   isPublic?: boolean;
 }
@@ -25,6 +27,7 @@ export function QRCodeModal({
   onClose,
   cardId,
   card,
+  illustrationUrl,
   isPublic,
 }: QRCodeModalProps) {
   const [vcardQR, setVcardQR] = useState<string | null>(null);
@@ -273,6 +276,21 @@ export function QRCodeModal({
                   다운로드
                 </button>
               </div>
+
+              {/* Card preview when public */}
+              {isPublic && (
+                <div className="mt-4 w-full">
+                  <p className="text-xs text-[#020912]/50 mb-2 text-center">
+                    명함 미리보기
+                  </p>
+                  <div className="w-full max-w-[180px] mx-auto">
+                    <AdminCardPreview
+                      card={card}
+                      illustrationUrl={illustrationUrl ?? null}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
