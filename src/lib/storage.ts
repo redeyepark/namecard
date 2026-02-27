@@ -698,7 +698,7 @@ export async function getPublicCards(
   if (useIsPublic) {
     let dataQuery = supabase
       .from('card_requests')
-      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, is_public, status')
+      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, is_public, status, like_count')
       .eq('is_public', true)
       .in('status', ['confirmed', 'delivered'])
       .order('updated_at', { ascending: false })
@@ -712,7 +712,7 @@ export async function getPublicCards(
   } else {
     let dataQuery = supabase
       .from('card_requests')
-      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status')
+      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status, like_count')
       .in('status', ['confirmed', 'delivered'])
       .order('updated_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -742,6 +742,7 @@ export async function getPublicCards(
     originalAvatarUrl: row.original_avatar_url ?? null,
     illustrationUrl: row.illustration_url ?? null,
     theme: (row.theme as CardTheme) || 'classic',
+    likeCount: row.like_count ?? 0,
   }));
 
   return { cards, total: count ?? 0 };
@@ -759,7 +760,7 @@ export async function getPublicCard(id: string): Promise<PublicCardData | null> 
 
   const { data: row, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status')
+    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status, like_count')
     .eq('id', id)
     .not('status', 'in', '("cancelled","rejected")')
     .single();
@@ -782,6 +783,7 @@ export async function getPublicCard(id: string): Promise<PublicCardData | null> 
     originalAvatarUrl: row.original_avatar_url ?? null,
     illustrationUrl: row.illustration_url ?? null,
     theme: (row.theme as CardTheme) || 'classic',
+    likeCount: row.like_count ?? 0,
   };
 }
 
@@ -800,7 +802,7 @@ export async function getGalleryCards(): Promise<GalleryResponse> {
   // Try to fetch all non-cancelled/rejected cards with event_id
   let { data: rows, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, submitted_at, event_id')
+    .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, submitted_at, event_id, like_count')
     .not('status', 'in', '("cancelled","rejected")')
     .order('submitted_at', { ascending: false });
 
@@ -808,7 +810,7 @@ export async function getGalleryCards(): Promise<GalleryResponse> {
   if (error && error.message?.includes('event_id')) {
     const retryResult = await supabase
       .from('card_requests')
-      .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, submitted_at')
+      .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, submitted_at, like_count')
       .not('status', 'in', '("cancelled","rejected")')
       .order('submitted_at', { ascending: false });
     rows = (retryResult.data as any) || null; // Cast for compatibility
@@ -849,6 +851,7 @@ export async function getGalleryCards(): Promise<GalleryResponse> {
     illustrationUrl: row.illustration_url ?? null,
     originalAvatarUrl: row.original_avatar_url ?? null,
     status: row.status,
+    likeCount: (row as any).like_count ?? 0,
   });
 
   // Group cards by event_id

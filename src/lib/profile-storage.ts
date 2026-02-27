@@ -208,7 +208,7 @@ export async function getUserCards(
   // Fetch cards
   const { data: rows, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status')
+    .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, like_count')
     .eq('user_id', userId)
     .eq('is_public', true)
     .in('status', ['confirmed', 'delivered'])
@@ -227,6 +227,7 @@ export async function getUserCards(
     illustrationUrl: row.illustration_url ?? null,
     originalAvatarUrl: row.original_avatar_url ?? null,
     status: row.status,
+    likeCount: row.like_count ?? 0,
   }));
 
   return { cards, total: count ?? 0 };

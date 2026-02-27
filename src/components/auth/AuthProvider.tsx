@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Fetch admin status from server API
+  // Fetch admin status from server API and ensure profile exists
   const fetchUserInfo = useCallback(async (supabaseUser: SupabaseUser) => {
     try {
       const res = await fetch('/api/auth/me');
@@ -84,6 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: 'user',
         });
       }
+
+      // Ensure user profile exists (non-blocking, fire-and-forget).
+      // The GET /api/profiles/me endpoint calls ensureProfile internally.
+      fetch('/api/profiles/me').catch(() => {});
     } catch {
       // Network error, default to 'user' role
       setUser({

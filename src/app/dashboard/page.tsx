@@ -148,6 +148,33 @@ export default function DashboardPage() {
             </div>
           </Link>
 
+          {/* Bookmarks */}
+          <Link
+            href="/dashboard/bookmarks"
+            className="group flex items-center gap-4 p-5 bg-white text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-[#e4f6ff] rounded-lg group-hover:bg-[#e4f6ff]/70 transition-colors">
+              <svg
+                className="w-5 h-5 text-[#020912]"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                />
+              </svg>
+            </div>
+            <div>
+              <span className="text-sm font-semibold">북마크</span>
+              <p className="text-xs text-[#020912]/50 mt-0.5">저장한 명함 모아보기</p>
+            </div>
+          </Link>
+
           {/* Admin action: Admin page (only shown if admin) */}
           {isAdmin && (
             <Link

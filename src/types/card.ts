@@ -81,6 +81,7 @@ export interface PublicCardData {
   originalAvatarUrl: string | null;
   illustrationUrl: string | null;
   theme: CardTheme;
+  likeCount: number;
 }
 
 /**
@@ -96,6 +97,7 @@ export interface GalleryCardData {
   illustrationUrl: string | null;
   originalAvatarUrl: string | null;
   status: string;
+  likeCount: number;
 }
 
 /**
