@@ -28,6 +28,7 @@ export const THEME_LIST: ThemeListItem[] = [
   { id: 'hearthstone', name: '\ud558\uc2a4\uc2a4\ud1a4', nameEn: 'Hearthstone', color: '#8B6914', description: '\ud558\uc2a4\uc2a4\ud1a4 \uce74\ub4dc \uc2a4\ud0c0\uc77c' },
   { id: 'harrypotter', name: '\ud574\ub9ac\ud3ec\ud130', nameEn: 'Harry Potter', color: '#740001', description: '\ud574\ub9ac\ud3ec\ud130 \ub9c8\ubc95\uc0ac \uce74\ub4dc \uc2a4\ud0c0\uc77c' },
   { id: 'tarot', name: '\ud0c0\ub85c', nameEn: 'Tarot', color: '#4A0E4E', description: '\ud0c0\ub85c \uce74\ub4dc \uc2a4\ud0c0\uc77c' },
+  { id: 'nametag', name: '\ub124\uc784\ud0dc\uadf8', nameEn: 'Nametag', color: '#374151', description: '\uae30\uc5c5 \uba85\ud0dc\uadf8 \uc2a4\ud0c0\uc77c' },
 ];
 
 export function ThemeListBox({ selectedTheme, onSelect, stats, statsLoading }: ThemeListBoxProps) {

@@ -43,6 +43,12 @@ const themeConfig: Record<CardTheme, { borderColor: string; label: string; bgCol
     bgColor: '#0d0d2b',
     accentColor: '#9B59B6',
   },
+  nametag: {
+    borderColor: '#374151',
+    label: 'Nametag',
+    bgColor: '#FFFFFF',
+    accentColor: '#374151',
+  },
 };
 
 /**

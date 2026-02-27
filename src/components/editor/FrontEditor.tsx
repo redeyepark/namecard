@@ -22,7 +22,8 @@ export function FrontEditor() {
   const isHearthstone = theme === 'hearthstone';
   const isHarrypotter = theme === 'harrypotter';
   const isTarot = theme === 'tarot';
-  const isClassic = !isPokemon && !isHearthstone && !isHarrypotter && !isTarot;
+  const isNametag = theme === 'nametag';
+  const isClassic = !isPokemon && !isHearthstone && !isHarrypotter && !isTarot && !isNametag;
 
   return (
     <div className="space-y-4">
@@ -72,6 +73,15 @@ export function FrontEditor() {
           <TarotArcanaSelector />
           <TarotStatInput />
         </>
+      )}
+
+      {/* Nametag theme: show only background color picker (no text on front) */}
+      {isNametag && (
+        <ColorPicker
+          color={front.backgroundColor}
+          onChange={(color) => updateFront({ backgroundColor: color })}
+          label="Background Color"
+        />
       )}
 
       {/* Classic theme: show background color picker. Themed cards use their own colors. */}

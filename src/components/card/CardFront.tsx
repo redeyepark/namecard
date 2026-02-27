@@ -6,6 +6,7 @@ import { PokemonCardFront } from './PokemonCardFront';
 import { HearthstoneCardFront } from './HearthstoneCardFront';
 import { HarrypotterCardFront } from './HarrypotterCardFront';
 import { TarotCardFront } from './TarotCardFront';
+import { NametagCardFront } from './NametagCardFront';
 
 /**
  * CardFront wrapper that delegates to the appropriate theme renderer.
@@ -18,6 +19,7 @@ export function CardFront() {
   if (theme === 'hearthstone') return <HearthstoneCardFront />;
   if (theme === 'harrypotter') return <HarrypotterCardFront />;
   if (theme === 'tarot') return <TarotCardFront />;
+  if (theme === 'nametag') return <NametagCardFront />;
   return <ClassicCardFront />;
 }
 

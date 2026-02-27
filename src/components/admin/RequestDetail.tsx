@@ -655,7 +655,7 @@ export function RequestDetail({
             <div className="sm:col-span-2 pt-2 border-t border-gray-100">
               <label className="text-gray-500 text-xs block mb-2">테마</label>
               <div className="flex gap-2">
-                {(['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot'] as CardTheme[]).map((themeOption) => (
+                {(['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot', 'nametag'] as CardTheme[]).map((themeOption) => (
                   <button
                     key={themeOption}
                     type="button"

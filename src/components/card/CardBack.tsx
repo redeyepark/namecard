@@ -7,6 +7,7 @@ import { PokemonCardBack } from './PokemonCardBack';
 import { HearthstoneCardBack } from './HearthstoneCardBack';
 import { HarrypotterCardBack } from './HarrypotterCardBack';
 import { TarotCardBack } from './TarotCardBack';
+import { NametagCardBack } from './NametagCardBack';
 
 /**
  * CardBack wrapper that delegates to the appropriate theme renderer.
@@ -19,6 +20,7 @@ export function CardBack() {
   if (theme === 'hearthstone') return <HearthstoneCardBack />;
   if (theme === 'harrypotter') return <HarrypotterCardBack />;
   if (theme === 'tarot') return <TarotCardBack />;
+  if (theme === 'nametag') return <NametagCardBack />;
   return <ClassicCardBack />;
 }
 

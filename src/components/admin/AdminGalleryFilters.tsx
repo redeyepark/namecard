@@ -29,6 +29,7 @@ const THEME_OPTIONS: { value: CardTheme; label: string }[] = [
   { value: 'hearthstone', label: 'Hearthstone' },
   { value: 'harrypotter', label: 'Harry Potter' },
   { value: 'tarot', label: 'Tarot' },
+  { value: 'nametag', label: 'Nametag' },
 ];
 
 const STATUS_OPTIONS: { value: RequestStatus; label: string }[] = [

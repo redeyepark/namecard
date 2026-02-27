@@ -8,7 +8,7 @@ interface ThemeStats {
   count: number;
 }
 
-const VALID_THEMES: CardTheme[] = ['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot'];
+const VALID_THEMES: CardTheme[] = ['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot', 'nametag'];
 const VALID_POKEMON_TYPES: PokemonType[] = [
   'fire', 'water', 'grass', 'electric', 'psychic', 'steel', 'normal',
 ];
@@ -237,7 +237,7 @@ export async function PATCH(request: NextRequest) {
       updatePayload.pokemon_meta = null;
       updatePayload.hearthstone_meta = null;
       updatePayload.harrypotter_meta = null;
-    } else if (targetTheme === 'classic') {
+    } else if (targetTheme === 'classic' || targetTheme === 'nametag') {
       updatePayload.pokemon_meta = null;
       updatePayload.hearthstone_meta = null;
       updatePayload.harrypotter_meta = null;

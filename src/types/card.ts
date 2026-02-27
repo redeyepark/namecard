@@ -20,7 +20,7 @@ export interface CardBackData {
   textColor: string;
 }
 
-export type CardTheme = 'classic' | 'pokemon' | 'hearthstone' | 'harrypotter' | 'tarot';
+export type CardTheme = 'classic' | 'pokemon' | 'hearthstone' | 'harrypotter' | 'tarot' | 'nametag';
 export type PokemonType = 'fire' | 'water' | 'grass' | 'electric' | 'psychic' | 'steel' | 'normal';
 export type HearthstoneClass = 'warrior' | 'mage' | 'rogue' | 'priest' | 'hunter' | 'paladin' | 'shaman' | 'warlock' | 'druid';
 export type HarrypotterHouse = 'gryffindor' | 'slytherin' | 'hufflepuff' | 'ravenclaw';

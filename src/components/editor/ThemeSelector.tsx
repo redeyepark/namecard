@@ -29,6 +29,11 @@ const THEME_OPTIONS: { id: CardTheme; label: string; description: string }[] = [
     label: 'Tarot',
     description: 'Mystical card style',
   },
+  {
+    id: 'nametag',
+    label: 'Nametag',
+    description: 'Corporate badge style',
+  },
 ];
 
 export function ThemeSelector() {
@@ -68,7 +73,7 @@ export function ThemeSelector() {
       <div
         role="radiogroup"
         aria-label="Card theme selection"
-        className="grid grid-cols-2 sm:grid-cols-5 gap-3"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3"
       >
         {THEME_OPTIONS.map((option) => {
           const isSelected = theme === option.id;
@@ -166,6 +171,20 @@ export function ThemeSelector() {
                       strokeLinejoin="round"
                       d="M3.5 20.5l13-13M5 22l-3-3"
                     />
+                  </svg>
+                ) : option.id === 'nametag' ? (
+                  /* Nametag icon - ID badge */
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                  >
+                    <rect x="4" y="2" width="16" height="20" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="12" cy="10" r="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 17h8M10 14h4" />
                   </svg>
                 ) : (
                   /* Tarot icon - mystical eye */
