@@ -758,32 +758,77 @@ export async function getPublicCards(
 export async function getPublicCard(id: string): Promise<PublicCardData | null> {
   const supabase = getSupabase();
 
-  const { data: row, error } = await supabase
+  // Try fetching with user_id and submitted_at for creator info
+  let row: Record<string, unknown> | null = null;
+  let hasUserId = true;
+
+  const { data, error } = await supabase
     .from('card_requests')
-    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status, like_count')
+    .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status, like_count, user_id, submitted_at')
     .eq('id', id)
     .not('status', 'in', '("cancelled","rejected")')
     .single();
 
-  if (error || !row) {
+  if (error && error.message?.includes('user_id')) {
+    // Fallback: user_id column does not exist
+    hasUserId = false;
+    const fallback = await supabase
+      .from('card_requests')
+      .select('id, card_front, card_back, original_avatar_url, illustration_url, theme, pokemon_meta, status, like_count, submitted_at')
+      .eq('id', id)
+      .not('status', 'in', '("cancelled","rejected")')
+      .single();
+
+    if (fallback.error || !fallback.data) return null;
+    row = fallback.data as Record<string, unknown>;
+  } else if (error || !data) {
     return null;
+  } else {
+    row = data as Record<string, unknown>;
+  }
+
+  // Fetch user profile if user_id is available
+  let userId: string | null = null;
+  let userDisplayName: string | null = null;
+  let userAvatarUrl: string | null = null;
+
+  if (hasUserId && row.user_id) {
+    userId = row.user_id as string;
+    try {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('display_name, avatar_url')
+        .eq('id', userId)
+        .single();
+
+      if (profile) {
+        userDisplayName = profile.display_name || null;
+        userAvatarUrl = profile.avatar_url || null;
+      }
+    } catch {
+      // Silently fail - user profile is optional
+    }
   }
 
   return {
-    id: row.id,
+    id: row.id as string,
     card: {
       front: {
-        ...row.card_front,
+        ...(row.card_front as Record<string, unknown>),
         avatarImage: null,
-      },
-      back: row.card_back,
+      } as PublicCardData['card']['front'],
+      back: row.card_back as PublicCardData['card']['back'],
       theme: (row.theme as CardTheme) || 'classic',
       pokemonMeta: (row.pokemon_meta as PokemonMeta) || undefined,
     },
-    originalAvatarUrl: row.original_avatar_url ?? null,
-    illustrationUrl: row.illustration_url ?? null,
+    originalAvatarUrl: (row.original_avatar_url as string) ?? null,
+    illustrationUrl: (row.illustration_url as string) ?? null,
     theme: (row.theme as CardTheme) || 'classic',
-    likeCount: row.like_count ?? 0,
+    likeCount: (row.like_count as number) ?? 0,
+    userId,
+    userDisplayName,
+    userAvatarUrl,
+    createdAt: (row.submitted_at as string) ?? null,
   };
 }
 

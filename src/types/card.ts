@@ -82,6 +82,14 @@ export interface PublicCardData {
   illustrationUrl: string | null;
   theme: CardTheme;
   likeCount: number;
+  /** Creator user ID (for profile link) */
+  userId?: string | null;
+  /** Creator display name */
+  userDisplayName?: string | null;
+  /** Creator avatar URL */
+  userAvatarUrl?: string | null;
+  /** Card creation date (ISO string) */
+  createdAt?: string | null;
 }
 
 /**

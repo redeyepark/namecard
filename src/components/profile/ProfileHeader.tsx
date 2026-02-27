@@ -1,16 +1,20 @@
 'use client';
 
 import Link from 'next/link';
+import { Pencil, QrCode, Share2, Settings, Heart, CreditCard, MoreHorizontal } from 'lucide-react';
 import type { UserProfile } from '@/types/profile';
 import { convertGoogleDriveUrl } from '@/lib/url-utils';
 import { ThemeDistribution } from '@/components/profile/ThemeDistribution';
+import { useState } from 'react';
 
 interface ProfileHeaderProps {
   profile: UserProfile;
   cardCount: number;
   totalLikes: number;
   themeDistribution: { theme: string; count: number }[];
-  isOwnProfile?: boolean;
+  isOwner?: boolean;
+  selectedTheme: string | null;
+  onThemeFilter: (theme: string | null) => void;
 }
 
 /**
@@ -26,92 +30,195 @@ function getInitials(name: string): string {
 }
 
 /**
- * Profile header showing user avatar, display name, bio, stats, and theme distribution.
- * Clean centered layout inspired by social profile headers.
+ * Profile header with KakaoTalk-inspired centered layout.
+ * Large circular avatar, centered name, action bar, stats, bio, and theme filter chips.
  */
 export function ProfileHeader({
   profile,
   cardCount,
   totalLikes,
   themeDistribution,
-  isOwnProfile = false,
+  isOwner = false,
+  selectedTheme,
+  onThemeFilter,
 }: ProfileHeaderProps) {
+  const [shareTooltip, setShareTooltip] = useState(false);
+
   const avatarSrc = profile.avatarUrl
     ? convertGoogleDriveUrl(profile.avatarUrl) || profile.avatarUrl
     : null;
 
+  const onShareClick = async () => {
+    const url = `${window.location.origin}/profile/${profile.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${profile.displayName} | Namecard`,
+          text: `${profile.displayName}님의 프로필을 확인하세요`,
+          url,
+        });
+      } catch {
+        // User cancelled
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        setShareTooltip(true);
+        setTimeout(() => setShareTooltip(false), 2000);
+      } catch {
+        // Clipboard not available
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center text-center py-8 sm:py-12">
-      {/* Avatar */}
-      {avatarSrc ? (
-        <img
-          src={avatarSrc}
-          alt={profile.displayName}
-          className="w-24 h-24 rounded-full object-cover border-2 border-[rgba(2,9,18,0.1)]"
-          referrerPolicy="no-referrer"
-        />
-      ) : (
-        <div className="w-24 h-24 rounded-full bg-[#020912] flex items-center justify-center border-2 border-[rgba(2,9,18,0.1)]">
-          <span className="text-2xl font-bold text-[#fcfcfc]">
-            {getInitials(profile.displayName)}
-          </span>
-        </div>
-      )}
+    <div className="flex flex-col items-center text-center py-8 sm:py-10">
+      {/* Avatar - 120px with ring shadow */}
+      <div className="relative">
+        {avatarSrc ? (
+          <img
+            src={avatarSrc}
+            alt={profile.displayName}
+            className="w-[120px] h-[120px] rounded-full object-cover"
+            style={{
+              boxShadow: '0 0 0 4px var(--color-surface), 0 0 0 6px rgba(2, 9, 18, 0.12), 0 8px 24px rgba(0, 0, 0, 0.12)',
+            }}
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div
+            className="w-[120px] h-[120px] rounded-full bg-[var(--color-primary)] flex items-center justify-center"
+            style={{
+              boxShadow: '0 0 0 4px var(--color-surface), 0 0 0 6px rgba(2, 9, 18, 0.12), 0 8px 24px rgba(0, 0, 0, 0.12)',
+            }}
+          >
+            <span className="text-3xl font-bold text-[var(--color-secondary)]">
+              {getInitials(profile.displayName)}
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Display name */}
-      <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-xl sm:text-2xl font-bold text-[#020912] mt-4">
+      <h1 className="font-[family-name:var(--font-heading),sans-serif] text-xl sm:text-2xl font-bold text-[var(--color-text-primary)] mt-5">
         {profile.displayName}
       </h1>
 
       {/* Bio */}
       {profile.bio && (
-        <p className="font-[family-name:var(--font-anonymous-pro),monospace] text-sm sm:text-base text-[#020912]/60 mt-2 max-w-md leading-relaxed">
+        <p className="font-[family-name:var(--font-body),monospace] text-sm text-[var(--color-text-secondary)] mt-2 max-w-sm leading-relaxed px-4">
           {profile.bio}
         </p>
       )}
 
-      {/* Stats row */}
-      <div className="flex items-center gap-6 mt-4">
-        <div className="text-sm text-[#020912]/70">
-          <span className="font-semibold text-[#020912]">{cardCount}</span>
-          {' '}
-          카드
+      {/* Action bar */}
+      <div className="profile-action-bar mt-5">
+        {isOwner ? (
+          <>
+            <Link href="/dashboard/settings" className="profile-action-btn">
+              <Pencil aria-hidden="true" />
+              <span>편집</span>
+            </Link>
+            <button
+              type="button"
+              className="profile-action-btn"
+              onClick={() => {
+                // QR code action placeholder
+              }}
+              aria-label="QR 코드"
+            >
+              <QrCode aria-hidden="true" />
+              <span>QR</span>
+            </button>
+            <button
+              type="button"
+              className="profile-action-btn relative"
+              onClick={onShareClick}
+              aria-label="프로필 공유"
+            >
+              <Share2 aria-hidden="true" />
+              <span>공유</span>
+              {shareTooltip && (
+                <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[11px] text-[var(--color-text-secondary)] bg-[var(--color-surface)] border border-[var(--color-divider)] px-2 py-0.5 whitespace-nowrap shadow-sm">
+                  링크 복사됨
+                </span>
+              )}
+            </button>
+            <Link href="/dashboard/settings" className="profile-action-btn">
+              <Settings aria-hidden="true" />
+              <span>설정</span>
+            </Link>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              className="profile-action-btn"
+              onClick={() => {
+                // QR code action placeholder
+              }}
+              aria-label="QR 코드"
+            >
+              <QrCode aria-hidden="true" />
+              <span>QR</span>
+            </button>
+            <button
+              type="button"
+              className="profile-action-btn relative"
+              onClick={onShareClick}
+              aria-label="프로필 공유"
+            >
+              <Share2 aria-hidden="true" />
+              <span>공유</span>
+              {shareTooltip && (
+                <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[11px] text-[var(--color-text-secondary)] bg-[var(--color-surface)] border border-[var(--color-divider)] px-2 py-0.5 whitespace-nowrap shadow-sm">
+                  링크 복사됨
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              className="profile-action-btn"
+              onClick={() => {
+                // More options placeholder
+              }}
+              aria-label="더보기"
+            >
+              <MoreHorizontal aria-hidden="true" />
+              <span>더보기</span>
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Stats bar */}
+      <div className="stats-bar w-full max-w-xs mt-6">
+        <div className="stats-item">
+          <div className="flex items-center justify-center gap-1.5">
+            <CreditCard className="w-4 h-4 text-[var(--color-text-tertiary)]" aria-hidden="true" />
+            <span className="stats-value">{cardCount}</span>
+          </div>
+          <div className="stats-label">카드</div>
         </div>
-        <div className="w-px h-4 bg-[rgba(2,9,18,0.15)]" />
-        <div className="text-sm text-[#020912]/70">
-          <span className="font-semibold text-[#020912]">{totalLikes}</span>
-          {' '}
-          좋아요
+        <div className="stats-item">
+          <div className="flex items-center justify-center gap-1.5">
+            <Heart className="w-4 h-4 text-[var(--color-text-tertiary)]" aria-hidden="true" />
+            <span className="stats-value">{totalLikes}</span>
+          </div>
+          <div className="stats-label">좋아요</div>
         </div>
       </div>
 
-      {/* Theme distribution */}
-      <div className="mt-4">
-        <ThemeDistribution distribution={themeDistribution} />
-      </div>
-
-      {/* Edit profile link (own profile only) */}
-      {isOwnProfile && (
-        <Link
-          href="/dashboard/settings"
-          className="mt-5 inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-            />
-          </svg>
-          프로필 편집
-        </Link>
+      {/* Theme filter chips */}
+      {themeDistribution.length > 0 && (
+        <div className="w-full max-w-md mt-6 px-2">
+          <ThemeDistribution
+            distribution={themeDistribution}
+            selectedTheme={selectedTheme}
+            onFilterChange={onThemeFilter}
+          />
+        </div>
       )}
     </div>
   );

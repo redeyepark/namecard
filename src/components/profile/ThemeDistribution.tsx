@@ -1,67 +1,130 @@
 'use client';
 
+import { useRef, useEffect, useState } from 'react';
+
 interface ThemeDistributionProps {
   distribution: { theme: string; count: number }[];
+  selectedTheme: string | null;
+  onFilterChange: (theme: string | null) => void;
 }
 
 /**
- * Theme-specific badge colors, mirroring GalleryCardThumbnail themeConfig.
+ * Theme label mapping for display.
  */
-const themeBadgeConfig: Record<string, { bgColor: string; textColor: string; label: string }> = {
-  classic: { bgColor: '#020912', textColor: '#fcfcfc', label: 'Classic' },
-  pokemon: { bgColor: '#EED171', textColor: '#000000', label: 'Pokemon' },
-  hearthstone: { bgColor: '#D4A76A', textColor: '#000000', label: 'Hearthstone' },
-  harrypotter: { bgColor: '#C9A84C', textColor: '#000000', label: 'Harry Potter' },
-  tarot: { bgColor: '#9B59B6', textColor: '#FFFFFF', label: 'Tarot' },
-  nametag: { bgColor: '#374151', textColor: '#FFFFFF', label: 'Nametag' },
-  snsprofile: { bgColor: '#020912', textColor: '#fcfcfc', label: 'SNS Profile' },
+const themeLabelMap: Record<string, string> = {
+  classic: 'Classic',
+  pokemon: 'Pokemon',
+  hearthstone: 'Hearthstone',
+  harrypotter: 'Harry Potter',
+  tarot: 'Tarot',
+  nametag: 'Nametag',
+  snsprofile: 'SNS Profile',
 };
 
 /**
- * Visual display of user's top 3 themes as colored badges.
- * Renders nothing if distribution is empty.
+ * Horizontal scrollable theme filter chips.
+ * Shows "All" chip as default, followed by each theme with count.
+ * Active chip gets dark background styling via .theme-chip.active CSS class.
  */
-export function ThemeDistribution({ distribution }: ThemeDistributionProps) {
+export function ThemeDistribution({
+  distribution,
+  selectedTheme,
+  onFilterChange,
+}: ThemeDistributionProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  // Check scroll overflow for fade indicators
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const checkOverflow = () => {
+      setShowLeftFade(el.scrollLeft > 4);
+      setShowRightFade(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    };
+
+    checkOverflow();
+    el.addEventListener('scroll', checkOverflow, { passive: true });
+    window.addEventListener('resize', checkOverflow);
+
+    return () => {
+      el.removeEventListener('scroll', checkOverflow);
+      window.removeEventListener('resize', checkOverflow);
+    };
+  }, [distribution]);
+
   if (!distribution || distribution.length === 0) {
     return null;
   }
 
-  // Sort by count descending and take top 3
-  const top3 = [...distribution]
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 3);
+  // Sort by count descending
+  const sorted = [...distribution].sort((a, b) => b.count - a.count);
+  const totalCount = sorted.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <div className="flex items-center gap-2 flex-wrap justify-center">
-      {top3.map((item) => {
-        const config = themeBadgeConfig[item.theme] ?? {
-          bgColor: '#6B7280',
-          textColor: '#FFFFFF',
-          label: item.theme,
-        };
+    <div className="relative w-full">
+      {/* Left fade indicator */}
+      {showLeftFade && (
+        <div
+          className="absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to right, var(--color-surface), transparent)',
+          }}
+        />
+      )}
 
-        return (
-          <span
-            key={item.theme}
-            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium"
-            style={{
-              backgroundColor: config.bgColor,
-              color: config.textColor,
-            }}
-          >
-            {config.label}
-            <span
-              className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full"
-              style={{
-                backgroundColor: `${config.textColor}20`,
-                color: config.textColor,
-              }}
+      {/* Right fade indicator */}
+      {showRightFade && (
+        <div
+          className="absolute right-0 top-0 bottom-0 w-6 z-10 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to left, var(--color-surface), transparent)',
+          }}
+        />
+      )}
+
+      {/* Scrollable chip container */}
+      <div
+        ref={scrollRef}
+        className="flex items-center gap-2 overflow-x-auto px-1 py-1 scrollbar-hide"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {/* "All" chip */}
+        <button
+          type="button"
+          className={`theme-chip ${selectedTheme === null ? 'active' : ''}`}
+          onClick={() => onFilterChange(null)}
+          aria-pressed={selectedTheme === null}
+        >
+          전체
+          <span className="chip-count">{totalCount}</span>
+        </button>
+
+        {/* Theme chips */}
+        {sorted.map((item) => {
+          const label = themeLabelMap[item.theme] ?? item.theme;
+          const isActive = selectedTheme === item.theme;
+
+          return (
+            <button
+              type="button"
+              key={item.theme}
+              className={`theme-chip ${isActive ? 'active' : ''}`}
+              onClick={() => onFilterChange(item.theme)}
+              aria-pressed={isActive}
             >
-              {item.count}
-            </span>
-          </span>
-        );
-      })}
+              {label}
+              <span className="chip-count">{item.count}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
