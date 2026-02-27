@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { CardPreview } from '@/components/card/CardPreview';
 import { TabSwitch } from '@/components/ui/TabSwitch';
 import { EditorPanel } from '@/components/editor/EditorPanel';
-import { ExportButton } from '@/components/export/ExportButton';
+import { ExportPanel } from '@/components/export/ExportPanel';
 import { ResetButton } from '@/components/ui/ResetButton';
 
 export default function EditPage() {
@@ -53,7 +53,7 @@ export default function EditPage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
-                <ExportButton />
+                <ExportPanel />
               </div>
               <ResetButton />
             </div>
@@ -65,7 +65,7 @@ export default function EditPage() {
               <h2 className="text-sm font-medium text-gray-500 mb-3">Preview</h2>
               <CardPreview />
               <div className="mt-4">
-                <ExportButton />
+                <ExportPanel />
               </div>
             </div>
           </div>

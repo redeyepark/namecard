@@ -3,7 +3,7 @@
 import { useCardStore } from '@/stores/useCardStore';
 import { CardFront } from '@/components/card/CardFront';
 import { CardBack } from '@/components/card/CardBack';
-import { ExportButton } from '@/components/export/ExportButton';
+import { ExportPanel } from '@/components/export/ExportPanel';
 
 export function CompleteStep() {
   const resetWizard = useCardStore((state) => state.resetWizard);
@@ -33,7 +33,7 @@ export function CompleteStep() {
 
       {/* Actions */}
       <div className="space-y-3 max-w-xs mx-auto">
-        <ExportButton />
+        <ExportPanel />
         <button
           type="button"
           onClick={resetWizard}

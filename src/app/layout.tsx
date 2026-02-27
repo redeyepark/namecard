@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import { KakaoProvider } from '@/components/providers/KakaoProvider';
+import { ToastProvider } from '@/components/ui/ToastProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -19,7 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen bg-[#fcfcfc]">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <KakaoProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </KakaoProvider>
+        </AuthProvider>
       </body>
     </html>
   );
