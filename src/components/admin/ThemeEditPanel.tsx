@@ -416,5 +416,21 @@ export function ThemeEditPanel({ selectedTheme, editState, onChange }: ThemeEdit
     );
   }
 
+  if (selectedTheme === 'nametag') {
+    return (
+      <div className="border border-[rgba(2,9,18,0.15)] bg-white p-4">
+        <h3 className="text-sm font-semibold text-[#020912] mb-2">
+          {themeInfo?.name} Options
+        </h3>
+        <p className="text-sm text-[#020912]/50">
+          {'\uc774 \ud14c\ub9c8\ub294 \ubcc0\ud615 \uc635\uc158\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.'}
+        </p>
+        {themeInfo && (
+          <p className="text-xs text-[#020912]/40 mt-2">{themeInfo.description}</p>
+        )}
+      </div>
+    );
+  }
+
   return null;
 }
