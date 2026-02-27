@@ -30,7 +30,6 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --bottomnav-height: 64px;
 }
 
 body {
@@ -222,13 +221,6 @@ button:active:not(:disabled),
   animation: like-burst 300ms ease-out;
 }
 
-/* Bottom navigation safe area for mobile */
-@media (max-width: 767px) {
-  .has-bottom-nav {
-    padding-bottom: calc(var(--bottomnav-height) + env(safe-area-inset-bottom, 0px));
-  }
-}
-
 /* Theme filter chips */
 .theme-chip {
   display: inline-flex;
@@ -318,74 +310,3 @@ button:active:not(:disabled),
   z-index: 40;
 }
 
-@media (max-width: 767px) {
-  .card-action-bar {
-    bottom: var(--bottomnav-height);
-  }
-}
-
-/* Bottom navigation */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  height: var(--bottomnav-height);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-divider);
-  z-index: 50;
-}
-
-.bottom-nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 6px 12px;
-  color: var(--color-text-tertiary);
-  text-decoration: none;
-  transition: color 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.bottom-nav-item.active {
-  color: var(--color-primary);
-}
-
-.bottom-nav-item svg {
-  width: 22px;
-  height: 22px;
-}
-
-.bottom-nav-item span {
-  font-size: 10px;
-  font-weight: 500;
-}
-
-.bottom-nav-create {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-  background: var(--color-primary);
-  color: var(--color-secondary);
-  box-shadow: var(--shadow-md);
-  margin-top: -12px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.bottom-nav-create:active {
-  transform: scale(0.95);
-}
-
-.bottom-nav-create svg {
-  width: 24px;
-  height: 24px;
-}

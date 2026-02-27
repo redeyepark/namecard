@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { KakaoProvider } from '@/components/providers/KakaoProvider';
 import { ToastProvider } from '@/components/ui/ToastProvider';
-import LayoutShell from '@/components/navigation/LayoutShell';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -25,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <KakaoProvider>
             <ToastProvider>
-              <LayoutShell>{children}</LayoutShell>
+              {children}
             </ToastProvider>
           </KakaoProvider>
         </AuthProvider>
