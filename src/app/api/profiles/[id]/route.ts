@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getProfile } from '@/lib/profile-storage';
 import { getServerUser } from '@/lib/auth-utils';
 
-export const runtime = 'edge';
-
 /**
  * GET /api/profiles/{userId}
  * Public endpoint to retrieve a user profile with card stats.

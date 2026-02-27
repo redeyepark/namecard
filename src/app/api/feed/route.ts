@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFeedCards } from '@/lib/storage';
 
-export const runtime = 'edge';
-
 /**
  * GET /api/feed
  * Public endpoint for the community feed with cursor-based pagination.

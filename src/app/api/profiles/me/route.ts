@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateProfile, ensureProfile } from '@/lib/profile-storage';
 import { requireAuth, AuthError } from '@/lib/auth-utils';
 
-export const runtime = 'edge';
-
 /**
  * GET /api/profiles/me
  * Authenticated endpoint to retrieve the current user's profile.

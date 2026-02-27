@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserCards } from '@/lib/profile-storage';
 import { getSupabase } from '@/lib/supabase';
 
-export const runtime = 'edge';
-
 /**
  * GET /api/profiles/{userId}/cards
  * Public endpoint to retrieve a user's public cards with pagination.

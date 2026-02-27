@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import type { CardTheme, GalleryCardData } from '@/types/card';
 
-export const runtime = 'edge';
-
 /**
  * GET /api/bookmarks
  * Returns bookmarked cards for the authenticated user with pagination.
