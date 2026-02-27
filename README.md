@@ -26,6 +26,12 @@
 - 관리자 갤러리 뷰 (테이블/갤러리 토글, 6종 다중 필터)
 - 관리자 의뢰 목록 검색 (이름/ID/이메일)
 - 관리자 리스트 캐릭터 일러스트 썸네일 표시
+- 카카오톡 공유 (Kakao JS SDK Feed 템플릿)
+- 소셜 공유 (Facebook, X/Twitter, LinkedIn, LINE)
+- 이미지 클립보드 복사 (Safari 호환)
+- 앞/뒤 합성 이미지 다운로드
+- 토스트 알림 시스템
+- 비공개 카드 공유 제한
 
 ## 기술 스택
 
@@ -41,6 +47,7 @@
 | react-colorful | 5.6 | 색상 선택기 |
 | html-to-image | 1.11 | PNG 이미지 내보내기 |
 | xlsx | 0.18 | Excel/CSV 파일 파싱 (대량 등록) |
+| Kakao JS SDK | - | 카카오톡 공유 |
 
 ## 시작하기
 
@@ -61,6 +68,14 @@ npm run dev
 
 브라우저에서 http://localhost:3000 을 열어 사용하세요.
 
+#### 카카오톡 공유 설정 (선택)
+
+카카오톡 공유 기능을 사용하려면 [Kakao Developers](https://developers.kakao.com)에서 앱을 생성하고 JavaScript 키를 `.env.local`에 설정하세요:
+
+```
+NEXT_PUBLIC_KAKAO_JS_KEY=your_kakao_js_key
+```
+
 ### 빌드
 
 ```bash
@@ -76,7 +91,7 @@ npm start
 1. **앞면 편집**: Display Name 입력, 프로필 이미지 업로드, 배경색 변경, 텍스트 색상 선택 (화이트/블랙)
 2. **뒷면 편집**: "뒷면" 탭 클릭 후 이름, 직함, 해시태그, 소셜 링크 편집, 텍스트 색상 선택
 3. **미리보기**: 우측(데스크톱) 또는 상단(모바일)에서 실시간 확인
-4. **내보내기**: "Download PNG" 버튼으로 앞면/뒷면 이미지 다운로드
+4. **내보내기/공유**: "내보내기 / 공유" 버튼으로 PNG 다운로드, 카카오톡 공유, 소셜 공유, 이미지 복사
 5. **내 요청 확인**: 로그인 후 UserMenu의 "내 요청"을 클릭하여 `/dashboard`에서 제작 진행 상태 확인
 6. **관리자 대량 등록**: 관리자 대시보드에서 "CSV/Excel 대량 등록" 버튼으로 명함 요청 일괄 등록
 
@@ -93,8 +108,9 @@ src/
 │   ├── card/            # 카드 미리보기 컴포넌트 (5개 테마: Classic/Pokemon/Hearthstone/Harrypotter/Tarot)
 │   ├── dashboard/       # 대시보드 컴포넌트 (ProgressStepper, MyRequestList 등)
 │   ├── editor/          # 편집기 컴포넌트 (테마별 메타데이터 편집 UI 포함)
-│   ├── export/          # 내보내기 기능
-│   └── ui/              # 공통 UI 컴포넌트
+│   ├── export/          # 내보내기 및 소셜 공유 (ExportPanel, KakaoShare, SocialShare)
+│   ├── providers/       # 컨텍스트 프로바이더 (KakaoProvider)
+│   └── ui/              # 공통 UI 컴포넌트 (Toast 알림 포함)
 ├── hooks/               # 커스텀 훅 (useAdminFilters 등)
 ├── stores/              # Zustand 상태 관리
 ├── types/               # TypeScript 타입 정의
@@ -102,6 +118,16 @@ src/
 ```
 
 ## 최근 변경사항
+
+### 카카오톡/소셜 공유 (SPEC-SOCIAL-SHARE-001)
+
+- 카카오톡 공유 기능 추가 (Kakao JS SDK Feed 템플릿)
+- 소셜 플랫폼 공유: Facebook, X(Twitter), LinkedIn, LINE
+- 통합 내보내기/공유 패널 (데스크톱 드롭다운 / 모바일 바텀시트)
+- 앞면/뒷면 합성 PNG 다운로드
+- 이미지 클립보드 복사 (Safari 호환 포함)
+- 토스트 알림 시스템 (성공/오류/정보 3종)
+- 비공개 카드 소셜 공유 차단 가드
 
 ### 관리자 갤러리 뷰 (SPEC-GALLERY-001)
 
