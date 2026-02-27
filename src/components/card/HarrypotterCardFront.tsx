@@ -1,7 +1,7 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 import { getHarrypotterHouseConfig } from './harrypotter-types';
 
 /**
@@ -12,7 +12,7 @@ import { getHarrypotterHouseConfig } from './harrypotter-types';
  * Uses inline styles for all critical visual properties (html-to-image compatibility).
  */
 export function HarrypotterCardFront() {
-  const { front, back, harrypotterMeta } = useCardStore((state) => state.card);
+  const { front, back, harrypotterMeta } = useCardData();
   const houseConfig = getHarrypotterHouseConfig(harrypotterMeta?.house ?? 'gryffindor');
   const year = harrypotterMeta?.year ?? 1;
   const spellPower = harrypotterMeta?.spellPower ?? 100;

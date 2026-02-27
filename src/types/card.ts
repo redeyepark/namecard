@@ -20,9 +20,9 @@ export interface CardBackData {
   textColor: string;
 }
 
-export type BuiltinTheme = 'classic' | 'pokemon' | 'hearthstone' | 'harrypotter' | 'tarot' | 'nametag';
+export type BuiltinTheme = 'classic' | 'pokemon' | 'hearthstone' | 'harrypotter' | 'tarot' | 'nametag' | 'snsprofile';
 
-export const BUILTIN_THEMES: BuiltinTheme[] = ['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot', 'nametag'];
+export const BUILTIN_THEMES: BuiltinTheme[] = ['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot', 'nametag', 'snsprofile'];
 
 export function isBuiltinTheme(theme: string): theme is BuiltinTheme {
   return (BUILTIN_THEMES as string[]).includes(theme);
@@ -114,4 +114,24 @@ export interface GalleryEventGroup {
 export interface GalleryResponse {
   groups: GalleryEventGroup[];
   totalCards: number;
+}
+
+/**
+ * Extension of GalleryCardData for the community feed with user info.
+ * Includes user profile data and like count for social features.
+ */
+export interface FeedCardData extends GalleryCardData {
+  userId: string | null;
+  userDisplayName: string | null;
+  userAvatarUrl: string | null;
+  likeCount: number;
+}
+
+/**
+ * Cursor-based paginated response for the community feed.
+ */
+export interface FeedResponse {
+  cards: FeedCardData[];
+  nextCursor: string | null;
+  hasMore: boolean;
 }

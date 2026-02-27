@@ -1,7 +1,7 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 import { getPokemonTypeConfig } from './pokemon-types';
 
 /**
@@ -11,7 +11,7 @@ import { getPokemonTypeConfig } from './pokemon-types';
  * Uses inline styles for all critical visual properties (html-to-image compatibility).
  */
 export function PokemonCardFront() {
-  const { front, back, pokemonMeta } = useCardStore((state) => state.card);
+  const { front, back, pokemonMeta } = useCardData();
   const typeConfig = getPokemonTypeConfig(pokemonMeta?.type ?? 'electric');
   const exp = pokemonMeta?.exp ?? 100;
   const typeColor = typeConfig.color;

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useCardStore } from '@/stores/useCardStore';
-import { generateVCard, generateQRDataURL } from '@/lib/qrcode';
+import { getPhoneTelURI, generateQRDataURL } from '@/lib/qrcode';
+import { useCardData } from './CardDataProvider';
 
 /**
  * NametagCardBack - Corporate name tag style back layout.
@@ -17,7 +17,7 @@ import { generateVCard, generateQRDataURL } from '@/lib/qrcode';
  * This avoids cqi units which are incompatible with html-to-image.
  */
 export function NametagCardBack() {
-  const card = useCardStore((state) => state.card);
+  const card = useCardData();
   const { front, back } = card;
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
@@ -25,12 +25,16 @@ export function NametagCardBack() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Generate QR code from vCard data
+  // Generate QR code from phone tel: URI for direct calling
   useEffect(() => {
-    const vcard = generateVCard(card);
-    generateQRDataURL(vcard, 256)
-      .then((dataUrl) => setQrDataUrl(dataUrl))
-      .catch(() => setQrDataUrl(null));
+    const telUri = getPhoneTelURI(card);
+    if (telUri) {
+      generateQRDataURL(telUri, 256)
+        .then((dataUrl) => setQrDataUrl(dataUrl))
+        .catch(() => setQrDataUrl(null));
+    } else {
+      setQrDataUrl(null);
+    }
   }, [card]);
 
   // ResizeObserver to track container width for dynamic font sizing
@@ -187,9 +191,9 @@ export function NametagCardBack() {
             lineHeight: 1.6,
           }}
         >
-          {'연락이 필요하시면 QR코드를'}
+          {'전화 연결이 필요하시면 QR코드를'}
           <br />
-          {'카메라로 인식해주세요.'}
+          {'카메라로 스캔해주세요.'}
         </p>
       </div>
     </div>

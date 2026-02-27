@@ -1,6 +1,6 @@
 import { getSupabase } from './supabase';
 import type { CardRequest, RequestSummary, MemberRequestDetail, StatusHistoryEntry } from '@/types/request';
-import type { CardTheme, PokemonMeta, PublicCardData, GalleryCardData, GalleryResponse } from '@/types/card';
+import type { CardTheme, PokemonMeta, PublicCardData, GalleryCardData, GalleryResponse, FeedCardData, FeedResponse } from '@/types/card';
 
 /**
  * Convert base64 image data to Uint8Array for Supabase Storage upload.
@@ -927,4 +927,121 @@ export async function getGalleryCards(): Promise<GalleryResponse> {
     groups: eventGroups,
     totalCards: rows.length,
   };
+}
+
+/**
+ * Cursor-based paginated feed for community.
+ * Supports 'newest' (by submitted_at DESC) and 'popular' (by like_count DESC) sorting.
+ * Joins with user_profiles for user info.
+ * Only returns public + confirmed/delivered cards.
+ * Handles gracefully when user_id, like_count, or user_profiles don't exist.
+ */
+export async function getFeedCards(options: {
+  cursor?: string;      // ISO timestamp for newest sort, or "{likeCount}_{id}" for popular sort
+  limit?: number;       // default 12, max 50
+  theme?: string;       // filter by theme, 'all' = no filter
+  sort?: 'newest' | 'popular'; // default 'newest'
+}): Promise<FeedResponse> {
+  const supabase = getSupabase();
+  const limit = Math.min(options.limit || 12, 50);
+  const sort = options.sort || 'newest';
+
+  // Build base query - select card fields + user_id + like_count
+  // We fetch limit + 1 to determine hasMore
+  let query = supabase
+    .from('card_requests')
+    .select('id, card_front, card_back, theme, illustration_url, original_avatar_url, status, submitted_at, user_id, like_count')
+    .eq('is_public', true)
+    .in('status', ['confirmed', 'delivered']);
+
+  // Theme filter
+  if (options.theme && options.theme !== 'all') {
+    query = query.eq('theme', options.theme);
+  }
+
+  // Cursor-based pagination + sorting
+  if (sort === 'newest') {
+    if (options.cursor) {
+      query = query.lt('submitted_at', options.cursor);
+    }
+    query = query.order('submitted_at', { ascending: false });
+  } else {
+    // 'popular' sort: order by like_count DESC, then id DESC for stable ordering
+    if (options.cursor) {
+      const parts = options.cursor.split('_');
+      if (parts.length === 2) {
+        const cursorLikes = parseInt(parts[0], 10);
+        const cursorId = parts[1];
+        // Get cards with fewer likes, or equal likes but later id (lexicographically)
+        query = query.or(`like_count.lt.${cursorLikes},and(like_count.eq.${cursorLikes},id.lt.${cursorId})`);
+      }
+    }
+    query = query
+      .order('like_count', { ascending: false })
+      .order('id', { ascending: false });
+  }
+
+  query = query.limit(limit + 1);
+
+  const { data: rows, error } = await query;
+
+  if (error || !rows) {
+    return { cards: [], nextCursor: null, hasMore: false };
+  }
+
+  const hasMore = rows.length > limit;
+  const resultRows = hasMore ? rows.slice(0, limit) : rows;
+
+  // Collect unique user IDs and fetch profiles
+  const userIds = [...new Set(resultRows.map((r) => (r as any).user_id).filter(Boolean))] as string[];
+  const profileMap = new Map<string, { display_name: string; avatar_url: string | null }>();
+
+  if (userIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('id, display_name, avatar_url')
+      .in('id', userIds);
+
+    if (profiles) {
+      for (const p of profiles) {
+        profileMap.set(p.id, {
+          display_name: p.display_name,
+          avatar_url: p.avatar_url || null,
+        });
+      }
+    }
+  }
+
+  // Map rows to FeedCardData
+  const cards: FeedCardData[] = resultRows.map((row) => {
+    const userId = (row as any).user_id as string | null;
+    const profile = userId ? profileMap.get(userId) : null;
+
+    return {
+      id: row.id,
+      displayName: (row.card_front as { displayName?: string })?.displayName || '',
+      title: (row.card_back as { title?: string })?.title || '',
+      theme: (row.theme as CardTheme) || 'classic',
+      illustrationUrl: row.illustration_url ?? null,
+      originalAvatarUrl: row.original_avatar_url ?? null,
+      status: row.status,
+      userId,
+      userDisplayName: profile?.display_name || null,
+      userAvatarUrl: profile?.avatar_url || null,
+      likeCount: ((row as any).like_count as number) || 0,
+    };
+  });
+
+  // Calculate nextCursor
+  let nextCursor: string | null = null;
+  if (hasMore && resultRows.length > 0) {
+    const lastRow = resultRows[resultRows.length - 1];
+    if (sort === 'newest') {
+      nextCursor = (lastRow as any).submitted_at;
+    } else {
+      nextCursor = `${(lastRow as any).like_count || 0}_${lastRow.id}`;
+    }
+  }
+
+  return { cards, nextCursor, hasMore };
 }

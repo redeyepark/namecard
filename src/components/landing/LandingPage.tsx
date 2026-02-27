@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginButton } from '@/components/auth/LoginButton';
@@ -71,7 +73,36 @@ const features = [
 
 export function LandingPage() {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
   const isAuthenticated = !isLoading && !!user;
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
+  // Show loading spinner while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#020912]">
+        <svg
+          className="animate-spin h-6 w-6 text-white/40"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+    );
+  }
+
+  // If authenticated, show nothing (redirect in progress)
+  if (isAuthenticated) return null;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -92,31 +123,19 @@ export function LandingPage() {
             간단한 5단계로 전문적인 디지털 명함을 완성하세요
           </p>
           <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            {isAuthenticated ? (
-              <Link
-                href="/create"
-                className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 border border-[#fcfcfc] text-[#fcfcfc] text-base sm:text-lg font-semibold hover:bg-[#fcfcfc] hover:text-[#020912] transition-all duration-200"
-              >
-                명함 만들기
-                <span aria-hidden="true">&rarr;</span>
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 border border-[#fcfcfc] text-[#fcfcfc] text-base sm:text-lg font-semibold hover:bg-[#fcfcfc] hover:text-[#020912] transition-all duration-200"
-                >
-                  로그인하여 시작하기
-                  <span aria-hidden="true">&rarr;</span>
-                </Link>
-                <Link
-                  href="/create"
-                  className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-[#ffa639] text-[#020912] text-base sm:text-lg font-semibold hover:bg-[#ffa639]/90 transition-all duration-200"
-                >
-                  둘러보기
-                </Link>
-              </>
-            )}
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 border border-[#fcfcfc] text-[#fcfcfc] text-base sm:text-lg font-semibold hover:bg-[#fcfcfc] hover:text-[#020912] transition-all duration-200"
+            >
+              로그인하여 시작하기
+              <span aria-hidden="true">&rarr;</span>
+            </Link>
+            <Link
+              href="/create"
+              className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-[#ffa639] text-[#020912] text-base sm:text-lg font-semibold hover:bg-[#ffa639]/90 transition-all duration-200"
+            >
+              둘러보기
+            </Link>
           </div>
         </div>
       </section>

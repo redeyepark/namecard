@@ -1,6 +1,5 @@
 'use client';
 
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { CardPreview } from '@/components/card/CardPreview';
 import { TabSwitch } from '@/components/ui/TabSwitch';
@@ -9,8 +8,6 @@ import { ExportPanel } from '@/components/export/ExportPanel';
 import { ResetButton } from '@/components/ui/ResetButton';
 
 export default function EditPage() {
-  // TEMPORARY: Card creation is temporarily disabled. Remove this line to re-enable.
-  redirect('/dashboard');
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10">
       <div className="max-w-5xl mx-auto">

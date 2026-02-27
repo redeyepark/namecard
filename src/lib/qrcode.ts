@@ -80,6 +80,20 @@ export async function generateQRDataURL(
 }
 
 /**
+ * Extract the phone number from card social links and return a tel: URI.
+ * Returns null if no phone link is found.
+ */
+export function getPhoneTelURI(card: CardData): string | null {
+  const phoneLink = card.back.socialLinks.find(
+    (link) => link.platform === 'phone' && link.url
+  );
+  if (!phoneLink) return null;
+  // Strip whitespace/dashes for tel: URI, keep + prefix if present
+  const cleaned = phoneLink.url.replace(/[\s\-()]/g, '');
+  return `tel:${cleaned}`;
+}
+
+/**
  * Build the public URL for a card.
  * Uses window.location.origin when available, empty string on server.
  */

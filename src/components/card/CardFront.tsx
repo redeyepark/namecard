@@ -1,13 +1,14 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { isBuiltinTheme } from '@/types/card';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 import { PokemonCardFront } from './PokemonCardFront';
 import { HearthstoneCardFront } from './HearthstoneCardFront';
 import { HarrypotterCardFront } from './HarrypotterCardFront';
 import { TarotCardFront } from './TarotCardFront';
 import { NametagCardFront } from './NametagCardFront';
+import { SNSProfileCardFront } from './SNSProfileCardFront';
 import { CustomThemeCardFront } from './CustomThemeCardFront';
 
 /**
@@ -16,13 +17,15 @@ import { CustomThemeCardFront } from './CustomThemeCardFront';
  * Non-builtin themes are routed to CustomThemeCardFront.
  */
 export function CardFront() {
-  const theme = useCardStore((state) => state.card.theme ?? 'classic');
+  const card = useCardData();
+  const theme = card.theme ?? 'classic';
 
   if (theme === 'pokemon') return <PokemonCardFront />;
   if (theme === 'hearthstone') return <HearthstoneCardFront />;
   if (theme === 'harrypotter') return <HarrypotterCardFront />;
   if (theme === 'tarot') return <TarotCardFront />;
   if (theme === 'nametag') return <NametagCardFront />;
+  if (theme === 'snsprofile') return <SNSProfileCardFront />;
   if (!isBuiltinTheme(theme)) return <CustomThemeCardFront themeSlug={theme} />;
   return <ClassicCardFront />;
 }
@@ -32,7 +35,7 @@ export function CardFront() {
  * No changes to layout, styles, or behavior.
  */
 export function ClassicCardFront() {
-  const { front } = useCardStore((state) => state.card);
+  const { front } = useCardData();
 
   return (
     <div

@@ -1,15 +1,11 @@
 'use client';
 
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { WizardContainer } from '@/components/wizard/WizardContainer';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function CreatePage() {
-  // TEMPORARY: Card creation is temporarily disabled. Remove this line to re-enable.
-  redirect('/dashboard');
-
   const { user } = useAuth();
 
   return (

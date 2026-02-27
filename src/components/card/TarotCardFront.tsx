@@ -1,7 +1,7 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 import { getTarotArcanaConfig } from './tarot-types';
 
 /**
@@ -12,7 +12,7 @@ import { getTarotArcanaConfig } from './tarot-types';
  * Uses inline styles for all critical visual properties (html-to-image compatibility).
  */
 export function TarotCardFront() {
-  const { front, back, tarotMeta } = useCardStore((state) => state.card);
+  const { front, back, tarotMeta } = useCardData();
   const arcanaConfig = getTarotArcanaConfig(tarotMeta?.arcana ?? 'major');
   const cardNumber = tarotMeta?.cardNumber ?? 0;
   const mystique = tarotMeta?.mystique ?? 100;

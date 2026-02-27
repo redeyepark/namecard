@@ -1,8 +1,8 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { extractHandle } from '@/lib/social-utils';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 import { getTarotArcanaConfig } from './tarot-types';
 
 /**
@@ -13,7 +13,7 @@ import { getTarotArcanaConfig } from './tarot-types';
  * Uses inline styles for all critical visual properties (html-to-image compatibility).
  */
 export function TarotCardBack() {
-  const { back, tarotMeta } = useCardStore((state) => state.card);
+  const { back, tarotMeta } = useCardData();
   const arcanaConfig = getTarotArcanaConfig(tarotMeta?.arcana ?? 'major');
   const arcanaColor = arcanaConfig.color;
   const accentColor = arcanaConfig.accent;

@@ -131,6 +131,52 @@ function createSampleTarotCard(arcana: TarotArcana, cardNumber: number = 0, myst
   };
 }
 
+function createSampleNametagCard(): CardData {
+  return {
+    front: {
+      displayName: '\ud64d\uae38\ub3d9',
+      avatarImage: null,
+      backgroundColor: '#FFFFFF',
+      textColor: '#1F2937',
+    },
+    back: {
+      fullName: '\ud64d\uae38\ub3d9 | Hong Gildong',
+      title: 'Software Developer',
+      hashtags: ['#Development', '#Innovation', '#Technology'],
+      socialLinks: [
+        { platform: 'email', url: 'hong@example.com', label: 'hong@example.com' },
+        { platform: 'linkedin', url: 'linkedin.com/in/hong', label: 'hong' },
+      ],
+      backgroundColor: '#FFFFFF',
+      textColor: '#1F2937',
+    },
+    theme: 'nametag',
+  };
+}
+
+function createSampleSNSProfileCard(): CardData {
+  return {
+    front: {
+      displayName: '\ud64d\uae38\ub3d9',
+      avatarImage: null,
+      backgroundColor: '#4A90D9',
+      textColor: '#FFFFFF',
+    },
+    back: {
+      fullName: '\ud64d\uae38\ub3d9 | Hong Gildong',
+      title: 'Software Developer',
+      hashtags: ['#Development', '#Innovation', '#Technology'],
+      socialLinks: [
+        { platform: 'email', url: 'hong@example.com', label: 'hong@example.com' },
+        { platform: 'instagram', url: 'instagram.com/hong', label: 'hong' },
+      ],
+      backgroundColor: '#4A90D9',
+      textColor: '#FFFFFF',
+    },
+    theme: 'snsprofile',
+  };
+}
+
 // Unified sample card creation from theme + edit state
 function createSampleCard(theme: CardTheme, editState: ThemeEditState): CardData {
   switch (theme) {
@@ -155,6 +201,10 @@ function createSampleCard(theme: CardTheme, editState: ThemeEditState): CardData
         editState.tarot.cardNumber,
         editState.tarot.mystique,
       );
+    case 'nametag':
+      return createSampleNametagCard();
+    case 'snsprofile':
+      return createSampleSNSProfileCard();
     case 'classic':
     default:
       return sampleClassicCard;
@@ -375,6 +425,11 @@ export default function ThemesPage() {
         </div>
       </div>
 
+      {/* Section B: Custom Theme Management */}
+      <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6 mb-6">
+        <CustomThemeManager />
+      </div>
+
       {/* Section C: Bulk Theme Apply */}
       <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">{'\ud14c\ub9c8 \uc77c\uad04 \uc801\uc6a9'}</h2>
@@ -416,6 +471,8 @@ export default function ThemesPage() {
                 <option value="hearthstone">Hearthstone</option>
                 <option value="harrypotter">Harry Potter</option>
                 <option value="tarot">Tarot</option>
+                <option value="nametag">Nametag</option>
+                <option value="snsprofile">SNS Profile</option>
               </select>
             </div>
           </div>
@@ -436,6 +493,8 @@ export default function ThemesPage() {
               <option value="hearthstone">Hearthstone</option>
               <option value="harrypotter">Harry Potter</option>
               <option value="tarot">Tarot</option>
+              <option value="nametag">Nametag</option>
+              <option value="snsprofile">SNS Profile</option>
             </select>
           </div>
 
@@ -694,11 +753,6 @@ export default function ThemesPage() {
         </div>
       </div>
 
-      {/* Section B: Custom Theme Management */}
-      <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6 mb-6">
-        <CustomThemeManager />
-      </div>
-
       {/* Confirmation Dialog */}
       {showConfirm && (
         <div
@@ -714,7 +768,7 @@ export default function ThemesPage() {
             <p className="text-sm text-gray-600 mb-4">
               {affectedCount !== null ? `${affectedCount}\uac74` : '\ud574\ub2f9'}{'\uc758 \uc758\ub8b0\uc5d0 '}
               <span className="font-semibold">
-                {targetTheme === 'classic' ? 'Classic' : targetTheme === 'pokemon' ? 'Pokemon' : targetTheme === 'hearthstone' ? 'Hearthstone' : targetTheme === 'harrypotter' ? 'Harry Potter' : 'Tarot'}
+                {targetTheme === 'classic' ? 'Classic' : targetTheme === 'pokemon' ? 'Pokemon' : targetTheme === 'hearthstone' ? 'Hearthstone' : targetTheme === 'harrypotter' ? 'Harry Potter' : targetTheme === 'tarot' ? 'Tarot' : targetTheme === 'nametag' ? 'Nametag' : targetTheme === 'snsprofile' ? 'SNS Profile' : targetTheme}
               </span>{' '}
               {'\ud14c\ub9c8\ub97c \uc801\uc6a9\ud569\ub2c8\ub2e4.'}
               {targetTheme === 'pokemon' && (

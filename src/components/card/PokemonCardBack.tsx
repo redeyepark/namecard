@@ -1,8 +1,8 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { extractHandle } from '@/lib/social-utils';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 
 /**
  * PokemonCardBack - Trading card style back layout with gold frame.
@@ -11,7 +11,7 @@ import { renderMultiLine } from '@/lib/text-utils';
  * Uses inline styles for all critical visual properties (html-to-image compatibility).
  */
 export function PokemonCardBack() {
-  const { back } = useCardStore((state) => state.card);
+  const { back } = useCardData();
 
   // Sort social links using the same platform order as classic card
   const platformOrder = ['phone', 'youtube', 'facebook', 'instagram', 'linkedin', 'email'];

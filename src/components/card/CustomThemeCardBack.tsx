@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useCardStore } from '@/stores/useCardStore';
 import { useCustomThemes } from '@/hooks/useCustomThemes';
 import { extractHandle } from '@/lib/social-utils';
 import { renderMultiLine } from '@/lib/text-utils';
-import { generateVCard, generateQRDataURL } from '@/lib/qrcode';
+import { getPhoneTelURI, generateQRDataURL } from '@/lib/qrcode';
+import { useCardData } from './CardDataProvider';
 import { ClassicCardBack } from './CardBack';
 import type { CustomTheme } from '@/types/custom-theme';
 
@@ -40,7 +40,7 @@ export function CustomThemeCardBack({ themeSlug }: CustomThemeCardBackProps) {
  * Same structure as ClassicCardBack: name, title, hashtags, social links, plus custom fields.
  */
 function CustomClassicBack({ themeDef }: { themeDef: CustomTheme }) {
-  const card = useCardStore((state) => state.card);
+  const card = useCardData();
   const { back } = card;
 
   const fontFamily = themeDef.fontFamily || "'Nanum Myeongjo', serif";
@@ -202,7 +202,7 @@ function CustomClassicBack({ themeDef }: { themeDef: CustomTheme }) {
  * Includes custom field values display and ResizeObserver for responsive font sizing.
  */
 function CustomNametagBack({ themeDef }: { themeDef: CustomTheme }) {
-  const card = useCardStore((state) => state.card);
+  const card = useCardData();
   const { front, back } = card;
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
@@ -222,12 +222,16 @@ function CustomNametagBack({ themeDef }: { themeDef: CustomTheme }) {
   const customMeta = card.customThemeMeta ?? {};
   const customFields = themeDef.customFields ?? [];
 
-  // Generate QR code from vCard data
+  // Generate QR code from phone tel: URI for direct calling
   useEffect(() => {
-    const vcard = generateVCard(card);
-    generateQRDataURL(vcard, 256)
-      .then((dataUrl) => setQrDataUrl(dataUrl))
-      .catch(() => setQrDataUrl(null));
+    const telUri = getPhoneTelURI(card);
+    if (telUri) {
+      generateQRDataURL(telUri, 256)
+        .then((dataUrl) => setQrDataUrl(dataUrl))
+        .catch(() => setQrDataUrl(null));
+    } else {
+      setQrDataUrl(null);
+    }
   }, [card]);
 
   // ResizeObserver to track container width for dynamic font sizing
@@ -426,9 +430,9 @@ function CustomNametagBack({ themeDef }: { themeDef: CustomTheme }) {
             lineHeight: 1.6,
           }}
         >
-          {'연락이 필요하시면 QR코드를'}
+          {'전화 연결이 필요하시면 QR코드를'}
           <br />
-          {'카메라로 인식해주세요.'}
+          {'카메라로 스캔해주세요.'}
         </p>
       </div>
     </div>

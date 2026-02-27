@@ -35,6 +35,11 @@ const THEME_OPTIONS: { id: CardTheme; label: string; description: string }[] = [
     label: 'Nametag',
     description: 'Corporate badge style',
   },
+  {
+    id: 'snsprofile',
+    label: 'SNS Profile',
+    description: '\uc18c\uc15c \ud504\ub85c\ud544\uc6a9 \uc815\uc0ac\uac01\ud615',
+  },
 ];
 
 export function ThemeSelector() {
@@ -195,6 +200,20 @@ export function ThemeSelector() {
                     <rect x="4" y="2" width="16" height="20" rx="2" strokeLinecap="round" strokeLinejoin="round" />
                     <circle cx="12" cy="10" r="3" strokeLinecap="round" strokeLinejoin="round" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8 17h8M10 14h4" />
+                  </svg>
+                ) : option.id === 'snsprofile' ? (
+                  /* SNS Profile icon - square with profile silhouette */
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="12" cy="10" r="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 19c0-2.76 2.24-5 5-5s5 2.24 5 5" />
                   </svg>
                 ) : (
                   /* Tarot icon - mystical eye */

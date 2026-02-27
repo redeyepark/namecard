@@ -50,6 +50,12 @@ const themeConfig: Record<CardTheme, { borderColor: string; label: string; bgCol
     bgColor: '#FFFFFF',
     accentColor: '#374151',
   },
+  snsprofile: {
+    borderColor: '#020912',
+    label: 'SNS Profile',
+    bgColor: '#020912',
+    accentColor: '#fcfcfc',
+  },
 };
 
 /**

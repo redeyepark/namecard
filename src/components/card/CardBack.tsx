@@ -1,14 +1,15 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { isBuiltinTheme } from '@/types/card';
 import { extractHandle } from '@/lib/social-utils';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 import { PokemonCardBack } from './PokemonCardBack';
 import { HearthstoneCardBack } from './HearthstoneCardBack';
 import { HarrypotterCardBack } from './HarrypotterCardBack';
 import { TarotCardBack } from './TarotCardBack';
 import { NametagCardBack } from './NametagCardBack';
+import { SNSProfileCardBack } from './SNSProfileCardBack';
 import { CustomThemeCardBack } from './CustomThemeCardBack';
 
 /**
@@ -17,13 +18,15 @@ import { CustomThemeCardBack } from './CustomThemeCardBack';
  * Non-builtin themes are routed to CustomThemeCardBack.
  */
 export function CardBack() {
-  const theme = useCardStore((state) => state.card.theme ?? 'classic');
+  const card = useCardData();
+  const theme = card.theme ?? 'classic';
 
   if (theme === 'pokemon') return <PokemonCardBack />;
   if (theme === 'hearthstone') return <HearthstoneCardBack />;
   if (theme === 'harrypotter') return <HarrypotterCardBack />;
   if (theme === 'tarot') return <TarotCardBack />;
   if (theme === 'nametag') return <NametagCardBack />;
+  if (theme === 'snsprofile') return <SNSProfileCardBack />;
   if (!isBuiltinTheme(theme)) return <CustomThemeCardBack themeSlug={theme} />;
   return <ClassicCardBack />;
 }
@@ -33,7 +36,7 @@ export function CardBack() {
  * No changes to layout, styles, or behavior.
  */
 export function ClassicCardBack() {
-  const { back } = useCardStore((state) => state.card);
+  const { back } = useCardData();
 
   return (
     <div

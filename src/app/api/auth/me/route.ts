@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { ensureProfile } from '@/lib/profile-storage';
 
 const adminEmails = (process.env.ADMIN_EMAILS ?? '')
   .split(',')
@@ -39,6 +40,14 @@ export async function GET() {
   const isAdmin = adminEmails.includes(
     (user.email ?? '').toLowerCase()
   );
+
+  // Ensure user profile exists on every auth check (creates on first login)
+  try {
+    await ensureProfile(user.id, user.email || '');
+  } catch {
+    // Profile creation failure should not block auth response
+    console.error('Failed to ensure profile for user:', user.id);
+  }
 
   return NextResponse.json({
     user: {

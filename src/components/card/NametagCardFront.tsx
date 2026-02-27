@@ -1,6 +1,6 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
+import { useCardData } from './CardDataProvider';
 
 /**
  * NametagCardFront - Corporate name tag style front layout.
@@ -9,7 +9,7 @@ import { useCardStore } from '@/stores/useCardStore';
  * Uses inline styles for all critical visual properties (html-to-image compatibility).
  */
 export function NametagCardFront() {
-  const { front } = useCardStore((state) => state.card);
+  const { front } = useCardData();
 
   return (
     <div

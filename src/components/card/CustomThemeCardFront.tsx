@@ -1,8 +1,8 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { useCustomThemes } from '@/hooks/useCustomThemes';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 import { ClassicCardFront } from './CardFront';
 import type { CustomTheme } from '@/types/custom-theme';
 
@@ -36,7 +36,7 @@ export function CustomThemeCardFront({ themeSlug }: CustomThemeCardFrontProps) {
  * Same structure as ClassicCardFront: avatar image area, display name overlay, title, hashtags.
  */
 function CustomClassicFront({ themeDef }: { themeDef: CustomTheme }) {
-  const { front } = useCardStore((state) => state.card);
+  const { front } = useCardData();
 
   const fontFamily = themeDef.fontFamily || "'Nanum Myeongjo', serif";
   const textColor = themeDef.frontTextColor || front.textColor || '#FFFFFF';
@@ -122,7 +122,7 @@ function CustomClassicFront({ themeDef }: { themeDef: CustomTheme }) {
  * Full-bleed illustration, no text overlay. Same structure as NametagCardFront.
  */
 function CustomNametagFront({ themeDef }: { themeDef: CustomTheme }) {
-  const { front } = useCardStore((state) => state.card);
+  const { front } = useCardData();
 
   const fontFamily = themeDef.fontFamily || "'Nanum Myeongjo', serif";
   const bgColor = themeDef.frontBgColor || front.backgroundColor;

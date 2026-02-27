@@ -1,8 +1,8 @@
 'use client';
 
-import { useCardStore } from '@/stores/useCardStore';
 import { extractHandle } from '@/lib/social-utils';
 import { renderMultiLine } from '@/lib/text-utils';
+import { useCardData } from './CardDataProvider';
 import { getHearthstoneClassConfig } from './hearthstone-types';
 
 /**
@@ -12,7 +12,7 @@ import { getHearthstoneClassConfig } from './hearthstone-types';
  * Uses inline styles for all critical visual properties (html-to-image compatibility).
  */
 export function HearthstoneCardBack() {
-  const { back, hearthstoneMeta } = useCardStore((state) => state.card);
+  const { back, hearthstoneMeta } = useCardData();
   const classConfig = getHearthstoneClassConfig(hearthstoneMeta?.classType ?? 'warrior');
   const classColor = classConfig.color;
 
