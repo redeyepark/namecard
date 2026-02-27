@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getGalleryCards, getFeedCards } from '@/lib/storage';
 import { GalleryClient } from './GalleryClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: '명함 갤러리 | Namecard',
   description: '참가자들의 명함을 둘러보세요',
