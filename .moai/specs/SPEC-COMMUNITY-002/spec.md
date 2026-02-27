@@ -2,7 +2,7 @@
 id: SPEC-COMMUNITY-002
 title: Like + Bookmark System
 version: 1.0.0
-status: draft
+status: completed
 created: 2026-02-27
 updated: 2026-02-27
 author: MoAI

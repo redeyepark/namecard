@@ -98,6 +98,16 @@
 - 테마별 메타데이터 편집 (타입/기숙사/아르카나 선택, 스탯 입력)
 - 하위 호환성: theme 필드 없는 기존 카드는 자동 classic 처리
 
+### 커스텀 테마 시스템 (SPEC-CUSTOM-THEME-001)
+
+- 관리자가 관리자 패널(`/admin/themes`)에서 커스텀 테마 생성, 편집, 삭제 가능
+- 기존 레이아웃 템플릿(`classic`, `nametag`)을 기반으로 시각적 커스터마이징
+- 설정 가능 항목: 앞면/뒷면 배경색, 텍스트색, 테두리색, 악센트 색상, 폰트, 테두리 스타일/두께
+- 커스텀 필드(JSONB) 정의로 테마별 메타데이터 확장 가능
+- `custom_themes` DB 테이블 + RLS 정책 적용
+- 에디터 ThemeSelector에서 빌트인 + 커스텀 테마 통합 표시
+- API: GET/POST `/api/admin/custom-themes`, GET/PUT/DELETE `/api/admin/custom-themes/[id]`, GET `/api/themes`
+
 ### 명함 앞면/뒷면 실시간 편집 및 미리보기
 
 - 앞면(Front): Display Name, Avatar Image, 텍스트 컬러 편집
@@ -161,6 +171,41 @@
 - /gallery 경로로 전체 명함 목록 조회
 - 이벤트별 그룹화 표시
 - is_public 플래그로 갤러리 노출 제어
+
+### 사용자 프로필 시스템 (SPEC-COMMUNITY-001)
+
+- `/profile/[id]` 경로로 사용자 프로필 페이지 제공
+- 프로필 정보: 표시 이름, 자기소개(200자), 아바타, 공개 설정
+- 프로필 편집: `/api/profiles/me` PUT 엔드포인트
+- 포트폴리오 카드 갤러리: 사용자가 만든 카드 목록 표시
+- 테마 분포 시각화: 사용 테마별 통계 차트
+- `user_profiles` DB 테이블 + RLS 정책 (공개 열람, 본인 수정)
+- `card_requests` 테이블에 `user_id` (UUID FK), `like_count` (INTEGER) 컬럼 추가
+
+### 커뮤니티 피드
+
+- `/api/feed` 엔드포인트로 공개 카드 피드 제공
+- 정렬: 최신순(submitted_at DESC), 인기순(like_count DESC)
+- 테마 필터: 특정 테마 카드만 필터링
+- 무한 스크롤: react-intersection-observer 기반
+- FeedContainer, FeedCardThumbnail, FeedFilters 컴포넌트
+
+### SNS 프로필 테마
+
+- 소셜 네트워크 스타일의 카드 테마 추가
+- SNSProfileCardFront, SNSProfileCardBack 컴포넌트
+- ThemeSelector에서 `snsprofile` 테마로 선택 가능
+
+### 좋아요 + 북마크 시스템 (SPEC-COMMUNITY-002)
+
+- 좋아요 토글: POST/DELETE `/api/cards/[id]/like`
+- 북마크 토글: POST/DELETE `/api/cards/[id]/bookmark`
+- `card_likes` 테이블 (user_id + card_id 복합 PK)
+- `card_bookmarks` 테이블 (user_id + card_id 복합 PK)
+- 인증 사용자만 좋아요/북마크 가능 (RLS 정책)
+- LikeButton, BookmarkButton 컴포넌트 (src/components/social/)
+- useLike, useBookmark 커스텀 훅
+- 북마크 대시보드: `/dashboard/bookmarks`
 
 ### 이벤트 관리 (관리자)
 
@@ -256,6 +301,8 @@ submitted (의뢰됨) -> confirmed (확정)      # 사용자가 대시보드에�
 | `/admin/members` | 관리자 전용 | 회원 관리 |
 | `/cards/[id]` | 공개 | 공개 명함 페이지 (QR 스캔용) |
 | `/gallery` | 공개 | 공개 명함 갤러리 |
+| `/profile/[id]` | 공개 | 사용자 프로필 페이지 |
+| `/dashboard/bookmarks` | 인증 필요 | 북마크 목록 |
 
 ## 접근성(Accessibility) 지원
 

@@ -32,6 +32,11 @@
 - 앞/뒤 합성 이미지 다운로드
 - 토스트 알림 시스템
 - 비공개 카드 공유 제한
+- 관리자 커스텀 테마 생성/편집/삭제 (기존 레이아웃 기반 색상/폰트/테두리 커스터마이징)
+- 사용자 프로필 페이지 (포트폴리오 카드 갤러리, 테마 분포 시각화)
+- 커뮤니티 피드 (최신순/인기순 정렬, 테마 필터, 무한 스크롤)
+- SNS 프로필 테마 (소셜 네트워크 스타일 카드)
+- 좋아요/북마크 시스템 (카드 소셜 인터랙션)
 
 ## 기술 스택
 
@@ -100,15 +105,24 @@ npm start
 ```
 src/
 ├── app/                 # Next.js App Router
-│   ├── dashboard/       # 사용자 대시보드 (내 요청 목록, 상세)
+│   ├── dashboard/       # 사용자 대시보드 (내 요청 목록, 상세, 북마크)
+│   ├── profile/[id]/    # 사용자 프로필 페이지
+│   ├── api/profiles/    # 사용자 프로필 API
+│   ├── api/feed/        # 커뮤니티 피드 API
+│   ├── api/cards/[id]/  # 좋아요/북마크 API
+│   ├── api/admin/custom-themes/ # 커스텀 테마 관리 API
+│   ├── api/themes/      # 공개 테마 목록 API
 │   ├── api/requests/my/ # 사용자 본인 요청 목록 API
 │   └── api/admin/bulk-upload/ # 관리자 CSV/Excel 대량 등록 API
 ├── components/
 │   ├── admin/           # 관리자 컴포넌트 (갤러리 뷰, 필터, ThemeListBox 등)
-│   ├── card/            # 카드 미리보기 컴포넌트 (5개 테마: Classic/Pokemon/Hearthstone/Harrypotter/Tarot)
+│   ├── card/            # 카드 미리보기 컴포넌트 (6개 테마 + 커스텀 테마)
 │   ├── dashboard/       # 대시보드 컴포넌트 (ProgressStepper, MyRequestList 등)
 │   ├── editor/          # 편집기 컴포넌트 (테마별 메타데이터 편집 UI 포함)
 │   ├── export/          # 내보내기 및 소셜 공유 (ExportPanel, KakaoShare, SocialShare)
+│   ├── feed/            # 커뮤니티 피드 컴포넌트 (FeedContainer, FeedFilters)
+│   ├── profile/         # 사용자 프로필 컴포넌트 (ProfileHeader, ProfileEditForm)
+│   ├── social/          # 소셜 인터랙션 컴포넌트 (LikeButton, BookmarkButton)
 │   ├── providers/       # 컨텍스트 프로바이더 (KakaoProvider)
 │   └── ui/              # 공통 UI 컴포넌트 (Toast 알림 포함)
 ├── hooks/               # 커스텀 훅 (useAdminFilters 등)
@@ -118,6 +132,31 @@ src/
 ```
 
 ## 최근 변경사항
+
+### 좋아요 + 북마크 시스템 (SPEC-COMMUNITY-002)
+
+- 카드 좋아요 토글 (하트 아이콘, 실시간 카운트)
+- 카드 북마크 토글 (저장 아이콘, 개인 컬렉션)
+- 북마크 대시보드 (`/dashboard/bookmarks`)
+- 공개 카드 페이지 및 갤러리 썸네일에 좋아요/북마크 버튼 표시
+- 인증 사용자만 좋아요/북마크 가능
+
+### 사용자 프로필 + 커뮤니티 피드 (SPEC-COMMUNITY-001)
+
+- 사용자 프로필 페이지 (`/profile/[id]`) - 포트폴리오 카드 갤러리
+- 프로필 편집 (표시 이름, 자기소개, 아바타, 공개 설정)
+- 테마 분포 시각화 차트
+- 커뮤니티 피드 - 최신순/인기순 정렬, 테마 필터
+- 무한 스크롤 카드 탐색
+- SNS 프로필 테마 카드 스킨
+
+### 관리자 커스텀 테마 (SPEC-CUSTOM-THEME-001)
+
+- 관리자 패널에서 커스텀 테마 생성/편집/삭제 기능
+- 기존 레이아웃 템플릿(classic, nametag) 기반 시각적 커스터마이징
+- 색상, 폰트, 테두리 스타일, 커스텀 메타데이터 필드 설정
+- 커스텀 테마 미리보기 및 에디터 실시간 반영
+- 기존 6개 빌트인 테마 100% 하위 호환
 
 ### 카카오톡/소셜 공유 (SPEC-SOCIAL-SHARE-001)
 

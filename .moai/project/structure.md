@@ -27,8 +27,10 @@ namecard/
 │   │   │   ├── page.tsx                   # 사용자 대시보드 (내 요청 목록)
 │   │   │   ├── settings/
 │   │   │   │   └── page.tsx               # 사용자 설정 페이지 (비밀번호 변경)
-│   │   │   └── [id]/
-│   │   │       └── page.tsx               # 사용자 요청 상세 (확정 버튼, 편집 폼 "저장 후 확정" 포함)
+│   │   │   ├── [id]/
+│   │   │   │   └── page.tsx               # 사용자 요청 상세 (확정 버튼, 편집 폼 "저장 후 확정" 포함)
+│   │   │   └── bookmarks/
+│   │   │       └── page.tsx               # 북마크한 카드 목록 페이지
 │   │   ├── cards/
 │   │   │   └── [id]/
 │   │   │       ├── page.tsx               # 공개 명함 페이지 (Server Component, OG 메타데이터)
@@ -49,6 +51,10 @@ namecard/
 │   │   │   └── login/
 │   │   │       ├── layout.tsx             # 관리자 로그인 레이아웃
 │   │   │       └── page.tsx               # 관리자 로그인 페이지
+│   │   ├── profile/
+│   │   │   └── [id]/
+│   │   │       ├── page.tsx               # 사용자 프로필 페이지 (Server Component)
+│   │   │       └── ProfileClient.tsx      # 프로필 클라이언트 컴포넌트
 │   │   └── api/
 │   │       ├── auth/
 │   │       │   └── me/
@@ -66,16 +72,37 @@ namecard/
 │   │       │   │   └── [id]/
 │   │       │   │       └── cards/
 │   │       │   │           └── route.ts   # GET (이벤트별 카드 데이터, requireAdminToken)
+│   │       │   ├── custom-themes/
+│   │       │   │   ├── route.ts           # GET/POST (커스텀 테마 목록/생성, requireAdmin)
+│   │       │   │   └── [id]/
+│   │       │   │       └── route.ts       # GET/PUT/DELETE (커스텀 테마 상세/수정/삭제, requireAdmin)
 │   │       │   ├── login/
 │   │       │   │   └── route.ts           # 관리자 로그인 API
 │   │       │   └── logout/
 │   │       │       └── route.ts           # 관리자 로그아웃 API
-│   │       └── requests/
-│   │           ├── route.ts               # POST (요청 생성, requireAuth), GET (목록, requireAdmin)
-│   │           ├── my/
-│   │           │   └── route.ts           # GET (사용자 본인 요청 목록, requireAuth)
-│   │           └── [id]/
-│   │               └── route.ts           # GET (상세, requireAuth + 소유권 검증), PATCH (수정, requireAdmin)
+│   │       ├── profiles/
+│   │       │   ├── me/
+│   │       │   │   └── route.ts           # GET/PUT (내 프로필 조회/수정)
+│   │       │   └── [id]/
+│   │       │       ├── route.ts           # GET (사용자 프로필 조회)
+│   │       │       └── cards/
+│   │       │           └── route.ts       # GET (사용자의 카드 목록)
+│   │       ├── feed/
+│   │       │   └── route.ts               # GET (커뮤니티 피드, 필터/정렬)
+│   │       ├── cards/
+│   │       │   └── [id]/
+│   │       │       ├── like/
+│   │       │       │   └── route.ts       # POST/DELETE (좋아요 토글)
+│   │       │       └── bookmark/
+│   │       │           └── route.ts       # POST/DELETE (북마크 토글)
+│   │       ├── themes/
+│   │       │   └── route.ts               # GET (공개 테마 목록, 커스텀 테마 포함)
+│   │       ├── requests/
+│   │       │   ├── route.ts               # POST (요청 생성, requireAuth), GET (목록, requireAdmin)
+│   │       │   ├── my/
+│   │       │   │   └── route.ts           # GET (사용자 본인 요청 목록, requireAuth)
+│   │       │   └── [id]/
+│   │       │       └── route.ts           # GET (상세, requireAuth + 소유권 검증), PATCH (수정, requireAdmin)
 │   ├── components/
 │   │   ├── auth/                          # 인증 관련 컴포넌트
 │   │   │   ├── AuthProvider.tsx           # Supabase onAuthStateChange 컨텍스트 (useAuth 훅)
@@ -99,6 +126,11 @@ namecard/
 │   │   │   ├── TarotCardFront.tsx         # Tarot 테마 앞면 (아르누보 보더, 천체 패턴, 미스틱 스탯)
 │   │   │   ├── TarotCardBack.tsx          # Tarot 테마 뒷면 (신비로운 눈 모티프, 별 패턴)
 │   │   │   ├── tarot-types.ts             # Tarot 5개 아르카나 정의, 색상, SVG 아이콘
+│   │   │   ├── CustomThemeCardFront.tsx   # 커스텀 테마 앞면 (동적 필드 렌더링)
+│   │   │   ├── CustomThemeCardBack.tsx    # 커스텀 테마 뒷면 (동적 필드 렌더링)
+│   │   │   ├── SNSProfileCardFront.tsx    # SNS 프로필 테마 앞면
+│   │   │   ├── SNSProfileCardBack.tsx     # SNS 프로필 테마 뒷면
+│   │   │   ├── CardDataProvider.tsx       # 카드 데이터 컨텍스트 프로바이더
 │   │   │   └── QRCodeModal.tsx            # QR 코드 모달 (vCard QR + URL QR, 다운로드)
 │   │   ├── editor/                        # 편집기 폼 컴포넌트
 │   │   │   ├── EditorPanel.tsx            # 편집기 패널 컨테이너
@@ -117,7 +149,19 @@ namecard/
 │   │   │   ├── HarrypotterHouseSelector.tsx # Harry Potter 기숙사 선택 그리드
 │   │   │   ├── HarrypotterStatInput.tsx   # Year/SpellPower 스탯 입력
 │   │   │   ├── TarotArcanaSelector.tsx    # Tarot 아르카나 선택 그리드
-│   │   │   └── TarotStatInput.tsx         # CardNumber/Mystique 스탯 입력
+│   │   │   ├── TarotStatInput.tsx         # CardNumber/Mystique 스탯 입력
+│   │   │   └── CustomThemeFieldsEditor.tsx # 커스텀 테마 동적 필드 편집기
+│   │   ├── feed/                          # 커뮤니티 피드 컴포넌트
+│   │   │   ├── FeedContainer.tsx          # 피드 컨테이너 (무한 스크롤, 필터)
+│   │   │   ├── FeedCardThumbnail.tsx      # 피드 카드 썸네일 (좋아요/북마크 표시)
+│   │   │   └── FeedFilters.tsx            # 피드 필터 (테마, 정렬, 검색)
+│   │   ├── profile/                       # 사용자 프로필 컴포넌트
+│   │   │   ├── ProfileHeader.tsx          # 프로필 헤더 (아바타, 이름, 소개)
+│   │   │   ├── ProfileEditForm.tsx        # 프로필 편집 폼
+│   │   │   └── ThemeDistribution.tsx      # 테마 사용 분포 차트
+│   │   ├── social/                        # 소셜 상호작용 컴포넌트
+│   │   │   ├── LikeButton.tsx             # 좋아요 버튼 (토글, 카운트 표시)
+│   │   │   └── BookmarkButton.tsx         # 북마크 버튼 (토글)
 │   │   ├── export/                        # 내보내기 컴포넌트
 │   │   │   └── ExportButton.tsx           # PNG 내보내기 (2x 해상도)
 │   │   ├── ui/                            # 범용 UI 컴포넌트
@@ -148,14 +192,23 @@ namecard/
 │   │       ├── CardCompare.tsx            # 원본 vs 일러스트 비교 (외부 URL 이미지 에러 핸들링 포함)
 │   │       ├── IllustrationUploader.tsx   # 일러스트 이미지 업로드 (파일 업로드 + 외부 URL 입력)
 │   │       ├── EventPdfDownload.tsx       # 이벤트별 명함 PDF 다운로드 (jsPDF + html-to-image)
-│   │       └── BulkUploadModal.tsx        # CSV/Excel 대량 등록 모달 (SheetJS 변환 지원)
+│   │       ├── BulkUploadModal.tsx        # CSV/Excel 대량 등록 모달 (SheetJS 변환 지원)
+│   │       ├── CustomThemeManager.tsx     # 커스텀 테마 관리 (목록, CRUD)
+│   │       ├── CustomThemeForm.tsx        # 커스텀 테마 생성/편집 폼
+│   │       └── CustomThemePreview.tsx     # 커스텀 테마 미리보기
 │   ├── stores/
 │   │   ├── useCardStore.ts                # Zustand store (persist middleware)
 │   │   └── __tests__/
 │   │       └── useCardStore.test.ts       # Store 단위 테스트
+│   ├── hooks/                             # 커스텀 React 훅
+│   │   ├── useLike.ts                     # 좋아요 토글 훅 (낙관적 업데이트)
+│   │   ├── useBookmark.ts                 # 북마크 토글 훅 (낙관적 업데이트)
+│   │   └── useCustomThemes.ts             # 커스텀 테마 CRUD 훅
 │   ├── types/
 │   │   ├── card.ts                        # 카드 타입 (CardData, SocialLink 등)
-│   │   └── request.ts                     # 요청 타입 (CardRequest, RequestStatus, createdBy)
+│   │   ├── request.ts                     # 요청 타입 (CardRequest, RequestStatus, createdBy)
+│   │   ├── profile.ts                     # 프로필 타입 (UserProfile, ProfileStats 등)
+│   │   └── custom-theme.ts               # 커스텀 테마 타입 (CustomTheme, ThemeField 등)
 │   ├── lib/
 │   │   ├── supabase.ts                    # 서버 Supabase 클라이언트 (service role key)
 │   │   ├── supabase-auth.ts               # 브라우저 Supabase 클라이언트 (anon key)
@@ -165,7 +218,8 @@ namecard/
 │   │   ├── url-utils.ts                  # Google Drive URL 변환 유틸리티 (convertGoogleDriveUrl)
 │   │   ├── qrcode.ts                      # QR 코드 생성 + vCard 3.0 생성 유틸리티
 │   │   ├── export.ts                      # html-to-image PNG 내보내기 유틸리티
-│   │   └── validation.ts                  # 이미지 파일 검증 + Base64 변환
+│   │   ├── validation.ts                  # 이미지 파일 검증 + Base64 변환
+│   │   └── profile-storage.ts             # 프로필 DB 연산 (getProfile, updateProfile, getProfileCards 등)
 │   └── test/
 │       └── setup.ts                       # Vitest 테스트 환경 설정
 ├── .moai/                                 # MoAI-ADK 설정
@@ -184,6 +238,11 @@ namecard/
 ├── .github/                               # GitHub 설정
 │   └── workflows/
 │       └── deploy.yml                     # Cloudflare Workers 배포 CI/CD
+├── supabase/                              # Supabase 로컬 설정
+│   └── migrations/                        # DB 마이그레이션 파일
+│       ├── 007_add_custom_themes.sql      # 커스텀 테마 테이블 생성
+│       ├── 008_add_community.sql          # 커뮤니티 프로필/피드 테이블 생성
+│       └── 009_add_likes_bookmarks.sql    # 좋아요/북마크 테이블 생성
 ├── _AEC/                                  # 참조용 디자인 에셋
 ├── public/                                # Static assets
 ├── package.json                           # 프로젝트 의존성 및 스크립트
@@ -321,6 +380,23 @@ layout.tsx (Root - AuthProvider 래핑)
 │   ├── StatusHistory              # 상태 변경 이력 (재사용)
 │   └── CardCompare                # 원본 vs 일러스트 비교 (재사용)
 │
+├── dashboard/bookmarks/page.tsx (Bookmarks) # 북마크한 카드 목록
+│   └── FeedCardThumbnail          # 카드 썸네일 (북마크 해제 가능)
+│
+├── profile/[id]/page.tsx (Profile) # 사용자 프로필
+│   ├── ProfileClient              # 프로필 클라이언트 컴포넌트
+│   ├── ProfileHeader              # 프로필 헤더 (아바타, 이름, 소개)
+│   ├── ProfileEditForm            # 프로필 편집 폼 (본인 프로필인 경우)
+│   ├── ThemeDistribution          # 테마 사용 분포 차트
+│   └── FeedCardThumbnail          # 사용자의 카드 목록
+│
+├── gallery/page.tsx (Feed)        # 커뮤니티 피드 (갤러리 확장)
+│   ├── FeedContainer              # 피드 컨테이너 (무한 스크롤)
+│   ├── FeedFilters                # 피드 필터 (테마, 정렬, 검색)
+│   └── FeedCardThumbnail          # 카드 썸네일 (좋아요/북마크)
+│       ├── LikeButton             # 좋아요 토글
+│       └── BookmarkButton         # 북마크 토글
+│
 ├── admin/page.tsx (Dashboard)     # 관리자 대시보드
 │   ├── UserMenu                   # 사용자 메뉴 + 관리자 배지 + 설정
 │   ├── BulkUploadModal            # CSV/Excel 대량 등록 모달
@@ -357,30 +433,37 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/app/admin/` | 관리자 대시보드, 요청 상세, 이벤트 관리, 회원 관리 페이지 |
 | `src/components/auth/` | 인증 관련 컴포넌트 (AuthProvider, LoginButton, UserMenu) |
 | `src/components/landing/` | 랜딩 페이지 컴포넌트 |
-| `src/components/card/` | 명함 미리보기 렌더링 컴포넌트 (테마 기반 위임 패턴: CardFront/CardBack이 theme 값에 따라 Classic/Pokemon/Hearthstone/Harrypotter/Tarot 컴포넌트로 위임) |
+| `src/components/card/` | 명함 미리보기 렌더링 컴포넌트 (테마 기반 위임 패턴: CardFront/CardBack이 theme 값에 따라 Classic/Pokemon/Hearthstone/Harrypotter/Tarot/Custom 컴포넌트로 위임) |
 | `src/components/editor/` | 명함 편집 폼 컴포넌트 (ThemeSelector, PokemonTypeSelector, HearthstoneClassSelector, HarrypotterHouseSelector, TarotArcanaSelector 등 테마 편집 UI 포함) |
 | `src/components/export/` | PNG 이미지 내보내기 관련 컴포넌트 |
 | `src/components/ui/` | 범용 UI 컴포넌트 (탭, 버튼) |
 | `src/components/wizard/` | 6단계 명함 제작 위저드 컴포넌트 |
 | `src/components/dashboard/` | 사용자 대시보드 컴포넌트 (ProgressStepper, MyRequestList, RequestCard, EmptyState, MyRequestDetail) |
-| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, EventPdfDownload, AdminCardPreview, AdminLogoutButton 등) |
+| `src/components/feed/` | 커뮤니티 피드 컴포넌트 (FeedContainer, FeedCardThumbnail, FeedFilters) |
+| `src/components/profile/` | 사용자 프로필 컴포넌트 (ProfileHeader, ProfileEditForm, ThemeDistribution) |
+| `src/components/social/` | 소셜 상호작용 컴포넌트 (LikeButton, BookmarkButton) |
+| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, EventPdfDownload, CustomThemeManager 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
-| `src/types/` | TypeScript 타입 정의 (카드, 요청) |
-| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환, QR 코드/vCard 생성). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수, `qrcode.ts`에 `generateVCard()`, `generateQRDataURL()`, `getCardPublicURL()` 함수 포함 |
+| `src/hooks/` | 커스텀 React 훅 (좋아요, 북마크, 커스텀 테마) |
+| `src/types/` | TypeScript 타입 정의 (카드, 요청, 프로필, 커스텀 테마) |
+| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환, QR 코드/vCard 생성, 프로필 DB 연산). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수, `qrcode.ts`에 `generateVCard()`, `generateQRDataURL()`, `getCardPublicURL()` 함수, `profile-storage.ts`에 프로필 CRUD 함수 포함 |
 | `src/test/` | 테스트 환경 설정 |
 | `.github/workflows/` | GitHub Actions CI/CD 워크플로우 (Cloudflare Workers 배포) |
+| `supabase/migrations/` | Supabase DB 마이그레이션 파일 (커스텀 테마, 커뮤니티, 좋아요/북마크) |
 
 ## 파일 수 현황
 
 | 카테고리 | 파일 수 |
 |---------|--------|
-| 페이지/레이아웃 (`.tsx` in `app/`) | 22 |
-| API 라우트 (`.ts` in `app/api/`) | 13 |
-| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 65 |
+| 페이지/레이아웃 (`.tsx` in `app/`) | 25 |
+| API 라우트 (`.ts` in `app/api/`) | 22 |
+| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 82 |
+| 커스텀 훅 (`.ts` in `hooks/`) | 3 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
-| 타입 정의 (`.ts` in `types/`) | 2 |
-| 유틸리티 (`.ts` in `lib/`) | 9 |
+| 타입 정의 (`.ts` in `types/`) | 4 |
+| 유틸리티 (`.ts` in `lib/`) | 10 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| 총 소스 파일 | 120 |
+| DB 마이그레이션 (`.sql`) | 3 |
+| 총 소스 파일 | 154 |

@@ -3,7 +3,7 @@
 ---
 id: SPEC-COMMUNITY-001
 version: 1.0.0
-status: draft
+status: completed
 created: 2026-02-27
 updated: 2026-02-27
 author: MoAI

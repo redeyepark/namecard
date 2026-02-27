@@ -111,6 +111,43 @@
 - 주의: hearthstone_meta, harrypotter_meta, tarot_meta 컬럼은 DB에 존재하지 않음 (pokemon_meta만 존재)
 - EventPdfDownload 컴포넌트에서 PDF 생성 시 데이터 소스로 사용
 
+## 커뮤니티 API
+
+### 프로필 API
+
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| GET | `/api/profiles/me` | 현재 사용자 프로필 조회 (requireAuth) |
+| PUT | `/api/profiles/me` | 프로필 업데이트 (requireAuth) |
+| GET | `/api/profiles/[id]` | 사용자 프로필 조회 (공개) |
+| GET | `/api/profiles/[id]/cards` | 사용자 카드 목록 조회 (공개) |
+
+### 피드 API
+
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| GET | `/api/feed` | 커뮤니티 피드 (정렬: latest/popular, 테마 필터, 페이지네이션) |
+
+### 소셜 인터랙션 API
+
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| POST | `/api/cards/[id]/like` | 좋아요 토글 (requireAuth) |
+| DELETE | `/api/cards/[id]/like` | 좋아요 해제 (requireAuth) |
+| POST | `/api/cards/[id]/bookmark` | 북마크 토글 (requireAuth) |
+| DELETE | `/api/cards/[id]/bookmark` | 북마크 해제 (requireAuth) |
+
+### 커스텀 테마 API
+
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| GET | `/api/admin/custom-themes` | 커스텀 테마 목록 (requireAdmin) |
+| POST | `/api/admin/custom-themes` | 커스텀 테마 생성 (requireAdmin) |
+| GET | `/api/admin/custom-themes/[id]` | 커스텀 테마 조회 (requireAdmin) |
+| PUT | `/api/admin/custom-themes/[id]` | 커스텀 테마 수정 (requireAdmin) |
+| DELETE | `/api/admin/custom-themes/[id]` | 커스텀 테마 삭제 (requireAdmin) |
+| GET | `/api/themes` | 공개 테마 목록 (공개) |
+
 ## 데이터베이스: Supabase PostgreSQL
 
 ### 테이블 구조
@@ -120,6 +157,10 @@
 | `card_requests` | 명함 제작 요청 (사용자 정보, 카드 데이터, 상태). `is_public` BOOLEAN: 갤러리 공개 여부 (기본값: false), `event_id` UUID: 연결된 이벤트 ID |
 | `card_request_status_history` | 요청 상태 변경 이력 추적 |
 | `events` | 이벤트 관리 (이벤트명, 날짜, 설명) |
+| `custom_themes` | 커스텀 테마 정의 (slug, 이름, 색상, 폰트, 테두리 등) |
+| `user_profiles` | 사용자 프로필 (표시 이름, 자기소개, 아바타, 공개 설정) |
+| `card_likes` | 카드 좋아요 (user_id + card_id 복합 PK) |
+| `card_bookmarks` | 카드 북마크 (user_id + card_id 복합 PK) |
 
 ### Storage 버킷
 
@@ -306,7 +347,7 @@ Redux, MobX 등 대비 보일러플레이트가 최소화된 Zustand을 선택�
 
 ### 테마 기반 컴포넌트 위임 패턴
 
-CardFront/CardBack을 래퍼 컴포넌트로 전환하여, `theme` 값(`classic`, `pokemon`, `hearthstone`, `harrypotter`, `tarot`)에 따라 테마별 전용 컴포넌트(Classic/Pokemon/Hearthstone/Harrypotter/Tarot)로 렌더링을 위임합니다. 기존 클래식 테마 동작은 100% 보존하면서 새 테마를 독립 컴포넌트로 추가하여, 테마 간 스타일 간섭 없이 확장할 수 있습니다. `theme` 필드가 없는 기존 카드 데이터는 자동으로 `classic`으로 처리됩니다. 모든 테마 컴포넌트는 인라인 스타일을 사용하여 html-to-image 라이브러리와의 호환성을 보장합니다.
+CardFront/CardBack을 래퍼 컴포넌트로 전환하여, `theme` 값(`classic`, `pokemon`, `hearthstone`, `harrypotter`, `tarot`, SNS 프로필, 커스텀 테마 등 6종 이상)에 따라 테마별 전용 컴포넌트로 렌더링을 위임합니다. 기존 클래식 테마 동작은 100% 보존하면서 새 테마를 독립 컴포넌트로 추가하여, 테마 간 스타일 간섭 없이 확장할 수 있습니다. `theme` 필드가 없는 기존 카드 데이터는 자동으로 `classic`으로 처리됩니다. 모든 테마 컴포넌트는 인라인 스타일을 사용하여 html-to-image 라이브러리와의 호환성을 보장합니다.
 
 ### 명함 뒷면 고정 폰트 사이즈
 
@@ -323,6 +364,14 @@ CardFront/CardBack을 래퍼 컴포넌트로 전환하여, `theme` 값(`classic`
 ### react-colorful로 경량 색상 선택기
 
 react-color(약 14KB) 대신 react-colorful(약 2KB)을 선택하여 번들 크기를 최소화했습니다. 외부 의존성이 없어 유지보수 부담이 적고, 접근성(WCAG)을 기본 지원합니다.
+
+### 커뮤니티 아키텍처
+
+사용자 프로필 시스템과 소셜 인터랙션(좋아요/북마크)을 도입하여 명함 서비스를 커뮤니티 플랫폼으로 확장합니다. `user_profiles` 테이블은 Supabase Auth의 `auth.users`와 FK 관계로 연결되며, 프로필 공개 설정을 통해 개인정보를 보호합니다. 좋아요는 `card_likes` 테이블에 복합 PK로 저장하여 중복을 방지하고, `card_requests.like_count` 컬럼으로 비정규화하여 피드 정렬 성능을 최적화합니다.
+
+### 커스텀 테마 아키텍처
+
+기존 하드코딩된 빌트인 테마 시스템을 확장하여, 관리자가 DB 기반으로 커스텀 테마를 생성할 수 있게 합니다. 커스텀 테마는 기존 레이아웃 템플릿(`classic`, `nametag`)을 `base_template`로 선택하고, 색상/폰트/테두리 등 시각적 속성만 커스터마이징합니다. `CardFront`/`CardBack` 래퍼에서 `CustomThemeCardFront`/`CustomThemeCardBack` 컴포넌트로 위임하며, `custom_themes` 테이블의 스타일 정보를 인라인 스타일로 적용합니다. `useCustomThemes` 훅이 테마 목록을 캐싱하여 불필요한 API 호출을 방지합니다.
 
 ## 주요 npm 스크립트
 
