@@ -68,7 +68,8 @@ const statusConfig: Record<string, { label: string; bgColor: string; textColor: 
  */
 export function GalleryCardThumbnail({ card }: GalleryCardThumbnailProps) {
   const theme = card.theme || 'classic';
-  const config = themeConfig[theme];
+  // Fallback to classic config for custom themes not in the built-in themeConfig
+  const config = themeConfig[theme] ?? themeConfig.classic;
   const imgSrc = card.illustrationUrl
     ? convertGoogleDriveUrl(card.illustrationUrl) || card.illustrationUrl
     : null;

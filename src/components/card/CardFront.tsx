@@ -1,16 +1,19 @@
 'use client';
 
 import { useCardStore } from '@/stores/useCardStore';
+import { isBuiltinTheme } from '@/types/card';
 import { renderMultiLine } from '@/lib/text-utils';
 import { PokemonCardFront } from './PokemonCardFront';
 import { HearthstoneCardFront } from './HearthstoneCardFront';
 import { HarrypotterCardFront } from './HarrypotterCardFront';
 import { TarotCardFront } from './TarotCardFront';
 import { NametagCardFront } from './NametagCardFront';
+import { CustomThemeCardFront } from './CustomThemeCardFront';
 
 /**
  * CardFront wrapper that delegates to the appropriate theme renderer.
  * Classic theme preserves 100% original behavior.
+ * Non-builtin themes are routed to CustomThemeCardFront.
  */
 export function CardFront() {
   const theme = useCardStore((state) => state.card.theme ?? 'classic');
@@ -20,6 +23,7 @@ export function CardFront() {
   if (theme === 'harrypotter') return <HarrypotterCardFront />;
   if (theme === 'tarot') return <TarotCardFront />;
   if (theme === 'nametag') return <NametagCardFront />;
+  if (!isBuiltinTheme(theme)) return <CustomThemeCardFront themeSlug={theme} />;
   return <ClassicCardFront />;
 }
 
@@ -27,7 +31,7 @@ export function CardFront() {
  * ClassicCardFront - Identical to the original CardFront rendering.
  * No changes to layout, styles, or behavior.
  */
-function ClassicCardFront() {
+export function ClassicCardFront() {
   const { front } = useCardStore((state) => state.card);
 
   return (

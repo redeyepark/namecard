@@ -20,7 +20,15 @@ export interface CardBackData {
   textColor: string;
 }
 
-export type CardTheme = 'classic' | 'pokemon' | 'hearthstone' | 'harrypotter' | 'tarot' | 'nametag';
+export type BuiltinTheme = 'classic' | 'pokemon' | 'hearthstone' | 'harrypotter' | 'tarot' | 'nametag';
+
+export const BUILTIN_THEMES: BuiltinTheme[] = ['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot', 'nametag'];
+
+export function isBuiltinTheme(theme: string): theme is BuiltinTheme {
+  return (BUILTIN_THEMES as string[]).includes(theme);
+}
+
+export type CardTheme = BuiltinTheme | (string & {});
 export type PokemonType = 'fire' | 'water' | 'grass' | 'electric' | 'psychic' | 'steel' | 'normal';
 export type HearthstoneClass = 'warrior' | 'mage' | 'rogue' | 'priest' | 'hunter' | 'paladin' | 'shaman' | 'warlock' | 'druid';
 export type HarrypotterHouse = 'gryffindor' | 'slytherin' | 'hufflepuff' | 'ravenclaw';
@@ -58,6 +66,7 @@ export interface CardData {
   hearthstoneMeta?: HearthstoneMeta; // only when theme === 'hearthstone'
   harrypotterMeta?: HarrypotterMeta; // only when theme === 'harrypotter'
   tarotMeta?: TarotMeta;             // only when theme === 'tarot'
+  customThemeMeta?: Record<string, string | number>; // only when theme is a custom (non-builtin) theme
 }
 
 export type CardSide = 'front' | 'back';

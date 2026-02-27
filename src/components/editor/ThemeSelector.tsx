@@ -1,6 +1,7 @@
 'use client';
 
 import { useCardStore } from '@/stores/useCardStore';
+import { useCustomThemes } from '@/hooks/useCustomThemes';
 import type { CardTheme } from '@/types/card';
 
 const THEME_OPTIONS: { id: CardTheme; label: string; description: string }[] = [
@@ -39,6 +40,16 @@ const THEME_OPTIONS: { id: CardTheme; label: string; description: string }[] = [
 export function ThemeSelector() {
   const theme = useCardStore((state) => state.card.theme ?? 'classic');
   const setTheme = useCardStore((state) => state.setTheme);
+  const { themes: customThemes, isLoading: customLoading } = useCustomThemes();
+
+  // Only show active custom themes
+  const activeCustomThemes = (customThemes ?? []).filter((t) => t.isActive);
+
+  // Build combined list for arrow key navigation
+  const allOptions: { id: CardTheme; label: string }[] = [
+    ...THEME_OPTIONS,
+    ...activeCustomThemes.map((ct) => ({ id: ct.slug as CardTheme, label: ct.name })),
+  ];
 
   const handleKeyDown = (e: React.KeyboardEvent, themeId: CardTheme) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -48,19 +59,18 @@ export function ThemeSelector() {
     // Arrow key navigation
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault();
-      const currentIndex = THEME_OPTIONS.findIndex((t) => t.id === themeId);
-      const nextIndex = (currentIndex + 1) % THEME_OPTIONS.length;
-      setTheme(THEME_OPTIONS[nextIndex].id);
-      // Focus the next option
-      const nextEl = document.getElementById(`theme-option-${THEME_OPTIONS[nextIndex].id}`);
+      const currentIndex = allOptions.findIndex((t) => t.id === themeId);
+      const nextIndex = (currentIndex + 1) % allOptions.length;
+      setTheme(allOptions[nextIndex].id);
+      const nextEl = document.getElementById(`theme-option-${allOptions[nextIndex].id}`);
       nextEl?.focus();
     }
     if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
       e.preventDefault();
-      const currentIndex = THEME_OPTIONS.findIndex((t) => t.id === themeId);
-      const prevIndex = (currentIndex - 1 + THEME_OPTIONS.length) % THEME_OPTIONS.length;
-      setTheme(THEME_OPTIONS[prevIndex].id);
-      const prevEl = document.getElementById(`theme-option-${THEME_OPTIONS[prevIndex].id}`);
+      const currentIndex = allOptions.findIndex((t) => t.id === themeId);
+      const prevIndex = (currentIndex - 1 + allOptions.length) % allOptions.length;
+      setTheme(allOptions[prevIndex].id);
+      const prevEl = document.getElementById(`theme-option-${allOptions[prevIndex].id}`);
       prevEl?.focus();
     }
   };
@@ -232,6 +242,87 @@ export function ThemeSelector() {
           );
         })}
       </div>
+
+      {/* Custom themes section */}
+      {customLoading ? (
+        <div className="pt-2">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-px flex-1 bg-gray-200" />
+            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Custom</span>
+            <div className="h-px flex-1 bg-gray-200" />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-gray-100 animate-pulse"
+              >
+                <div className="w-10 h-10 rounded-full bg-gray-100" />
+                <div className="h-3 bg-gray-100 w-16" />
+                <div className="h-2 bg-gray-50 w-12" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : activeCustomThemes.length > 0 ? (
+        <div className="pt-2">
+          {/* Divider label */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-px flex-1 bg-gray-200" />
+            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Custom</span>
+            <div className="h-px flex-1 bg-gray-200" />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            {activeCustomThemes.map((ct) => {
+              const isSelected = theme === ct.slug;
+              return (
+                <button
+                  key={ct.id}
+                  id={`theme-option-${ct.slug}`}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  tabIndex={isSelected ? 0 : -1}
+                  onClick={() => setTheme(ct.slug as CardTheme)}
+                  onKeyDown={(e) => handleKeyDown(e, ct.slug as CardTheme)}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                    isSelected
+                      ? 'border-gray-900 bg-gray-50 shadow-sm'
+                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {/* Colored circle icon */}
+                  <div className="w-10 h-10 flex items-center justify-center">
+                    <div
+                      className="w-7 h-7 rounded-full"
+                      style={{ backgroundColor: ct.accentColor }}
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  {/* Label */}
+                  <span
+                    className={`text-sm font-medium truncate max-w-full ${
+                      isSelected ? 'text-gray-900' : 'text-gray-500'
+                    }`}
+                  >
+                    {ct.name}
+                  </span>
+
+                  {/* Description */}
+                  <span
+                    className={`text-xs ${
+                      isSelected ? 'text-gray-600' : 'text-gray-400'
+                    }`}
+                  >
+                    {ct.baseTemplate === 'classic' ? 'Classic base' : 'Nametag base'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

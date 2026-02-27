@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CardData, CardSide, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse, TarotArcana, SocialLink } from '@/types/card';
+import { isBuiltinTheme } from '@/types/card';
 
 const DEFAULT_CARD: CardData = {
   front: {
@@ -46,6 +47,8 @@ interface CardStore {
   setTarotArcana: (arcana: TarotArcana) => void;
   setTarotCardNumber: (cardNumber: number) => void;
   setTarotMystique: (mystique: number) => void;
+  setCustomThemeMeta: (key: string, value: string | number) => void;
+  removeCustomThemeMeta: (key: string) => void;
   setWizardStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -139,6 +142,10 @@ export const useCardStore = create<CardStore>()(
           // Auto-create default tarotMeta when switching to 'tarot' if none exists
           if (theme === 'tarot' && !state.card.tarotMeta) {
             updatedCard.tarotMeta = { arcana: 'major', cardNumber: 0, mystique: 100 };
+          }
+          // Auto-create empty customThemeMeta when switching to a custom (non-builtin) theme
+          if (!isBuiltinTheme(theme) && !state.card.customThemeMeta) {
+            updatedCard.customThemeMeta = {};
           }
           return { card: updatedCard };
         }),
@@ -262,6 +269,27 @@ export const useCardStore = create<CardStore>()(
             },
           },
         })),
+      setCustomThemeMeta: (key, value) =>
+        set((state) => ({
+          card: {
+            ...state.card,
+            customThemeMeta: {
+              ...(state.card.customThemeMeta ?? {}),
+              [key]: value,
+            },
+          },
+        })),
+      removeCustomThemeMeta: (key) =>
+        set((state) => {
+          const current = { ...(state.card.customThemeMeta ?? {}) };
+          delete current[key];
+          return {
+            card: {
+              ...state.card,
+              customThemeMeta: current,
+            },
+          };
+        }),
       setWizardStep: (step) =>
         set({ wizardStep: Math.max(1, Math.min(5, step)) }),
       nextStep: () =>

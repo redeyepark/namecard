@@ -73,7 +73,8 @@ const statusConfig: Record<string, { label: string; bgColor: string; textColor: 
 export function AdminGalleryCard({ request }: AdminGalleryCardProps) {
   const router = useRouter();
   const theme = (request.theme as CardTheme) || 'classic';
-  const config = themeConfig[theme] || themeConfig.classic;
+  // Fallback to classic config for custom themes not in the built-in themeConfig
+  const config = themeConfig[theme] ?? themeConfig.classic;
   const imgSrc = request.illustrationUrl
     ? convertGoogleDriveUrl(request.illustrationUrl) || request.illustrationUrl
     : null;

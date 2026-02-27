@@ -1,6 +1,7 @@
 'use client';
 
 import type { CardTheme } from '@/types/card';
+import { useCustomThemes } from '@/hooks/useCustomThemes';
 
 interface ThemeStats {
   theme: string;
@@ -32,10 +33,14 @@ export const THEME_LIST: ThemeListItem[] = [
 ];
 
 export function ThemeListBox({ selectedTheme, onSelect, stats, statsLoading }: ThemeListBoxProps) {
+  const { themes: customThemes, isLoading: customLoading } = useCustomThemes();
+
   const getStatCount = (themeId: string): number => {
     const found = stats.find((s) => s.theme === themeId);
     return found ? found.count : 0;
   };
+
+  const activeCustomThemes = (customThemes ?? []).filter((ct) => ct.isActive);
 
   return (
     <div role="listbox" aria-label="Theme selection" className="border border-[rgba(2,9,18,0.15)] bg-white">
@@ -82,12 +87,85 @@ export function ThemeListBox({ selectedTheme, onSelect, stats, statsLoading }: T
                     : 'bg-gray-100 text-gray-600'
                 }`}
               >
-                {count}\uac74
+                {count}{'\uac74'}
               </span>
             )}
           </button>
         );
       })}
+
+      {/* Custom themes divider + items */}
+      {(customLoading || activeCustomThemes.length > 0) && (
+        <>
+          {/* Divider */}
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-[rgba(2,9,18,0.08)] bg-gray-50">
+            <div className="h-px flex-1 bg-[rgba(2,9,18,0.1)]" />
+            <span className="text-[10px] text-[#020912]/40 uppercase tracking-wider font-medium">
+              {'\ucee4\uc2a4\ud140'}
+            </span>
+            <div className="h-px flex-1 bg-[rgba(2,9,18,0.1)]" />
+          </div>
+
+          {/* Loading skeleton for custom themes */}
+          {customLoading && (
+            <div className="px-4 py-3 animate-pulse">
+              <div className="h-4 bg-gray-200 w-24 mb-2" />
+              <div className="h-4 bg-gray-100 w-20" />
+            </div>
+          )}
+
+          {/* Custom theme items */}
+          {!customLoading && activeCustomThemes.map((ct) => {
+            const isSelected = selectedTheme === ct.slug;
+            const count = getStatCount(ct.slug);
+
+            return (
+              <button
+                key={ct.id}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => onSelect(ct.slug as CardTheme)}
+                className={`w-full flex items-center gap-3 px-4 min-h-[56px] text-left transition-colors border-b border-[rgba(2,9,18,0.08)] last:border-b-0 ${
+                  isSelected
+                    ? 'bg-[#020912] text-white'
+                    : 'bg-white text-[#020912] hover:bg-gray-50'
+                }`}
+              >
+                {/* Color indicator using accent color */}
+                <div
+                  className="w-2 h-8 flex-shrink-0"
+                  style={{ backgroundColor: ct.accentColor }}
+                  aria-hidden="true"
+                />
+
+                {/* Theme name */}
+                <span className="flex-1 text-sm font-medium truncate">{ct.name}</span>
+
+                {/* Request count badge */}
+                {statsLoading ? (
+                  <span
+                    className={`inline-block w-10 h-5 animate-pulse ${
+                      isSelected ? 'bg-white/20' : 'bg-gray-200'
+                    }`}
+                    aria-label="Loading count"
+                  />
+                ) : (
+                  <span
+                    className={`text-xs font-medium px-2 py-0.5 ${
+                      isSelected
+                        ? 'bg-white/20 text-white'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {count}{'\uac74'}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }

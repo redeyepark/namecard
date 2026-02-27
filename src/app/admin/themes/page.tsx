@@ -10,6 +10,7 @@ import { ThemePreviewPanel } from '@/components/admin/ThemePreviewPanel';
 import { ThemeEditPanel, DEFAULT_EDIT_STATE } from '@/components/admin/ThemeEditPanel';
 import type { ThemeEditState } from '@/components/admin/ThemeEditPanel';
 import { ThemeMobileSelector } from '@/components/admin/ThemeMobileSelector';
+import { CustomThemeManager } from '@/components/admin/CustomThemeManager';
 import type { CardData, CardTheme, PokemonType, HearthstoneClass, HarrypotterHouse, TarotArcana } from '@/types/card';
 
 // Sample card data for theme previews
@@ -691,6 +692,11 @@ export default function ThemesPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Section B: Custom Theme Management */}
+      <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6 mb-6">
+        <CustomThemeManager />
       </div>
 
       {/* Confirmation Dialog */}

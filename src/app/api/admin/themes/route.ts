@@ -90,10 +90,19 @@ export async function PATCH(request: NextRequest) {
       filters?: { status?: string; currentTheme?: string };
     };
 
+    // Build dynamic valid themes list: builtin + active custom theme slugs
+    const supabase = getSupabase();
+    const { data: customThemes } = await supabase
+      .from('custom_themes')
+      .select('slug')
+      .eq('is_active', true);
+    const customSlugs = (customThemes ?? []).map((t: { slug: string }) => t.slug);
+    const allValidThemes: string[] = [...VALID_THEMES, ...customSlugs];
+
     // Validate targetTheme
-    if (!targetTheme || !VALID_THEMES.includes(targetTheme)) {
+    if (!targetTheme || !allValidThemes.includes(targetTheme)) {
       return NextResponse.json(
-        { error: 'Invalid targetTheme', details: `Must be one of: ${VALID_THEMES.join(', ')}` },
+        { error: 'Invalid targetTheme', details: `Must be one of: ${allValidThemes.join(', ')}` },
         { status: 400 }
       );
     }
@@ -186,7 +195,6 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    const supabase = getSupabase();
 
     // Build query with filters
     let query = supabase.from('card_requests').select('id', { count: 'exact' });
