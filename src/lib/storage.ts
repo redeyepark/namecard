@@ -1093,3 +1093,18 @@ export async function getFeedCards(options: {
 
   return { cards, nextCursor, hasMore };
 }
+
+/**
+ * Get the total count of public confirmed/delivered cards.
+ */
+export async function getPublicCardCount(): Promise<number> {
+  const supabase = getSupabase();
+  const { count, error } = await supabase
+    .from('card_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_public', true)
+    .in('status', ['confirmed', 'delivered']);
+
+  if (error || count === null) return 0;
+  return count;
+}

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getGalleryCards, getFeedCards } from '@/lib/storage';
+import { getFeedCards, getPublicCardCount } from '@/lib/storage';
 import { GalleryClient } from './GalleryClient';
 
 export const dynamic = 'force-dynamic';
@@ -15,20 +15,17 @@ export const metadata: Metadata = {
 
 /**
  * Public gallery page (Server Component).
- * Fetches both feed data (for feed view) and gallery data (for event-grouped view).
- * Feed view is the default.
+ * Fetches feed data for the card gallery.
  */
 export default async function GalleryPage() {
-  // Fetch feed and gallery data in parallel
-  const [galleryData, feedData] = await Promise.all([
-    getGalleryCards(),
+  const [feedData, totalCards] = await Promise.all([
     getFeedCards({ limit: 12, sort: 'newest' }),
+    getPublicCardCount(),
   ]);
 
   return (
     <GalleryClient
-      groups={galleryData.groups}
-      totalCards={galleryData.totalCards}
+      totalCards={totalCards}
       feedCards={feedData.cards}
       feedCursor={feedData.nextCursor}
       feedHasMore={feedData.hasMore}
