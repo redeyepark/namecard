@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
+import { requireAuth, AuthError } from '@/lib/auth-utils';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -18,13 +19,9 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid card ID' }, { status: 400 });
     }
 
+    // Require authentication via server-side session (not Service Role)
+    const user = await requireAuth();
     const supabase = getSupabase();
-
-    // Require authentication
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     // Check if bookmarked
     const { data: bookmark } = await supabase
@@ -35,7 +32,10 @@ export async function GET(
       .maybeSingle();
 
     return NextResponse.json({ bookmarked: !!bookmark });
-  } catch {
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -59,13 +59,9 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid card ID' }, { status: 400 });
     }
 
+    // Require authentication via server-side session (not Service Role)
+    const user = await requireAuth();
     const supabase = getSupabase();
-
-    // Require authentication
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     // Check card exists
     const { data: card, error: cardError } = await supabase
@@ -105,7 +101,10 @@ export async function POST(
     }
 
     return NextResponse.json({ bookmarked });
-  } catch {
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

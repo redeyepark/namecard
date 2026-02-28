@@ -21,12 +21,22 @@ function getErrorMessage(error: string): string {
   return errorMessages[error] ?? errorMessages.default;
 }
 
+/**
+ * Validate redirect URL to prevent open redirect attacks.
+ * Only allows relative paths starting with "/" (rejects protocol-relative "//").
+ */
+function getSafeRedirectPath(url: string | null, fallback: string): string {
+  if (!url) return fallback;
+  if (url.startsWith('/') && !url.startsWith('//')) return url;
+  return fallback;
+}
+
 function LoginContent() {
   const { user, isLoading: authLoading } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const callbackUrl = searchParams.get('callbackUrl') ?? '/create';
+  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'), '/create');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

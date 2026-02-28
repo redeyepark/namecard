@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
+import { requireAuth, AuthError } from '@/lib/auth-utils';
 import type { CardTheme, GalleryCardData } from '@/types/card';
 
 /**
@@ -13,13 +14,9 @@ import type { CardTheme, GalleryCardData } from '@/types/card';
  */
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication via server-side session (not Service Role)
+    const user = await requireAuth();
     const supabase = getSupabase();
-
-    // Require authentication
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const { searchParams } = request.nextUrl;
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
@@ -89,7 +86,10 @@ export async function GET(request: NextRequest) {
       page,
       pageSize,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

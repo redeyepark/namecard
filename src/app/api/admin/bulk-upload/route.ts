@@ -215,6 +215,10 @@ async function createUser(email: string): Promise<void> {
     throw new Error('Missing Supabase URL or service role key');
   }
 
+  // Generate a cryptographically random password for each new user.
+  // Users should use the password reset flow to set their own password.
+  const randomPassword = crypto.randomUUID() + crypto.randomUUID();
+
   const response = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
     method: 'POST',
     headers: {
@@ -224,7 +228,7 @@ async function createUser(email: string): Promise<void> {
     },
     body: JSON.stringify({
       email,
-      password: '123456',
+      password: randomPassword,
       email_confirm: true,
     }),
   });

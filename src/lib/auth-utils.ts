@@ -100,15 +100,16 @@ export function isAdmin(email: string): boolean {
 }
 
 /**
- * Expected value for the admin-token cookie.
- */
-const ADMIN_TOKEN_VALUE = 'admin_authenticated_a12345';
-
-/**
  * Check if the admin-token cookie is valid.
- * Returns true if the cookie exists and has the correct value.
+ * Validates against the ADMIN_TOKEN_VALUE environment variable.
+ * Returns false if the env var is not set (never allows empty token match).
  */
 export async function isAdminTokenValid(): Promise<boolean> {
+  const ADMIN_TOKEN_VALUE = process.env.ADMIN_TOKEN_VALUE;
+  if (!ADMIN_TOKEN_VALUE) {
+    console.error('[auth-utils] ADMIN_TOKEN_VALUE environment variable is not set');
+    return false;
+  }
   const cookieStore = await cookies();
   const token = cookieStore.get('admin-token');
   return token?.value === ADMIN_TOKEN_VALUE;

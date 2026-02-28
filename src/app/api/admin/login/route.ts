@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const ADMIN_PASSWORD = 'a12345';
-const ADMIN_TOKEN_VALUE = 'admin_authenticated_a12345';
-
 export async function POST(request: NextRequest) {
   try {
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+    const ADMIN_TOKEN_VALUE = process.env.ADMIN_TOKEN_VALUE;
+
+    // Reject login entirely if env vars are not configured
+    if (!ADMIN_PASSWORD || !ADMIN_TOKEN_VALUE) {
+      console.error('[admin-login] ADMIN_PASSWORD or ADMIN_TOKEN_VALUE environment variable is not set');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const { password } = body;
 
