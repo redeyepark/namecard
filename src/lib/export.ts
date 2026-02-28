@@ -98,3 +98,29 @@ export async function exportCardAsPrintPdf(
 
   doc.save(filename);
 }
+
+/**
+ * Generate a Gelato-compatible PDF blob for a single card face.
+ * Uses 4mm bleed (99mm x 63mm page) with no crop marks.
+ * Gelato handles trimming, so crop marks must be excluded.
+ */
+export async function exportCardAsGelatoPdf(
+  element: HTMLElement
+): Promise<Blob> {
+  const dataUrl = await toPng(element, {
+    pixelRatio: 4,
+    cacheBust: true,
+  });
+
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: [99, 63], // 91+4+4 x 55+4+4
+  });
+
+  doc.addImage(dataUrl, 'PNG', 0, 0, 99, 63);
+
+  // Return as blob (not save to file)
+  const pdfArrayBuffer = doc.output('arraybuffer');
+  return new Blob([pdfArrayBuffer], { type: 'application/pdf' });
+}

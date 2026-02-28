@@ -41,6 +41,12 @@ export default function AdminLayout({
             >
               회원 관리
             </Link>
+            <Link
+              href="/admin/print"
+              className="text-sm text-[#fcfcfc]/60 hover:text-[#ffa639] transition-colors"
+            >
+              인쇄 주문
+            </Link>
             <AdminLogoutButton />
             <Link
               href="/"
