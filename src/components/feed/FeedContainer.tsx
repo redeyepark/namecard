@@ -30,12 +30,30 @@ export function FeedContainer({
   // Filter state
   const [currentTheme, setCurrentTheme] = useState('all');
   const [currentSort, setCurrentSort] = useState<'newest' | 'popular'>('newest');
+  const [currentTag, setCurrentTag] = useState<string | null>(null);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
 
   // Intersection observer for infinite scroll sentinel
   const { ref: sentinelRef, inView } = useInView({
     threshold: 0,
     rootMargin: '200px',
   });
+
+  // Fetch popular tags on mount
+  useEffect(() => {
+    async function fetchTags() {
+      try {
+        const res = await fetch('/api/feed/tags');
+        if (res.ok) {
+          const data = await res.json();
+          setAvailableTags(data.tags ?? []);
+        }
+      } catch {
+        // Silently fail - tags are a non-critical enhancement
+      }
+    }
+    fetchTags();
+  }, []);
 
   /**
    * Fetch cards from the feed API.
@@ -49,6 +67,7 @@ export function FeedContainer({
         const params = new URLSearchParams();
         if (cursor) params.set('cursor', cursor);
         if (currentTheme && currentTheme !== 'all') params.set('theme', currentTheme);
+        if (currentTag) params.set('tag', currentTag);
         params.set('sort', currentSort);
 
         const res = await fetch(`/api/feed?${params.toString()}`);
@@ -69,7 +88,7 @@ export function FeedContainer({
         setLoading(false);
       }
     },
-    [currentTheme, currentSort],
+    [currentTheme, currentSort, currentTag],
   );
 
   // Load more when sentinel is in view
@@ -94,13 +113,20 @@ export function FeedContainer({
     [],
   );
 
-  // Re-fetch when theme or sort changes
+  const handleTagChange = useCallback(
+    (tag: string | null) => {
+      setCurrentTag(tag);
+    },
+    [],
+  );
+
+  // Re-fetch when theme, sort, or tag changes
   useEffect(() => {
     setCards([]);
     setNextCursor(null);
     setHasMore(true);
     fetchCards(null, true);
-  }, [currentTheme, currentSort, fetchCards]);
+  }, [currentTheme, currentSort, currentTag, fetchCards]);
 
   return (
     <div>
@@ -108,8 +134,11 @@ export function FeedContainer({
       <FeedFilters
         currentTheme={currentTheme}
         currentSort={currentSort}
+        currentTag={currentTag}
+        availableTags={availableTags}
         onThemeChange={handleThemeChange}
         onSortChange={handleSortChange}
+        onTagChange={handleTagChange}
       />
 
       {/* Card grid */}

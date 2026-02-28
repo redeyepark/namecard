@@ -989,6 +989,7 @@ export async function getFeedCards(options: {
   limit?: number;       // default 12, max 50
   theme?: string;       // filter by theme, 'all' = no filter
   sort?: 'newest' | 'popular'; // default 'newest'
+  tag?: string;         // filter by hashtag
 }): Promise<FeedResponse> {
   const supabase = getSupabase();
   const limit = Math.min(options.limit || 12, 50);
@@ -1005,6 +1006,11 @@ export async function getFeedCards(options: {
   // Theme filter
   if (options.theme && options.theme !== 'all') {
     query = query.eq('theme', options.theme);
+  }
+
+  // Tag filter - use Supabase JSONB containment
+  if (options.tag) {
+    query = query.contains('card_back', { hashtags: [options.tag] });
   }
 
   // Cursor-based pagination + sorting
@@ -1077,6 +1083,7 @@ export async function getFeedCards(options: {
       userDisplayName: profile?.display_name || null,
       userAvatarUrl: profile?.avatar_url || null,
       likeCount: ((row as any).like_count as number) || 0,
+      hashtags: (row.card_back as { hashtags?: string[] })?.hashtags || [],
     };
   });
 
@@ -1107,4 +1114,40 @@ export async function getPublicCardCount(): Promise<number> {
 
   if (error || count === null) return 0;
   return count;
+}
+
+/**
+ * Get popular hashtags from public cards, sorted by frequency.
+ * Scans all public confirmed/delivered cards and aggregates hashtag counts.
+ */
+export async function getPopularTags(limit: number = 20): Promise<string[]> {
+  const supabase = getSupabase();
+
+  // Query all public confirmed/delivered cards' hashtags
+  const { data: rows, error } = await supabase
+    .from('card_requests')
+    .select('card_back')
+    .eq('is_public', true)
+    .in('status', ['confirmed', 'delivered']);
+
+  if (error || !rows) return [];
+
+  // Count tag occurrences
+  const tagCounts = new Map<string, number>();
+  for (const row of rows) {
+    const hashtags = (row.card_back as { hashtags?: string[] })?.hashtags;
+    if (hashtags && Array.isArray(hashtags)) {
+      for (const tag of hashtags) {
+        if (tag && typeof tag === 'string') {
+          tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+        }
+      }
+    }
+  }
+
+  // Sort by count descending and return top N
+  return [...tagCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([tag]) => tag);
 }

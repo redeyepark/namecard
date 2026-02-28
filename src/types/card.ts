@@ -135,6 +135,7 @@ export interface FeedCardData extends GalleryCardData {
   userDisplayName: string | null;
   userAvatarUrl: string | null;
   likeCount: number;
+  hashtags: string[];
 }
 
 /**

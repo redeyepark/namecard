@@ -11,6 +11,7 @@ import { getFeedCards } from '@/lib/storage';
  *   limit  - Items per page (default: 12, max: 50, min: 1)
  *   theme  - Theme filter (default: 'all')
  *   sort   - Sort order: 'newest' | 'popular' (default: 'newest')
+ *   tag    - Filter by hashtag (optional)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -21,8 +22,9 @@ export async function GET(request: NextRequest) {
     const theme = searchParams.get('theme') || 'all';
     const sortParam = searchParams.get('sort');
     const sort = sortParam === 'popular' ? 'popular' : 'newest';
+    const tag = searchParams.get('tag') || undefined;
 
-    const result = await getFeedCards({ cursor, limit, theme, sort });
+    const result = await getFeedCards({ cursor, limit, theme, sort, tag });
 
     return NextResponse.json(result);
   } catch {
