@@ -181,7 +181,7 @@ export function SNSProfileCardBack() {
                 whiteSpace: 'nowrap',
               }}
             >
-              {link.platform} / {extractHandle(link.url || link.label)}
+              {link.label ? `${link.label}${link.url ? ` ${extractHandle(link.url)}` : ''}` : extractHandle(link.url || '')}
             </p>
           ))}
         </div>

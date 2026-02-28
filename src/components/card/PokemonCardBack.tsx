@@ -172,7 +172,7 @@ export function PokemonCardBack() {
                       fontFamily: "'Nanum Myeongjo', serif",
                     }}
                   >
-                    {link.platform}/{extractHandle(link.url || link.label)}
+                    {link.label ? `${link.label}${link.url ? ` ${extractHandle(link.url)}` : ''}` : extractHandle(link.url || '')}
                   </p>
                 ))}
               </div>

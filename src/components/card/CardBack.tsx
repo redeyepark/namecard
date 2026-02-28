@@ -94,7 +94,7 @@ export function ClassicCardBack() {
                 className="text-xs py-1.5 truncate text-right"
                 style={{ color: back.textColor || '#000000', opacity: 0.8 }}
               >
-                {link.platform}/{extractHandle(link.url || link.label)}
+                {link.label ? `${link.label}${link.url ? ` ${extractHandle(link.url)}` : ''}` : extractHandle(link.url || '')}
               </p>
             ))}
           </div>
