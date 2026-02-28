@@ -10,6 +10,35 @@ import { UserHome } from '@/components/home/UserHome';
 import type { FeedCardData } from '@/types/card';
 
 // ------------------------------------------------------------------
+// Theme background color config
+// ------------------------------------------------------------------
+const themeConfig: Record<string, { bgColor: string }> = {
+  classic:     { bgColor: '#f8f8f8' },
+  pokemon:     { bgColor: '#808080' },
+  hearthstone: { bgColor: '#3D2B1F' },
+  harrypotter: { bgColor: '#1a1a2e' },
+  tarot:       { bgColor: '#0d0d2b' },
+  nametag:     { bgColor: '#FFFFFF' },
+  snsprofile:  { bgColor: '#020912' },
+};
+
+function getThemeBgColor(theme: string): string {
+  return themeConfig[theme]?.bgColor ?? '#f8f8f8';
+}
+
+// Helper to determine if a theme background is dark (for text contrast)
+function isThemeDark(theme: string): boolean {
+  const bg = getThemeBgColor(theme);
+  const hex = bg.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  // Perceived luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance < 0.5;
+}
+
+// ------------------------------------------------------------------
 // Main component
 // ------------------------------------------------------------------
 export function LandingPage() {
@@ -94,42 +123,60 @@ export function LandingPage() {
               찾아보세요
             </h1>
 
-            {/* Featured card showcase */}
+            {/* Featured card showcase - square */}
             {featuredCard && (
               <div className="mt-12 sm:mt-16 flex justify-center">
-                <Link
-                  href={`/cards/${featuredCard.id}`}
-                  className="block w-full max-w-[320px]"
-                >
-                  {featuredCard.illustrationUrl ? (
-                    <div className="relative aspect-[3/4] overflow-hidden">
-                      <Image
-                        src={featuredCard.illustrationUrl}
-                        alt={`${featuredCard.displayName} - ${featuredCard.title}`}
-                        fill
-                        className="object-cover"
-                        sizes="320px"
-                        priority
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#020912]/40 to-transparent">
-                        <p className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-white/80">
-                          {featuredCard.displayName}
-                        </p>
-                      </div>
+                <div className="w-full max-w-[280px]">
+                  <Link
+                    href={`/cards/${featuredCard.id}`}
+                    className="block"
+                  >
+                    <div
+                      className="relative aspect-square overflow-hidden"
+                      style={{ backgroundColor: getThemeBgColor(featuredCard.theme) }}
+                    >
+                      {featuredCard.illustrationUrl ? (
+                        <Image
+                          src={featuredCard.illustrationUrl}
+                          alt={`${featuredCard.displayName} - ${featuredCard.title}`}
+                          fill
+                          className="object-cover"
+                          sizes="280px"
+                          priority
+                        />
+                      ) : featuredCard.originalAvatarUrl ? (
+                        <Image
+                          src={featuredCard.originalAvatarUrl}
+                          alt={`${featuredCard.displayName} - ${featuredCard.title}`}
+                          fill
+                          className="object-cover"
+                          sizes="280px"
+                          priority
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
+                          <p
+                            className={`font-[family-name:var(--font-figtree),sans-serif] text-base font-medium ${
+                              isThemeDark(featuredCard.theme) ? 'text-white/80' : 'text-[#020912]/70'
+                            }`}
+                          >
+                            {featuredCard.displayName}
+                          </p>
+                          <p
+                            className={`font-[family-name:var(--font-figtree),sans-serif] text-xs mt-1 ${
+                              isThemeDark(featuredCard.theme) ? 'text-white/50' : 'text-[#020912]/40'
+                            }`}
+                          >
+                            {featuredCard.title}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="aspect-[3/4] bg-[#020912]/[0.03] flex items-end p-6">
-                      <div>
-                        <p className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-medium text-[#020912]">
-                          {featuredCard.displayName}
-                        </p>
-                        <p className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-[#020912]/40 mt-1">
-                          {featuredCard.title}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </Link>
+                  </Link>
+                  <p className="font-[family-name:var(--font-figtree),sans-serif] text-xs text-[#020912]/50 mt-2 text-center">
+                    {featuredCard.displayName}
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -153,44 +200,50 @@ export function LandingPage() {
           갤러리
         </h2>
 
-        {/* Gallery grid */}
-        {galleryLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-[3/4] bg-[#020912]/[0.03] animate-pulse"
-              />
-            ))}
-          </div>
-        ) : previewCards.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+        {/* Gallery grid - square thumbnails */}
+        {previewCards.length > 0 ? (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1 sm:gap-2">
             {previewCards.map((card) => (
               <Link
                 key={card.id}
                 href={`/cards/${card.id}`}
-                className="group relative aspect-[3/4] bg-[#020912]/[0.03] overflow-hidden"
+                className="block"
               >
-                {card.illustrationUrl ? (
-                  <Image
-                    src={card.illustrationUrl}
-                    alt={`${card.displayName} - ${card.title}`}
-                    fill
-                    className="object-cover transition-opacity duration-300 group-hover:opacity-80"
-                    sizes="(max-width: 640px) 50vw, 33vw"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center px-4">
-                      <p className="font-[family-name:var(--font-figtree),sans-serif] text-sm sm:text-base font-medium text-[#020912]/60">
+                <div
+                  className="relative aspect-square overflow-hidden"
+                  style={{ backgroundColor: getThemeBgColor(card.theme) }}
+                >
+                  {card.illustrationUrl ? (
+                    <Image
+                      src={card.illustrationUrl}
+                      alt={`${card.displayName} - ${card.title}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
+                    />
+                  ) : card.originalAvatarUrl ? (
+                    <Image
+                      src={card.originalAvatarUrl}
+                      alt={`${card.displayName} - ${card.title}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center px-2">
+                      <p
+                        className={`font-[family-name:var(--font-figtree),sans-serif] text-xs font-medium text-center truncate ${
+                          isThemeDark(card.theme) ? 'text-white/70' : 'text-[#020912]/60'
+                        }`}
+                      >
                         {card.displayName}
                       </p>
-                      <p className="font-[family-name:var(--font-figtree),sans-serif] text-xs text-[#020912]/30 mt-1">
-                        {card.title}
-                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+                <p className="font-[family-name:var(--font-figtree),sans-serif] text-xs text-[#020912]/50 mt-1 truncate">
+                  {card.displayName}
+                </p>
               </Link>
             ))}
           </div>
