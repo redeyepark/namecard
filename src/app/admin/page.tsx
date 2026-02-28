@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { RequestList } from '@/components/admin/RequestList';
 import { BulkUploadModal } from '@/components/admin/BulkUploadModal';
 import { ViewToggle } from '@/components/admin/ViewToggle';
@@ -52,12 +53,15 @@ const ACTIVE_STATUSES: RequestStatus[] = ['submitted', 'processing', 'revision_r
 const COMPLETED_STATUSES: RequestStatus[] = ['delivered', 'rejected', 'cancelled'];
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const [bulkPublishing, setBulkPublishing] = useState(false);
+  const [bulkPublishResult, setBulkPublishResult] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'gallery'>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('admin-view-mode') as 'table' | 'gallery') || 'table';
@@ -77,6 +81,34 @@ export default function AdminDashboardPage() {
   const handleBulkUploadComplete = useCallback(() => {
     setRefreshKey((prev) => prev + 1);
   }, []);
+
+  const handleBulkPublish = useCallback(async () => {
+    if (!window.confirm('이미지가 등록된 카드를 모두 공개 처리하시겠습니까?')) {
+      return;
+    }
+    setBulkPublishing(true);
+    setBulkPublishResult(null);
+    try {
+      const res = await fetch('/api/admin/bulk-publish', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.error || `요청 실패 (${res.status})`);
+      }
+      const data: { updated: number; message: string } = await res.json();
+      setBulkPublishResult(`${data.updated}개 카드가 공개 처리되었습니다.`);
+      setRefreshKey((prev) => prev + 1);
+      router.refresh();
+    } catch (err) {
+      setBulkPublishResult(
+        `오류: ${err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.'}`
+      );
+    } finally {
+      setBulkPublishing(false);
+    }
+  }, [router]);
 
   // Fetch dashboard stats
   useEffect(() => {
@@ -166,10 +198,50 @@ export default function AdminDashboardPage() {
     <div>
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#020912]">{'\uB300\uC2DC\uBCF4\uB4DC'}</h1>
-        <p className="mt-1 text-sm text-[#020912]/50">
-          {'\uBA85\uD568 \uC758\uB8B0 \uD604\uD669\uC744 \uD55C\uB208\uC5D0 \uD655\uC778\uD569\uB2C8\uB2E4.'}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-[#020912]">{'\uB300\uC2DC\uBCF4\uB4DC'}</h1>
+            <p className="mt-1 text-sm text-[#020912]/50">
+              {'\uBA85\uD568 \uC758\uB8B0 \uD604\uD669\uC744 \uD55C\uB208\uC5D0 \uD655\uC778\uD569\uB2C8\uB2E4.'}
+            </p>
+          </div>
+          <button
+            onClick={handleBulkPublish}
+            disabled={bulkPublishing}
+            className="min-h-[44px] px-4 bg-[#dbe9e0] text-[#020912] border border-[#dbe9e0] text-sm font-medium hover:bg-[#c5ddc9] transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+          >
+            {bulkPublishing ? (
+              <svg
+                className="animate-spin h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            )}
+            {bulkPublishing ? '\uCC98\uB9AC \uC911...' : '\uC774\uBBF8\uC9C0 \uC788\uB294 \uCE74\uB4DC \uACF5\uAC1C'}
+          </button>
+        </div>
+        {bulkPublishResult && (
+          <div
+            className={`mt-3 px-4 py-2.5 text-sm border ${
+              bulkPublishResult.startsWith('\uC624\uB958')
+                ? 'bg-red-50 border-red-100 text-red-700'
+                : 'bg-[#dbe9e0] border-[#dbe9e0] text-[#020912]'
+            }`}
+            role="alert"
+          >
+            {bulkPublishResult}
+          </div>
+        )}
       </div>
 
       {/* Section A: Status Summary Cards */}
