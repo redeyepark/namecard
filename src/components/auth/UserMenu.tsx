@@ -69,7 +69,7 @@ export function UserMenu() {
 
       {/* Gallery link */}
       <Link
-        href="/feed"
+        href="/cards"
         className="text-sm text-[#020912]/60 hover:text-[#020912] transition-colors font-[family-name:var(--font-figtree),sans-serif]"
       >
         갤러리
