@@ -77,30 +77,9 @@ export function LandingPage() {
           HERO SECTION
           ============================================================ */}
       <section className={`w-full max-w-5xl mx-auto px-6 sm:px-8 ${
-        isAuthenticated ? 'pt-16 sm:pt-20 pb-12' : 'pt-24 sm:pt-32 md:pt-40 pb-16 sm:pb-24'
+        isAuthenticated ? 'pt-8 sm:pt-12' : 'pt-24 sm:pt-32 md:pt-40 pb-16 sm:pb-24'
       }`}>
-        {isAuthenticated ? (
-          <div>
-            <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] text-[#020912]">
-              안녕하세요, {user?.name ?? ''}님
-            </h1>
-
-            <div className="mt-8 flex items-center gap-6">
-              <Link
-                href="/create"
-                className="font-[family-name:var(--font-figtree),sans-serif] text-base text-[#020912] hover:underline underline-offset-4 transition-opacity duration-200"
-              >
-                새 명함 만들기 &rarr;
-              </Link>
-              <Link
-                href="/cards"
-                className="font-[family-name:var(--font-figtree),sans-serif] text-base text-[#020912]/60 hover:text-[#020912] hover:underline underline-offset-4 transition-all duration-200"
-              >
-                갤러리 &rarr;
-              </Link>
-            </div>
-          </div>
-        ) : (
+        {!isAuthenticated && (
           <div>
             <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-[clamp(2.5rem,6vw,5rem)] font-bold tracking-tight leading-[1.1] text-[#020912]">
               나만의 명함을
