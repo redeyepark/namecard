@@ -109,11 +109,11 @@ export function LandingPage() {
           HERO SECTION
           ============================================================ */}
       <section className={`w-full max-w-5xl mx-auto px-6 sm:px-8 ${
-        isAuthenticated ? 'pt-8 sm:pt-12' : 'pt-24 sm:pt-32 md:pt-40 pb-16 sm:pb-24'
+        isAuthenticated ? 'pt-8 sm:pt-12' : 'pt-12 sm:pt-16 md:pt-20 pb-12 sm:pb-16'
       }`}>
         {!isAuthenticated && (
           <div>
-            <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-[clamp(2.5rem,6vw,5rem)] font-bold tracking-tight leading-[1.1] text-[#020912]">
+            <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-[clamp(1.75rem,4vw,3rem)] font-bold tracking-tight leading-[1.1] text-[#020912]">
               나만의 색을
               <br />
               찾아보세요
@@ -130,29 +130,29 @@ export function LandingPage() {
             {featuredCard && (
               <div className="mt-12 sm:mt-16 flex justify-center">
                 <div
-                  className="w-full max-w-[280px] aspect-square overflow-hidden"
+                  className="w-full max-w-[320px] overflow-hidden"
                   style={{ backgroundColor: getThemeBgColor(featuredCard.theme) }}
                 >
                   {featuredCard.illustrationUrl ? (
                     <Image
                       src={featuredCard.illustrationUrl}
                       alt={featuredCard.displayName}
-                      width={280}
-                      height={280}
-                      className="w-full h-full object-cover"
+                      width={320}
+                      height={400}
+                      className="w-full h-auto"
                       priority
                     />
                   ) : featuredCard.originalAvatarUrl ? (
                     <Image
                       src={featuredCard.originalAvatarUrl}
                       alt={featuredCard.displayName}
-                      width={280}
-                      height={280}
-                      className="w-full h-full object-cover"
+                      width={320}
+                      height={400}
+                      className="w-full h-auto"
                       priority
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full min-h-[200px] flex items-center justify-center">
                       <p
                         className={`font-[family-name:var(--font-figtree),sans-serif] text-base font-medium ${
                           isThemeDark(featuredCard.theme) ? 'text-white/80' : 'text-[#020912]/70'

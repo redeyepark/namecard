@@ -148,7 +148,7 @@ export function UserHome({ embedded = false }: UserHomeProps) {
           </div>
 
           {filteredCards.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
               {filteredCards.map((card) => (
                 <GalleryCardThumbnail key={card.id} card={card} />
               ))}
@@ -278,7 +278,7 @@ export function UserHome({ embedded = false }: UserHomeProps) {
         </div>
 
         {filteredCards.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
             {filteredCards.map((card) => (
               <GalleryCardThumbnail key={card.id} card={card} />
             ))}

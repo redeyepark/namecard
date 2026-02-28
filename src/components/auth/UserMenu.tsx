@@ -67,6 +67,22 @@ export function UserMenu() {
         )}
       </div>
 
+      {/* Gallery link */}
+      <Link
+        href="/feed"
+        className="text-sm text-[#020912]/60 hover:text-[#020912] transition-colors font-[family-name:var(--font-figtree),sans-serif]"
+      >
+        갤러리
+      </Link>
+
+      {/* Create namecard link */}
+      <Link
+        href="/create"
+        className="text-sm text-[#020912]/60 hover:text-[#020912] transition-colors font-[family-name:var(--font-figtree),sans-serif]"
+      >
+        명함만들기
+      </Link>
+
       {/* My requests link */}
       <Link
         href="/dashboard"
