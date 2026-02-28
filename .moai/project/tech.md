@@ -13,7 +13,7 @@
 | 데이터베이스 | Supabase (supabase-js) | 2.97.0 | PostgreSQL DB + Storage |
 | 색상 선택 | react-colorful | 5.6.1 | 경량 색상 선택기 (2KB, zero-dependency) |
 | 이미지 내보내기 | html-to-image | 1.11.13 | DOM 요소를 PNG 이미지로 변환 |
-| PDF 생성 | jsPDF | 2.x | 클라이언트 사이드 PDF 문서 생성 |
+| PDF 생성 | jsPDF | 4.2.0 | 클라이언트 사이드 PDF 문서 생성 |
 | ID 생성 | uuid | 13.0.0 | 고유 식별자 생성 |
 | QR 코드 | qrcode | 1.x | 클라이언트 사이드 QR 코드 생성 (Canvas 기반) |
 | 파일 파싱 | xlsx (SheetJS) | 0.18.5 | Excel/CSV 파일 파싱 (브라우저 내 변환) |
@@ -148,19 +148,37 @@
 | DELETE | `/api/admin/custom-themes/[id]` | 커스텀 테마 삭제 (requireAdmin) |
 | GET | `/api/themes` | 공개 테마 목록 (공개) |
 
+## 관리자 API: 인쇄 주문
+
+### 인쇄 주문 API
+
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| POST | `/api/admin/print/quote` | Gelato 견적 조회 (requireAdminToken) |
+| POST | `/api/admin/print/orders` | 인쇄 주문 생성 (requireAdminToken) |
+| GET | `/api/admin/print/orders` | 주문 목록 조회 (requireAdminToken) |
+| GET | `/api/admin/print/orders/[id]` | 주문 상태 조회 + Gelato API 동기화 (requireAdminToken) |
+| PATCH | `/api/admin/print/orders/[id]` | Draft 주문 확정 (requireAdminToken) |
+| GET | `/api/admin/print/products` | Gelato 제품 정보 조회 (requireAdminToken) |
+| GET | `/api/admin/print/shipping-methods` | 배송 방법 목록 조회 (requireAdminToken) |
+| POST | `/api/admin/print/pdf` | PDF Blob 업로드 → Supabase Storage (requireAdminToken) |
+| POST | `/api/webhooks/gelato` | Gelato Webhook 수신 (공유 시크릿 인증) |
+
 ## 데이터베이스: Supabase PostgreSQL
 
 ### 테이블 구조
 
 | 테이블 | 용도 |
 |--------|------|
-| `card_requests` | 명함 제작 요청 (사용자 정보, 카드 데이터, 상태). `is_public` BOOLEAN: 갤러리 공개 여부 (기본값: false), `event_id` UUID: 연결된 이벤트 ID |
+| `card_requests` | 명함 제작 요청 (사용자 정보, 카드 데이터, 상태). `is_public` BOOLEAN: 갤러리 공개 여부 (기본값: false), `event_id` UUID: 연결된 이벤트 ID, `print_status` TEXT: 인쇄 상태 추적 |
 | `card_request_status_history` | 요청 상태 변경 이력 추적 |
 | `events` | 이벤트 관리 (이벤트명, 날짜, 설명) |
 | `custom_themes` | 커스텀 테마 정의 (slug, 이름, 색상, 폰트, 테두리 등) |
 | `user_profiles` | 사용자 프로필 (표시 이름, 자기소개, 아바타, 공개 설정) |
 | `card_likes` | 카드 좋아요 (user_id + card_id 복합 PK) |
 | `card_bookmarks` | 카드 북마크 (user_id + card_id 복합 PK) |
+| `print_orders` | 인쇄 주문 관리 (Gelato 주문 ID, 상태, 배송 주소, 견적, 추적 정보) |
+| `print_order_items` | 인쇄 주문 아이템 (카드-주문 연결, PDF URL, 수량) |
 
 ### Storage 버킷
 
@@ -168,6 +186,7 @@
 |------|------|
 | `avatars` | 사용자 아바타 이미지 저장 |
 | `illustrations` | 관리자가 업로드하는 일러스트 이미지 저장 |
+| `print-pdfs` | Gelato 인쇄용 PDF 파일 저장 (public 버킷) |
 
 ### 소셜 유틸리티 (`src/lib/social-utils.ts`)
 
@@ -259,6 +278,22 @@
 - A4 portrait 레이아웃: 명함 앞면(좌) + 뒷면(우) 병렬 배치
 - 이벤트 관리자 페이지에서 참여자 명함 일괄 PDF 다운로드 기능에 사용
 - EventPdfDownload 컴포넌트에서 활용
+- 인쇄용 PDF 내보내기: 사용자 다운로드용 3mm bleed (97x61mm) + crop marks, Gelato용 4mm bleed (99x63mm) crop marks 제외
+- Gelato용 PDF는 앞면/뒷면 개별 Blob으로 생성하여 Supabase Storage에 업로드
+
+## 인쇄 API: Gelato
+
+- Gelato Print API (v3/v4) REST 연동
+- 인증: `X-API-KEY` 헤더 기반 API 키 인증
+- API 클라이언트: native `fetch` 기반 (Cloudflare Workers 호환, axios 대신)
+- 네트워크 에러 시 최대 2회 자동 재시도
+- Draft → Confirm 2단계 주문 플로우
+- API Base URLs:
+  - Order: `https://order.gelatoapis.com/v3`
+  - Product: `https://product.gelatoapis.com/v3`
+  - Shipment: `https://shipment.gelatoapis.com/v1`
+  - Order Status: `https://order.gelatoapis.com/v4`
+- Webhook: `POST /api/webhooks/gelato` (공유 시크릿 기반 인증, 상태 자동 동기화)
 
 ## ID 생성: uuid 13.0
 
@@ -314,6 +349,8 @@
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 클라이언트 + 서버 | Supabase anon 키 (공개) |
 | `SUPABASE_SERVICE_ROLE_KEY` | 서버 전용 | Supabase service role 키 (DB/Storage 관리자 접근) |
 | `ADMIN_EMAILS` | 서버 전용 | 관리자 이메일 목록 (쉼표 구분) |
+| `GELATO_API_KEY` | 서버 전용 | Gelato Print API 키 |
+| `GELATO_WEBHOOK_SECRET` | 서버 전용 | Gelato Webhook 인증용 공유 시크릿 |
 
 ## 아키텍처 결정 사항
 

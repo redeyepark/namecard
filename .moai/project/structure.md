@@ -48,6 +48,8 @@ namecard/
 │   │   │   │   └── page.tsx               # 이벤트 관리 페이지
 │   │   │   ├── members/
 │   │   │   │   └── page.tsx               # 회원 관리 페이지
+│   │   │   ├── print/
+│   │   │   │   └── page.tsx               # 인쇄 주문 관리 페이지
 │   │   │   └── login/
 │   │   │       ├── layout.tsx             # 관리자 로그인 레이아웃
 │   │   │       └── page.tsx               # 관리자 로그인 페이지
@@ -76,10 +78,26 @@ namecard/
 │   │       │   │   ├── route.ts           # GET/POST (커스텀 테마 목록/생성, requireAdmin)
 │   │       │   │   └── [id]/
 │   │       │   │       └── route.ts       # GET/PUT/DELETE (커스텀 테마 상세/수정/삭제, requireAdmin)
+│   │       │   ├── print/
+│   │       │   │   ├── quote/
+│   │       │   │   │   └── route.ts       # POST (Gelato 견적 조회, requireAdminToken)
+│   │       │   │   ├── orders/
+│   │       │   │   │   ├── route.ts       # POST/GET (인쇄 주문 생성/목록, requireAdminToken)
+│   │       │   │   │   └── [id]/
+│   │       │   │   │       └── route.ts   # GET/PATCH (주문 상태/확정, requireAdminToken)
+│   │       │   │   ├── products/
+│   │       │   │   │   └── route.ts       # GET (Gelato 제품 정보, requireAdminToken)
+│   │       │   │   ├── shipping-methods/
+│   │       │   │   │   └── route.ts       # GET (배송 방법 목록, requireAdminToken)
+│   │       │   │   └── pdf/
+│   │       │   │       └── route.ts       # POST (PDF 업로드 → Supabase Storage, requireAdminToken)
 │   │       │   ├── login/
 │   │       │   │   └── route.ts           # 관리자 로그인 API
 │   │       │   └── logout/
 │   │       │       └── route.ts           # 관리자 로그아웃 API
+│   │       ├── webhooks/
+│   │       │   └── gelato/
+│   │       │       └── route.ts           # POST (Gelato Webhook 수신, 공유 시크릿 인증)
 │   │       ├── profiles/
 │   │       │   ├── me/
 │   │       │   │   └── route.ts           # GET/PUT (내 프로필 조회/수정)
@@ -195,7 +213,13 @@ namecard/
 │   │       ├── BulkUploadModal.tsx        # CSV/Excel 대량 등록 모달 (SheetJS 변환 지원)
 │   │       ├── CustomThemeManager.tsx     # 커스텀 테마 관리 (목록, CRUD)
 │   │       ├── CustomThemeForm.tsx        # 커스텀 테마 생성/편집 폼
-│   │       └── CustomThemePreview.tsx     # 커스텀 테마 미리보기
+│   │       ├── CustomThemePreview.tsx     # 커스텀 테마 미리보기
+│   │       ├── PrintOrderManager.tsx      # 인쇄 주문 관리 컨테이너 (새 주문/주문 이력 탭)
+│   │       ├── PrintCardSelector.tsx      # 인쇄 카드 다중 선택 + 수량 입력
+│   │       ├── PrintQuoteView.tsx         # Gelato 견적 결과 표시 (배송 방법 선택)
+│   │       ├── ShippingAddressForm.tsx    # 배송 주소 입력 폼 (한국어, localStorage)
+│   │       ├── PrintOrderStatus.tsx       # 주문 상태 타임라인 + 배송 추적
+│   │       └── PrintOrderHistory.tsx      # 주문 이력 목록 (상태 필터, 상세 확장)
 │   ├── stores/
 │   │   ├── useCardStore.ts                # Zustand store (persist middleware)
 │   │   └── __tests__/
@@ -203,12 +227,14 @@ namecard/
 │   ├── hooks/                             # 커스텀 React 훅
 │   │   ├── useLike.ts                     # 좋아요 토글 훅 (낙관적 업데이트)
 │   │   ├── useBookmark.ts                 # 북마크 토글 훅 (낙관적 업데이트)
-│   │   └── useCustomThemes.ts             # 커스텀 테마 CRUD 훅
+│   │   ├── useCustomThemes.ts             # 커스텀 테마 CRUD 훅
+│   │   └── usePrintOrders.ts              # 인쇄 주문 CRUD + 견적 조회 훅
 │   ├── types/
 │   │   ├── card.ts                        # 카드 타입 (CardData, SocialLink 등)
 │   │   ├── request.ts                     # 요청 타입 (CardRequest, RequestStatus, createdBy)
 │   │   ├── profile.ts                     # 프로필 타입 (UserProfile, ProfileStats 등)
-│   │   └── custom-theme.ts               # 커스텀 테마 타입 (CustomTheme, ThemeField 등)
+│   │   ├── custom-theme.ts               # 커스텀 테마 타입 (CustomTheme, ThemeField 등)
+│   │   └── print-order.ts                 # 인쇄 주문 타입 (PrintOrder, PrintOrderItem, ShippingAddress)
 │   ├── lib/
 │   │   ├── supabase.ts                    # 서버 Supabase 클라이언트 (service role key)
 │   │   ├── supabase-auth.ts               # 브라우저 Supabase 클라이언트 (anon key)
@@ -219,7 +245,9 @@ namecard/
 │   │   ├── qrcode.ts                      # QR 코드 생성 + vCard 3.0 생성 유틸리티
 │   │   ├── export.ts                      # html-to-image PNG 내보내기 유틸리티
 │   │   ├── validation.ts                  # 이미지 파일 검증 + Base64 변환
-│   │   └── profile-storage.ts             # 프로필 DB 연산 (getProfile, updateProfile, getProfileCards 등)
+│   │   ├── profile-storage.ts             # 프로필 DB 연산 (getProfile, updateProfile, getProfileCards 등)
+│   │   ├── gelato.ts                      # Gelato API 클라이언트 (fetch 기반, Workers 호환)
+│   │   └── gelato-types.ts                # Gelato API 타입 및 상수
 │   └── test/
 │       └── setup.ts                       # Vitest 테스트 환경 설정
 ├── .moai/                                 # MoAI-ADK 설정
@@ -242,7 +270,8 @@ namecard/
 │   └── migrations/                        # DB 마이그레이션 파일
 │       ├── 007_add_custom_themes.sql      # 커스텀 테마 테이블 생성
 │       ├── 008_add_community.sql          # 커뮤니티 프로필/피드 테이블 생성
-│       └── 009_add_likes_bookmarks.sql    # 좋아요/북마크 테이블 생성
+│       ├── 009_add_likes_bookmarks.sql    # 좋아요/북마크 테이블 생성
+│       └── 010_add_print_orders.sql       # 인쇄 주문 테이블 (print_orders, print_order_items)
 ├── _AEC/                                  # 참조용 디자인 에셋
 ├── public/                                # Static assets
 ├── package.json                           # 프로젝트 의존성 및 스크립트
@@ -276,6 +305,13 @@ User -> /dashboard/[id] -> GET /api/requests/[id] -> 소유권 검증 -> 상세 
 Admin -> /admin 대시보드 -> API GET /api/requests -> Supabase DB
 Admin -> /admin/[id] -> PATCH /api/requests/[id] -> 상태 업데이트 + 일러스트 업로드
 Admin -> BulkUploadModal -> CSV/Excel 파일 선택 -> xlsx 변환 -> POST /api/admin/bulk-upload -> Supabase DB (대량 생성) + Supabase Auth (이메일 자동 등록)
+
+[인쇄 주문 흐름]
+Admin -> /admin/print -> PrintCardSelector (카드 선택) -> ShippingAddressForm (배송 주소)
+-> POST /api/admin/print/quote (견적 조회) -> Gelato Quote API
+-> POST /api/admin/print/orders (Draft 주문 생성) -> Gelato Order API + Supabase DB (print_orders)
+-> PATCH /api/admin/print/orders/[id] (주문 확정) -> Gelato Confirm API
+-> Gelato Webhook -> POST /api/webhooks/gelato -> Supabase DB (상태 업데이트)
 
 [카드 편집기 흐름]
 Card Editor -> Zustand Store -> localStorage (persist) -> html-to-image -> PNG 다운로드
@@ -409,6 +445,14 @@ layout.tsx (Root - AuthProvider 래핑)
 │   ├── CardCompare                # 원본 vs 일러스트 비교
 │   └── IllustrationUploader       # 일러스트 업로드
 │
+├── admin/print/page.tsx (Print Order Management) # 인쇄 주문 관리
+│   └── PrintOrderManager            # 주문 관리 컨테이너
+│       ├── PrintCardSelector         # 카드 다중 선택 + 수량
+│       ├── ShippingAddressForm       # 배송 주소 입력
+│       ├── PrintQuoteView            # 견적 결과 (배송 방법 선택)
+│       ├── PrintOrderStatus          # 주문 상태 타임라인
+│       └── PrintOrderHistory         # 주문 이력 (필터, 상세)
+│
 ├── admin/events/page.tsx (Events) # 이벤트 관리
 │   └── EventPdfDownload           # 이벤트별 명함 PDF 다운로드 (jsPDF + html-to-image)
 │
@@ -442,7 +486,7 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/components/feed/` | 커뮤니티 피드 컴포넌트 (FeedContainer, FeedCardThumbnail, FeedFilters) |
 | `src/components/profile/` | 사용자 프로필 컴포넌트 (ProfileHeader, ProfileEditForm, ThemeDistribution) |
 | `src/components/social/` | 소셜 상호작용 컴포넌트 (LikeButton, BookmarkButton) |
-| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, EventPdfDownload, CustomThemeManager 등) |
+| `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, EventPdfDownload, CustomThemeManager, PrintOrderManager, PrintCardSelector, PrintQuoteView, ShippingAddressForm, PrintOrderStatus, PrintOrderHistory 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
 | `src/hooks/` | 커스텀 React 훅 (좋아요, 북마크, 커스텀 테마) |
 | `src/types/` | TypeScript 타입 정의 (카드, 요청, 프로필, 커스텀 테마) |
@@ -456,14 +500,14 @@ layout.tsx (Root - AuthProvider 래핑)
 | 카테고리 | 파일 수 |
 |---------|--------|
 | 페이지/레이아웃 (`.tsx` in `app/`) | 25 |
-| API 라우트 (`.ts` in `app/api/`) | 22 |
-| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 82 |
-| 커스텀 훅 (`.ts` in `hooks/`) | 3 |
+| API 라우트 (`.ts` in `app/api/`) | 30 |
+| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 88 |
+| 커스텀 훅 (`.ts` in `hooks/`) | 4 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
-| 타입 정의 (`.ts` in `types/`) | 4 |
-| 유틸리티 (`.ts` in `lib/`) | 10 |
+| 타입 정의 (`.ts` in `types/`) | 5 |
+| 유틸리티 (`.ts` in `lib/`) | 12 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`) | 2 |
 | 스타일시트 (`.css`) | 1 |
-| DB 마이그레이션 (`.sql`) | 3 |
-| 총 소스 파일 | 154 |
+| DB 마이그레이션 (`.sql`) | 4 |
+| 총 소스 파일 | 173 |

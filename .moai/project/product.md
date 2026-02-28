@@ -215,6 +215,22 @@
 - 이벤트별 명함 PDF 다운로드: 참여자 명함 앞/뒷면을 A4 페이지에 병렬 배치하여 PDF 생성 (jsPDF + html-to-image). 파일명 형식: `{이벤트명}_명함_{YYYY-MM-DD}.pdf`. 생성 중 프로그레스 오버레이 표시. API: `GET /api/admin/events/[id]/cards`
 - DB 마이그레이션 미적용 감지 및 안내 UI
 
+### 인쇄 주문 관리 (관리자) (SPEC-PRINT-001, SPEC-PRINT-002)
+
+- /admin/print 경로에서 인쇄 주문 관리 기능 제공
+- Gelato Print API 연동을 통한 대량 명함 인쇄 주문
+- 인쇄 주문 워크플로우: 카드 선택 → 배송 주소 입력 → 견적 조회 → Draft 주문 생성 → 주문 확정
+- 지원 제품: 350gsm coated silk 양면 인쇄 명함 (landscape)
+- 4mm bleed PDF 생성 (Gelato 요구사항): Supabase Storage에 업로드 후 public URL 제공
+- 사용자용 인쇄 PDF 다운로드: 3mm bleed + 재단선(crop marks) 포함 PDF (91x55mm 한국 표준 명함)
+- Draft → Confirm 2단계 주문 플로우 (실수 방지)
+- 견적 조회: 배송 방법별 가격/소요일 비교 (normal, express, overnight)
+- 배송 주소: 한국어 주소 입력 + localStorage 저장/불러오기
+- 주문 상태 추적: draft → pending → production → shipped → delivered 타임라인
+- Gelato Webhook을 통한 주문 상태 자동 업데이트
+- 배송 추적: tracking URL + 운송장 번호 표시
+- 주문 이력 조회: 과거 주문 목록 + 상태 필터링 + 상세 보기
+
 ### PNG 이미지 고화질 내보내기
 
 - html-to-image 라이브러리를 사용한 DOM-to-PNG 변환
@@ -253,6 +269,7 @@
 5. 상태 변경: submitted -> processing -> confirmed/rejected
 6. 일러스트 이미지를 Supabase Storage(illustrations 버킷)에 업로드하거나 외부 URL로 지정
 7. 원본 카드와 일러스트 비교 확인
+8. 인쇄 주문 관리: /admin/print에서 confirmed 카드 선택 → Gelato를 통한 대량 주문 → 상태 추적
 
 ### 요청 상태 흐름
 
@@ -299,6 +316,7 @@ submitted (의뢰됨) -> confirmed (확정)      # 사용자가 대시보드에�
 | `/admin/themes` | 관리자 전용 | 테마 관리 (미리보기, 통계, 일괄 적용) |
 | `/admin/events` | 관리자 전용 | 이벤트 관리 |
 | `/admin/members` | 관리자 전용 | 회원 관리 |
+| `/admin/print` | 관리자 전용 | 인쇄 주문 관리 |
 | `/cards/[id]` | 공개 | 공개 명함 페이지 (QR 스캔용) |
 | `/gallery` | 공개 | 공개 명함 갤러리 |
 | `/profile/[id]` | 공개 | 사용자 프로필 페이지 |

@@ -2,8 +2,8 @@
 
 ---
 id: SPEC-PRINT-002
-version: 1.0.0
-status: Planned
+version: 1.1.0
+status: Completed
 created: 2026-02-28
 updated: 2026-02-28
 author: manager-spec
@@ -17,6 +17,7 @@ lifecycle: spec-anchored
 | 버전 | 날짜 | 변경 내용 |
 |------|------|-----------|
 | 1.0.0 | 2026-02-28 | 최초 작성 - Gelato Print API 연동 SPEC |
+| 1.1.0 | 2026-02-28 | 구현 완료 |
 
 ## Overview
 
