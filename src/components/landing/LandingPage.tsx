@@ -187,7 +187,7 @@ export function LandingPage() {
           aria-label="Footer navigation"
         >
           <Link
-            href="/cards"
+            href="/login"
             className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-[#020912]/40 hover:text-[#020912] transition-opacity duration-200"
           >
             갤러리
@@ -195,13 +195,6 @@ export function LandingPage() {
           <span className="text-[#020912]/20" aria-hidden="true">&middot;</span>
           <Link
             href="/login"
-            className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-[#020912]/40 hover:text-[#020912] transition-opacity duration-200"
-          >
-            로그인
-          </Link>
-          <span className="text-[#020912]/20" aria-hidden="true">&middot;</span>
-          <Link
-            href="/create"
             className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-[#020912]/40 hover:text-[#020912] transition-opacity duration-200"
           >
             명함 만들기
