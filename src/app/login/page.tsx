@@ -36,7 +36,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'), '/create');
+  const callbackUrl = getSafeRedirectPath(searchParams.get('callbackUrl'), '/');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
