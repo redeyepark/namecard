@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginButton } from '@/components/auth/LoginButton';
+import { UserHome } from '@/components/home/UserHome';
 
 const features = [
   {
@@ -73,15 +72,7 @@ const features = [
 
 export function LandingPage() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
   const isAuthenticated = !isLoading && !!user;
-
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.replace('/dashboard');
-    }
-  }, [isAuthenticated, router]);
 
   // Show loading spinner while checking auth
   if (isLoading) {
@@ -101,8 +92,10 @@ export function LandingPage() {
     );
   }
 
-  // If authenticated, show nothing (redirect in progress)
-  if (isAuthenticated) return null;
+  // Authenticated users see their home page
+  if (isAuthenticated) {
+    return <UserHome />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
