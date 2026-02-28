@@ -889,19 +889,35 @@ export function RequestDetail({
                 <label className="text-gray-500 text-xs block mb-1">소셜 링크</label>
                 <div className="space-y-2">
                   {editBack.socialLinks.map((link, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-500 w-16">{link.platform}</span>
-                      <input
-                        type="text"
-                        value={link.url}
-                        onChange={(e) => {
-                          const newLinks = [...editBack.socialLinks];
-                          newLinks[i] = { ...newLinks[i], url: e.target.value };
-                          setEditBack({ ...editBack, socialLinks: newLinks });
-                        }}
-                        className="flex-1 px-2 py-1.5 text-xs border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
-                        placeholder="URL"
-                      />
+                    <div key={i} className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-gray-500 w-16">{link.platform}</span>
+                        <input
+                          type="text"
+                          value={link.url}
+                          onChange={(e) => {
+                            const newLinks = [...editBack.socialLinks];
+                            newLinks[i] = { ...newLinks[i], url: e.target.value };
+                            setEditBack({ ...editBack, socialLinks: newLinks });
+                          }}
+                          className="flex-1 px-2 py-1.5 text-xs border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                          placeholder="URL"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400 w-16">라벨</span>
+                        <input
+                          type="text"
+                          value={link.label || ''}
+                          onChange={(e) => {
+                            const newLinks = [...editBack.socialLinks];
+                            newLinks[i] = { ...newLinks[i], label: e.target.value };
+                            setEditBack({ ...editBack, socialLinks: newLinks });
+                          }}
+                          className="flex-1 px-2 py-1.5 text-xs border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                          placeholder="표시 라벨 (선택)"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -956,6 +972,7 @@ export function RequestDetail({
                   {request.card.back.socialLinks.map((link, i) => (
                     <p key={i} className="text-gray-900 text-xs">
                       <span className="font-medium">{link.platform}</span>: {link.url}
+                      {link.label && <span className="text-gray-500 ml-2">({link.label})</span>}
                     </p>
                   ))}
                 </div>
