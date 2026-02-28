@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { exportCardAsPng, exportCardAsBlob } from '@/lib/export';
+import { exportCardAsPng, exportCardAsBlob, exportCardAsPrintPdf } from '@/lib/export';
 import {
   canShare,
   canCopyImageToClipboard,
@@ -74,6 +74,16 @@ function ShareIcon() {
       <circle cx="6" cy="10" r="2" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="14" cy="15" r="2" stroke="currentColor" strokeWidth="1.5" />
       <path d="M7.8 9l4.4-3M7.8 11l4.4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PrinterIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M5 7V3h10v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="3" y="7" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M5 12h10v5H5v-5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -198,6 +208,17 @@ export function ExportPanel({
     toast.success('합성 이미지가 다운로드되었습니다');
   }, [toast]);
 
+  const handleDownloadPrintPdf = useCallback(async () => {
+    const frontEl = document.getElementById('card-front');
+    const backEl = document.getElementById('card-back');
+    if (!frontEl || !backEl) {
+      toast.error('카드 앞면 또는 뒷면을 찾을 수 없습니다');
+      return;
+    }
+    await exportCardAsPrintPdf(frontEl, backEl, 'namecard-print.pdf');
+    toast.success('인쇄용 PDF가 다운로드되었습니다');
+  }, [toast]);
+
   const handleCopyImage = useCallback(async () => {
     const el = document.getElementById('card-front');
     if (!el) {
@@ -258,6 +279,12 @@ export function ExportPanel({
       label: '앞/뒤 합성 PNG 다운로드',
       icon: LayersIcon,
       onClick: handleDownloadComposite,
+    },
+    {
+      id: 'download-print-pdf',
+      label: '인쇄용 PDF 다운로드',
+      icon: PrinterIcon,
+      onClick: handleDownloadPrintPdf,
     },
   ];
 
