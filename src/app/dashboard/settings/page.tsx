@@ -174,7 +174,7 @@ export default function SettingsPage() {
           </p>
         </div>
         <Link
-          href="/dashboard"
+          href="/"
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#020912] bg-[#e4f6ff] hover:bg-[#e4f6ff]/70 transition-colors"
         >
           <svg
@@ -191,7 +191,7 @@ export default function SettingsPage() {
               d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
             />
           </svg>
-          대시보드로 돌아가기
+          홈으로 돌아가기
         </Link>
       </div>
 
