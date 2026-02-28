@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginButton } from '@/components/auth/LoginButton';
+import { UserMenu } from '@/components/auth/UserMenu';
 import { UserHome } from '@/components/home/UserHome';
 import type { FeedCardData } from '@/types/card';
 
@@ -137,10 +138,10 @@ export function LandingPage() {
   }, []);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isLoading) {
       fetchPreviewCards();
     }
-  }, [isLoading, isAuthenticated, fetchPreviewCards]);
+  }, [isLoading, fetchPreviewCards]);
 
   // Loading spinner
   if (isLoading) {
@@ -160,86 +161,130 @@ export function LandingPage() {
     );
   }
 
-  // Authenticated users see their home page
-  if (isAuthenticated) {
-    return <UserHome />;
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-[#020912]">
 
       {/* ============================================================
-          HERO SECTION - Full viewport height
+          HERO SECTION
+          - Authenticated: compact (not full-screen)
+          - Non-authenticated: full viewport height
           ============================================================ */}
-      <section className="relative min-h-screen flex flex-col bg-[#020912] text-[#fcfcfc]">
+      <section className={`relative flex flex-col bg-[#020912] text-[#fcfcfc] ${
+        isAuthenticated ? 'py-16 sm:py-20' : 'min-h-screen'
+      }`}>
         {/* Header bar */}
         <header className="relative w-full max-w-6xl mx-auto px-6 sm:px-8 pt-6 sm:pt-8 flex items-center justify-between">
           <span className="font-[family-name:var(--font-figtree),sans-serif] text-lg sm:text-xl font-semibold tracking-wide">
             Namecard
           </span>
-          <LoginButton />
+          {isAuthenticated ? <UserMenu /> : <LoginButton />}
         </header>
 
         {/* Center content */}
-        <div className="flex-1 flex items-center justify-center px-6 sm:px-8">
+        <div className={`px-6 sm:px-8 ${isAuthenticated ? 'mt-8 sm:mt-12' : 'flex-1 flex items-center justify-center'}`}>
           <div className="max-w-3xl mx-auto text-center">
             {/* Decorative line */}
             <div className="w-12 h-px bg-[#fcfcfc]/20 mx-auto mb-8" aria-hidden="true" />
 
-            {/* Serif tagline */}
-            <p className="font-[family-name:var(--font-card),serif] text-sm tracking-[0.2em] uppercase opacity-60 mb-6">
-              너만의 색을 보여줘
-            </p>
+            {isAuthenticated ? (
+              <>
+                {/* Compact heading for authenticated users */}
+                <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+                  안녕하세요, {user?.name ?? ''}님
+                </h1>
 
-            {/* Main heading */}
-            <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1]">
-              나만의 명함을
-              <br />
-              만들어보세요
-            </h1>
+                {/* Decorative line */}
+                <div className="w-12 h-px bg-[#fcfcfc]/20 mx-auto mt-8 mb-10" aria-hidden="true" />
 
-            {/* Subtitle */}
-            <p className="font-[family-name:var(--font-anonymous-pro),monospace] mt-6 sm:mt-8 text-base sm:text-lg text-[#fcfcfc]/50 max-w-xl mx-auto leading-relaxed">
-              간단한 5단계로 전문적인 디지털 명함을 완성하세요
-            </p>
+                {/* CTA buttons for authenticated */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link
+                    href="/create"
+                    className="inline-flex items-center gap-3 px-10 py-4 sm:px-12 sm:py-5 border border-[#fcfcfc]/30 text-[#fcfcfc] text-base sm:text-lg font-medium hover:bg-[#fcfcfc] hover:text-[#020912] hover:border-[#fcfcfc] transition-all duration-300"
+                  >
+                    새 명함 만들기
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  </Link>
+                  <Link
+                    href="/cards"
+                    className="inline-flex items-center gap-2 px-10 py-4 sm:px-12 sm:py-5 bg-[#ffa639] text-[#020912] text-base sm:text-lg font-medium hover:bg-[#ffa639]/85 transition-all duration-300"
+                  >
+                    갤러리 보기
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Serif tagline */}
+                <p className="font-[family-name:var(--font-card),serif] text-sm tracking-[0.2em] uppercase opacity-60 mb-6">
+                  너만의 색을 보여줘
+                </p>
 
-            {/* Decorative line */}
-            <div className="w-12 h-px bg-[#fcfcfc]/20 mx-auto mt-8 mb-10" aria-hidden="true" />
+                {/* Main heading */}
+                <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1]">
+                  나만의 명함을
+                  <br />
+                  만들어보세요
+                </h1>
 
-            {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-3 px-10 py-4 sm:px-12 sm:py-5 border border-[#fcfcfc]/30 text-[#fcfcfc] text-base sm:text-lg font-medium hover:bg-[#fcfcfc] hover:text-[#020912] hover:border-[#fcfcfc] transition-all duration-300"
-              >
-                시작하기
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-              <Link
-                href="/cards"
-                className="inline-flex items-center gap-2 px-10 py-4 sm:px-12 sm:py-5 bg-[#ffa639] text-[#020912] text-base sm:text-lg font-medium hover:bg-[#ffa639]/85 transition-all duration-300"
-              >
-                둘러보기
-              </Link>
-            </div>
+                {/* Subtitle */}
+                <p className="font-[family-name:var(--font-anonymous-pro),monospace] mt-6 sm:mt-8 text-base sm:text-lg text-[#fcfcfc]/50 max-w-xl mx-auto leading-relaxed">
+                  간단한 5단계로 전문적인 디지털 명함을 완성하세요
+                </p>
+
+                {/* Decorative line */}
+                <div className="w-12 h-px bg-[#fcfcfc]/20 mx-auto mt-8 mb-10" aria-hidden="true" />
+
+                {/* CTA buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-3 px-10 py-4 sm:px-12 sm:py-5 border border-[#fcfcfc]/30 text-[#fcfcfc] text-base sm:text-lg font-medium hover:bg-[#fcfcfc] hover:text-[#020912] hover:border-[#fcfcfc] transition-all duration-300"
+                  >
+                    시작하기
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                  </Link>
+                  <Link
+                    href="/cards"
+                    className="inline-flex items-center gap-2 px-10 py-4 sm:px-12 sm:py-5 bg-[#ffa639] text-[#020912] text-base sm:text-lg font-medium hover:bg-[#ffa639]/85 transition-all duration-300"
+                  >
+                    둘러보기
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="pb-10 flex justify-center" aria-hidden="true">
-          <svg
-            className="w-5 h-5 text-[#fcfcfc]/30 animate-bounce"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
-          </svg>
-        </div>
+        {/* Scroll indicator - only for non-authenticated */}
+        {!isAuthenticated && (
+          <div className="pb-10 flex justify-center" aria-hidden="true">
+            <svg
+              className="w-5 h-5 text-[#fcfcfc]/30 animate-bounce"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+            </svg>
+          </div>
+        )}
       </section>
+
+      {/* ============================================================
+          USER HOME SECTION - Only for authenticated users
+          Embeds profile, quick actions, and card grid inline
+          ============================================================ */}
+      {isAuthenticated && (
+        <section className="bg-[var(--color-bg)]">
+          <UserHome embedded />
+        </section>
+      )}
 
       {/* ============================================================
           FEATURES SECTION - Refined with generous whitespace
