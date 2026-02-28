@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -42,6 +42,13 @@ export function LandingPage() {
     }
   }, [isLoading, fetchPreviewCards]);
 
+  // Pick one random card from preview for the hero showcase
+  const featuredCard = useMemo(() => {
+    if (previewCards.length === 0) return null;
+    const idx = Math.floor(Math.random() * previewCards.length);
+    return previewCards[idx];
+  }, [previewCards]);
+
   // Loading spinner
   if (isLoading) {
     return (
@@ -82,29 +89,49 @@ export function LandingPage() {
         {!isAuthenticated && (
           <div>
             <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-[clamp(2.5rem,6vw,5rem)] font-bold tracking-tight leading-[1.1] text-[#020912]">
-              나만의 명함을
+              나만의 색을
               <br />
-              만들어보세요
+              찾아보세요
             </h1>
 
-            <p className="font-[family-name:var(--font-figtree),sans-serif] mt-6 text-base sm:text-lg text-[#020912]/40 max-w-lg leading-relaxed">
-              간단한 5단계로 전문적인 디지털 명함을 완성하세요
-            </p>
-
-            <div className="mt-8 flex items-center gap-6">
-              <Link
-                href="/login"
-                className="font-[family-name:var(--font-figtree),sans-serif] text-base text-[#020912] hover:underline underline-offset-4 transition-opacity duration-200"
-              >
-                시작하기 &rarr;
-              </Link>
-              <Link
-                href="/cards"
-                className="font-[family-name:var(--font-figtree),sans-serif] text-base text-[#020912]/60 hover:text-[#020912] hover:underline underline-offset-4 transition-all duration-200"
-              >
-                갤러리 &rarr;
-              </Link>
-            </div>
+            {/* Featured card showcase */}
+            {featuredCard && (
+              <div className="mt-12 sm:mt-16 flex justify-center">
+                <Link
+                  href={`/cards/${featuredCard.id}`}
+                  className="block w-full max-w-[320px]"
+                >
+                  {featuredCard.illustrationUrl ? (
+                    <div className="relative aspect-[3/4] overflow-hidden">
+                      <Image
+                        src={featuredCard.illustrationUrl}
+                        alt={`${featuredCard.displayName} - ${featuredCard.title}`}
+                        fill
+                        className="object-cover"
+                        sizes="320px"
+                        priority
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#020912]/40 to-transparent">
+                        <p className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-white/80">
+                          {featuredCard.displayName}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="aspect-[3/4] bg-[#020912]/[0.03] flex items-end p-6">
+                      <div>
+                        <p className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-medium text-[#020912]">
+                          {featuredCard.displayName}
+                        </p>
+                        <p className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-[#020912]/40 mt-1">
+                          {featuredCard.title}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </section>
