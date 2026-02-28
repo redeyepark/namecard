@@ -1,11 +1,25 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { UserProfile } from '@/types/profile';
+import { validateImageFile } from '@/lib/validation';
+import { convertGoogleDriveUrl } from '@/lib/url-utils';
 
 interface ProfileEditFormProps {
   profile: UserProfile;
   onSave: (data: Partial<UserProfile>) => Promise<void>;
+}
+
+/**
+ * Get initials from a display name for avatar placeholder.
+ */
+function getInitials(name: string): string {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+  }
+  return name.charAt(0).toUpperCase();
 }
 
 /**
@@ -16,11 +30,87 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [bio, setBio] = useState(profile.bio);
   const [isPublic, setIsPublic] = useState(profile.isPublic);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatarUrl);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const bioMaxLength = 200;
+
+  const resolvedAvatarSrc = avatarUrl
+    ? convertGoogleDriveUrl(avatarUrl) || avatarUrl
+    : null;
+
+  const handleAvatarClick = () => {
+    if (!isAvatarUploading) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleAvatarUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset file input so the same file can be selected again
+    e.target.value = '';
+
+    // Client-side validation
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      setAvatarError(validation.error || '파일 검증에 실패했습니다.');
+      return;
+    }
+
+    setAvatarError(null);
+    setIsAvatarUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/profiles/me/avatar', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || '아바타 업로드에 실패했습니다.');
+      }
+
+      const data = await res.json();
+      setAvatarUrl(data.avatarUrl);
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : '아바타 업로드에 실패했습니다.');
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  }, []);
+
+  const handleAvatarDelete = useCallback(async () => {
+    setAvatarError(null);
+    setIsAvatarUploading(true);
+
+    try {
+      const res = await fetch('/api/profiles/me/avatar', {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || '아바타 삭제에 실패했습니다.');
+      }
+
+      setAvatarUrl(null);
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : '아바타 삭제에 실패했습니다.');
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  }, []);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -48,6 +138,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
           displayName: displayName.trim(),
           bio,
           isPublic,
+          avatarUrl,
         });
         setSuccess(true);
       } catch (err) {
@@ -56,7 +147,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
         setIsLoading(false);
       }
     },
-    [displayName, bio, isPublic, onSave],
+    [displayName, bio, isPublic, avatarUrl, onSave],
   );
 
   return (
@@ -76,6 +167,122 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Avatar upload section */}
+        <div className="flex flex-col items-center mb-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleAvatarUpload}
+            className="hidden"
+            aria-label="프로필 사진 선택"
+          />
+
+          {/* Avatar preview */}
+          <button
+            type="button"
+            onClick={handleAvatarClick}
+            disabled={isAvatarUploading}
+            className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[rgba(2,9,18,0.15)] hover:border-[#020912]/40 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 disabled:opacity-50 group"
+            aria-label={resolvedAvatarSrc ? '프로필 사진 변경' : '프로필 사진 추가'}
+          >
+            {isAvatarUploading ? (
+              <div className="w-full h-full bg-[#fcfcfc] flex items-center justify-center">
+                <svg className="w-6 h-6 animate-spin text-[#020912]/50" fill="none" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+              </div>
+            ) : resolvedAvatarSrc ? (
+              <>
+                <img
+                  src={resolvedAvatarSrc}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-full bg-[#fcfcfc] flex flex-col items-center justify-center text-[#020912]/30 group-hover:text-[#020912]/50 transition-colors duration-200">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+            )}
+          </button>
+
+          {/* Avatar action buttons */}
+          <div className="flex items-center gap-3 mt-2">
+            {resolvedAvatarSrc ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleAvatarClick}
+                  disabled={isAvatarUploading}
+                  className="text-xs text-[#020912]/60 hover:text-[#020912] disabled:opacity-50 transition-colors duration-200"
+                >
+                  변경
+                </button>
+                <span className="text-xs text-[#020912]/20">|</span>
+                <button
+                  type="button"
+                  onClick={handleAvatarDelete}
+                  disabled={isAvatarUploading}
+                  className="text-xs text-red-500/70 hover:text-red-600 disabled:opacity-50 transition-colors duration-200"
+                >
+                  삭제
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={handleAvatarClick}
+                disabled={isAvatarUploading}
+                className="text-xs text-[#020912]/60 hover:text-[#020912] disabled:opacity-50 transition-colors duration-200"
+              >
+                사진 추가
+              </button>
+            )}
+          </div>
+
+          {/* Avatar error message */}
+          {avatarError && (
+            <p className="text-xs text-red-500 mt-1.5 text-center max-w-[240px]" role="alert">
+              {avatarError}
+            </p>
+          )}
+        </div>
+
         {/* Display name */}
         <div>
           <label
