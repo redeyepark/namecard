@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Routes that do not require authentication
-const publicRoutes = ['/', '/login', '/signup', '/callback', '/confirm', '/cards', '/api/cards', '/api/feed', '/api/bookmarks'];
+const publicRoutes = ['/', '/login', '/signup', '/callback', '/confirm', '/cards', '/api/cards', '/api/feed', '/api/bookmarks', '/reset-password', '/reset-password/confirm'];
 const publicPrefixes = ['/_next/', '/favicon.ico', '/api/auth/', '/cards/', '/api/cards/', '/profile/', '/api/profiles/', '/api/feed', '/api/bookmarks'];
 
 // Routes that require admin role (cookie-based auth)
@@ -58,6 +58,10 @@ export default async function middleware(req: NextRequest) {
 
   // Create a Supabase client for the middleware.
   // This refreshes the auth token on every request via cookie management.
+  let supabaseResponse = NextResponse.next({
+    request: req,
+  });
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -67,14 +71,18 @@ export default async function middleware(req: NextRequest) {
           return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
+          // Update request cookies for server-side operations
           cookiesToSet.forEach(({ name, value }) =>
             req.cookies.set(name, value)
           );
-          response = NextResponse.next({
+          // CRITICAL FIX: Create new response with updated cookies
+          // This ensures refreshed tokens are sent back to the client
+          supabaseResponse = NextResponse.next({
             request: req,
           });
+          // Set cookies on the response so client receives updated tokens
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options)
           );
         },
       },
@@ -84,9 +92,19 @@ export default async function middleware(req: NextRequest) {
   // Refresh the auth session by calling getUser().
   // IMPORTANT: Do not use getSession() - only getUser() sends a request to
   // the Supabase Auth server to revalidate the token.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+    user = authUser;
+  } catch (err) {
+    console.error('Error refreshing auth session in middleware:', err);
+    // Continue without user - let client handle logout
+  }
+
+  // Use the response that may have been updated by setAll callback
+  response = supabaseResponse;
 
   // Allow public routes
   if (publicRoutes.includes(pathname)) {

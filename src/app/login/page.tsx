@@ -229,6 +229,15 @@ function LoginContent() {
             </div>
           </div>
 
+          <div className="flex justify-end">
+            <Link
+              href="/reset-password"
+              className="text-xs text-[#020912]/50 hover:text-[#ffa639] transition-colors"
+            >
+              비밀번호를 잊으셨나요?
+            </Link>
+          </div>
+
           <button
             type="submit"
             disabled={isLoading}

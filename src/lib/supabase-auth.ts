@@ -15,8 +15,18 @@ export function createBrowserSupabaseClient() {
 /**
  * Singleton browser client for convenience.
  * Use createBrowserSupabaseClient() if you need a fresh instance.
+ *
+ * IMPORTANT: Includes autoRefreshToken to ensure tokens are automatically
+ * refreshed before expiration. This prevents session loss due to token expiry.
  */
 export const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+    },
+  }
 );

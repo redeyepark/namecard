@@ -98,21 +98,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Get initial session
+    // Get initial session and user from server
+    // Use getUser() instead of getSession() to force server-side validation
     const initSession = async () => {
       try {
+        const {
+          data: { user: currentUser },
+          error,
+        } = await supabase.auth.getUser();
+
+        if (error || !currentUser) {
+          setUser(null);
+          setSession(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // Get session from auth state after confirming user exists
         const {
           data: { session: currentSession },
         } = await supabase.auth.getSession();
 
         setSession(currentSession);
-
-        if (currentSession?.user) {
-          await fetchUserInfo(currentSession.user);
-        } else {
-          setUser(null);
-        }
-      } catch {
+        await fetchUserInfo(currentUser);
+      } catch (err) {
+        console.error('Failed to initialize session:', err);
         setUser(null);
         setSession(null);
       } finally {
@@ -137,8 +147,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
+    // Handle visibility changes to refresh session when tab becomes active
+    // This ensures the session is up-to-date when switching between browser tabs
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        try {
+          // Attempt to refresh the session when tab becomes visible
+          const {
+            data: { user: currentUser },
+          } = await supabase.auth.getUser();
+
+          if (currentUser) {
+            await fetchUserInfo(currentUser);
+          } else {
+            setUser(null);
+            setSession(null);
+          }
+        } catch (err) {
+          console.error('Failed to refresh session on tab visibility:', err);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [fetchUserInfo]);
 

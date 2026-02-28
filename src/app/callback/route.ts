@@ -14,6 +14,8 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = await cookies();
+    let response = NextResponse.redirect(`${origin}${next}`);
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -24,10 +26,17 @@ export async function GET(request: Request) {
           },
           setAll(cookiesToSet) {
             try {
+              // Set cookies in cookie store
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options)
               );
-            } catch {
+              // CRITICAL FIX: Also set cookies on the response object
+              // This ensures auth session cookies are sent to the client
+              cookiesToSet.forEach(({ name, value, options }) =>
+                response.cookies.set(name, value, options)
+              );
+            } catch (err) {
+              console.error('Error setting auth cookies in callback:', err);
               // The `setAll` method was called from a Server Component.
               // This can be ignored if you have middleware refreshing sessions.
             }
@@ -38,7 +47,7 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return response;
     }
   }
 
