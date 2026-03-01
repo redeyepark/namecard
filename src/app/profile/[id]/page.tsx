@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getProfile, getUserCards } from '@/lib/profile-storage';
+import { getProfile, getUserCards, getUserLinks } from '@/lib/profile-storage';
+import { getServerUser } from '@/lib/auth-utils';
 import { ProfileClient } from './ProfileClient';
 
 interface ProfilePageProps {
@@ -35,7 +36,8 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
 /**
  * Profile page (Server Component).
- * Fetches profile data and user's cards, then delegates rendering to ProfileClient.
+ * Fetches profile data, user's cards, and links.
+ * Checks ownership for edit mode.
  * If the profile is not found, renders 404.
  * If the profile is not public (and the viewer is not the owner), shows a private message.
  */
@@ -50,10 +52,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const { profile, cardCount, totalLikes, themeDistribution } = profileData;
 
-  // If profile is not public, show private message
-  // Note: In a full implementation, we would check if the current viewer is the owner.
-  // For now, we show the private message for non-public profiles.
-  if (!profile.isPublic) {
+  // Check ownership
+  const user = await getServerUser();
+  const isOwner = user?.id === id;
+
+  // If profile is not public and viewer is not the owner, show private message
+  if (!profile.isPublic && !isOwner) {
     return (
       <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
         <div className="text-center px-4">
@@ -83,6 +87,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   // Fetch user's public cards (first page)
   const { cards, total: totalCardPages } = await getUserCards(id, 1, 20);
 
+  // Fetch public links
+  const links = await getUserLinks(id);
+
   return (
     <ProfileClient
       profile={profile}
@@ -91,6 +98,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       themeDistribution={themeDistribution}
       initialCards={cards}
       totalCards={totalCardPages}
+      links={links}
+      isOwner={isOwner}
     />
   );
 }

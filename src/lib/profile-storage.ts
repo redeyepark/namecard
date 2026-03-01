@@ -1,5 +1,5 @@
 import { getSupabase } from './supabase';
-import type { UserProfile, ProfilePageData } from '@/types/profile';
+import type { UserProfile, ProfilePageData, UserLink, SocialLink } from '@/types/profile';
 import type { GalleryCardData, CardTheme } from '@/types/card';
 
 /**
@@ -53,6 +53,7 @@ export async function getProfile(userId: string): Promise<ProfilePageData | null
       bio: profile.bio || '',
       avatarUrl: profile.avatar_url || null,
       isPublic: profile.is_public ?? true,
+      socialLinks: (profile.social_links as SocialLink[]) || [],
       createdAt: profile.created_at,
       updatedAt: profile.updated_at,
     },
@@ -124,7 +125,9 @@ export async function createProfile(
  */
 export async function updateProfile(
   userId: string,
-  data: Partial<Pick<UserProfile, 'displayName' | 'bio' | 'avatarUrl' | 'isPublic'>>
+  data: Partial<Pick<UserProfile, 'displayName' | 'bio' | 'avatarUrl' | 'isPublic'>> & {
+    socialLinks?: SocialLink[];
+  }
 ): Promise<UserProfile> {
   const supabase = getSupabase();
 
@@ -157,6 +160,9 @@ export async function updateProfile(
   if (data.isPublic !== undefined) {
     dbUpdates.is_public = data.isPublic;
   }
+  if (data.socialLinks !== undefined) {
+    dbUpdates.social_links = data.socialLinks;
+  }
 
   const { data: updated, error } = await supabase
     .from('user_profiles')
@@ -175,6 +181,7 @@ export async function updateProfile(
     bio: updated.bio || '',
     avatarUrl: updated.avatar_url || null,
     isPublic: updated.is_public ?? true,
+    socialLinks: (updated.social_links as SocialLink[]) || [],
     createdAt: updated.created_at,
     updatedAt: updated.updated_at,
   };
@@ -295,4 +302,196 @@ export async function ensureProfile(userId: string, email: string): Promise<User
   }
 
   return createProfile(userId, { displayName, email });
+}
+
+// ---------------------------------------------------------------------------
+// User Links CRUD (SPEC-LINKBIO-001)
+// ---------------------------------------------------------------------------
+
+/**
+ * Map a snake_case user_links DB row to a camelCase UserLink object.
+ */
+function mapUserLink(row: Record<string, unknown>): UserLink {
+  return {
+    id: row.id as string,
+    userId: row.user_id as string,
+    title: row.title as string,
+    url: row.url as string,
+    icon: (row.icon as string) || null,
+    isActive: row.is_active as boolean,
+    sortOrder: row.sort_order as number,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
+}
+
+/**
+ * Get a user's public (active) links, ordered by sort_order ascending.
+ * Used for public profile pages.
+ */
+export async function getUserLinks(userId: string): Promise<UserLink[]> {
+  const supabase = getSupabase();
+
+  const { data: rows, error } = await supabase
+    .from('user_links')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  if (error || !rows) {
+    return [];
+  }
+
+  return rows.map(mapUserLink);
+}
+
+/**
+ * Get all of a user's links (including inactive), ordered by sort_order ascending.
+ * Used for the owner's link management page.
+ */
+export async function getMyLinks(userId: string): Promise<UserLink[]> {
+  const supabase = getSupabase();
+
+  const { data: rows, error } = await supabase
+    .from('user_links')
+    .select('*')
+    .eq('user_id', userId)
+    .order('sort_order', { ascending: true });
+
+  if (error || !rows) {
+    return [];
+  }
+
+  return rows.map(mapUserLink);
+}
+
+/**
+ * Create a new user link. Automatically assigns the next sort_order.
+ */
+export async function createUserLink(
+  userId: string,
+  data: { title: string; url: string; icon?: string }
+): Promise<UserLink> {
+  const supabase = getSupabase();
+
+  // Get the current max sort_order for this user
+  const { data: maxRow } = await supabase
+    .from('user_links')
+    .select('sort_order')
+    .eq('user_id', userId)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .single();
+
+  const nextSortOrder = maxRow ? (maxRow.sort_order as number) + 1 : 0;
+
+  const { data: created, error } = await supabase
+    .from('user_links')
+    .insert({
+      user_id: userId,
+      title: data.title,
+      url: data.url,
+      icon: data.icon || null,
+      sort_order: nextSortOrder,
+    })
+    .select()
+    .single();
+
+  if (error || !created) {
+    throw new Error(`Failed to create link: ${error?.message || 'Unknown error'}`);
+  }
+
+  return mapUserLink(created);
+}
+
+/**
+ * Update an existing user link. Only updates provided fields.
+ * Verifies ownership by matching both linkId and userId.
+ */
+export async function updateUserLink(
+  userId: string,
+  linkId: string,
+  data: { title?: string; url?: string; icon?: string; isActive?: boolean }
+): Promise<UserLink> {
+  const supabase = getSupabase();
+
+  const dbUpdates: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (data.title !== undefined) {
+    dbUpdates.title = data.title;
+  }
+  if (data.url !== undefined) {
+    dbUpdates.url = data.url;
+  }
+  if (data.icon !== undefined) {
+    dbUpdates.icon = data.icon;
+  }
+  if (data.isActive !== undefined) {
+    dbUpdates.is_active = data.isActive;
+  }
+
+  const { data: updated, error } = await supabase
+    .from('user_links')
+    .update(dbUpdates)
+    .eq('id', linkId)
+    .eq('user_id', userId)
+    .select()
+    .single();
+
+  if (error || !updated) {
+    throw new Error(`Failed to update link: ${error?.message || 'Link not found or access denied'}`);
+  }
+
+  return mapUserLink(updated);
+}
+
+/**
+ * Delete a user link. Verifies ownership by matching both linkId and userId.
+ */
+export async function deleteUserLink(userId: string, linkId: string): Promise<void> {
+  const supabase = getSupabase();
+
+  const { error, count } = await supabase
+    .from('user_links')
+    .delete()
+    .eq('id', linkId)
+    .eq('user_id', userId);
+
+  if (error) {
+    throw new Error(`Failed to delete link: ${error.message}`);
+  }
+
+  // count can be null if count option was not set; check via a follow-up if needed
+  if (count === 0) {
+    throw new Error('Link not found or access denied');
+  }
+}
+
+/**
+ * Reorder user links by updating sort_order for each link.
+ * linkIds array determines the new order (index = new sort_order).
+ * Only updates links belonging to the specified user.
+ */
+export async function reorderUserLinks(userId: string, linkIds: string[]): Promise<void> {
+  const supabase = getSupabase();
+
+  // Update each link's sort_order based on its position in the array
+  const updates = linkIds.map((linkId, index) =>
+    supabase
+      .from('user_links')
+      .update({ sort_order: index, updated_at: new Date().toISOString() })
+      .eq('id', linkId)
+      .eq('user_id', userId)
+  );
+
+  const results = await Promise.all(updates);
+
+  for (const result of results) {
+    if (result.error) {
+      throw new Error(`Failed to reorder links: ${result.error.message}`);
+    }
+  }
 }

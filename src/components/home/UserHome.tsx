@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
+import { ThemeDistribution } from '@/components/profile/ThemeDistribution';
 import { GalleryCardThumbnail } from '@/components/gallery/GalleryCardThumbnail';
 import type { ProfilePageData } from '@/types/profile';
 import type { GalleryCardData } from '@/types/card';
@@ -115,15 +116,19 @@ export function UserHome({ embedded = false }: UserHomeProps) {
         {profile ? (
           <div className="bg-[var(--color-surface)] border-b border-[rgba(2,9,18,0.06)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-              <ProfileHeader
-                profile={profile}
-                cardCount={cardCount}
-                totalLikes={totalLikes}
-                themeDistribution={themeDistribution}
-                isOwner
-                selectedTheme={selectedTheme}
-                onThemeFilter={setSelectedTheme}
-              />
+              <ProfileHeader profile={profile} />
+              <p className="text-sm text-[var(--color-text-secondary)] text-center mt-1">
+                카드 {cardCount}장
+              </p>
+              {themeDistribution.length > 0 && (
+                <div className="w-full max-w-md mx-auto mt-6 px-2">
+                  <ThemeDistribution
+                    distribution={themeDistribution}
+                    selectedTheme={selectedTheme}
+                    onFilterChange={setSelectedTheme}
+                  />
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -244,15 +249,19 @@ export function UserHome({ embedded = false }: UserHomeProps) {
       {profile ? (
         <div className="bg-[var(--color-surface)] border-b border-[rgba(2,9,18,0.06)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-            <ProfileHeader
-              profile={profile}
-              cardCount={cardCount}
-              totalLikes={totalLikes}
-              themeDistribution={themeDistribution}
-              isOwner
-              selectedTheme={selectedTheme}
-              onThemeFilter={setSelectedTheme}
-            />
+            <ProfileHeader profile={profile} />
+            <p className="text-sm text-[var(--color-text-secondary)] text-center mt-1">
+              카드 {cardCount}장
+            </p>
+            {themeDistribution.length > 0 && (
+              <div className="w-full max-w-md mx-auto mt-6 px-2">
+                <ThemeDistribution
+                  distribution={themeDistribution}
+                  selectedTheme={selectedTheme}
+                  onFilterChange={setSelectedTheme}
+                />
+              </div>
+            )}
           </div>
         </div>
       ) : (

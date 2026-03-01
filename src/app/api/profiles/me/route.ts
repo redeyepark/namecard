@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateProfile, ensureProfile } from '@/lib/profile-storage';
 import { requireAuth, AuthError } from '@/lib/auth-utils';
+import type { SocialLink } from '@/types/profile';
 
 /**
  * GET /api/profiles/me
@@ -46,11 +47,12 @@ export async function PUT(request: NextRequest) {
     const user = await requireAuth();
 
     const body = await request.json();
-    const { displayName, bio, avatarUrl, isPublic } = body as {
+    const { displayName, bio, avatarUrl, isPublic, socialLinks } = body as {
       displayName?: string;
       bio?: string;
       avatarUrl?: string | null;
       isPublic?: boolean;
+      socialLinks?: SocialLink[];
     };
 
     // Validate inputs before passing to storage layer
@@ -72,6 +74,30 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Validate socialLinks if provided
+    if (socialLinks !== undefined) {
+      if (!Array.isArray(socialLinks)) {
+        return NextResponse.json(
+          { error: 'socialLinks must be an array' },
+          { status: 400 }
+        );
+      }
+
+      for (const link of socialLinks) {
+        if (
+          typeof link !== 'object' ||
+          link === null ||
+          typeof link.platform !== 'string' ||
+          typeof link.url !== 'string'
+        ) {
+          return NextResponse.json(
+            { error: 'Each socialLink must have platform (string) and url (string)' },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     // Ensure profile exists before updating
     await ensureProfile(user.id, user.email || '');
 
@@ -80,6 +106,7 @@ export async function PUT(request: NextRequest) {
       bio,
       avatarUrl,
       isPublic,
+      socialLinks,
     });
 
     return NextResponse.json({ profile: updatedProfile });
