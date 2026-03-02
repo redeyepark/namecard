@@ -12,8 +12,30 @@ import { CardPortfolio } from '@/components/profile/CardPortfolio';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
 import CoffeeChatButton from '@/components/coffee-chat/CoffeeChatButton';
 import CoffeeChatRequestModal from '@/components/coffee-chat/CoffeeChatRequestModal';
-import type { SocialLink } from '@/types/profile';
+import type { SocialLink, CoffeeChatMethod, CoffeeChatDay, CoffeeChatTime } from '@/types/profile';
 import type { MeetingPreference } from '@/types/coffee-chat';
+
+const METHOD_LABELS: Record<CoffeeChatMethod, string> = {
+  online: '온라인',
+  offline: '오프라인',
+  any: '상관없음',
+};
+
+const DAY_LABELS: Record<CoffeeChatDay, string> = {
+  mon: '월',
+  tue: '화',
+  wed: '수',
+  thu: '목',
+  fri: '금',
+  sat: '토',
+  sun: '일',
+};
+
+const TIME_LABELS: Record<CoffeeChatTime, string> = {
+  morning: '오전',
+  afternoon: '오후',
+  evening: '저녁',
+};
 
 interface ProfileClientProps {
   profile: UserProfile;
@@ -145,6 +167,53 @@ export function ProfileClient({
             setShowCoffeeChatModal(false);
           }}
         />
+
+        {/* 2.7 Coffee Chat Preferences (if set) */}
+        {currentProfile.coffeeChatPreferences && (
+          (() => {
+            const prefs = currentProfile.coffeeChatPreferences!;
+            return (
+              <div className="mt-6 border border-[var(--color-divider)] bg-[var(--color-surface)] p-4">
+                <h3 className="text-xs font-medium text-[var(--color-text-secondary)] mb-3">커피챗 선호</h3>
+                {/* Method */}
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  <span className="text-xs px-2 py-0.5 bg-[#020912] text-[#fcfcfc]">
+                    {METHOD_LABELS[prefs.method]}
+                  </span>
+                  {prefs.region && (
+                    <span className="text-xs px-2 py-0.5 border border-[#020912]/20 text-[#020912]/70">
+                      {prefs.region}
+                    </span>
+                  )}
+                </div>
+                {/* Days */}
+                {prefs.days.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {prefs.days.map((d) => (
+                      <span key={d} className="text-xs px-1.5 py-0.5 border border-[#020912]/15 text-[#020912]/60">
+                        {DAY_LABELS[d]}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {/* Times */}
+                {prefs.times.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {prefs.times.map((t) => (
+                      <span key={t} className="text-xs px-1.5 py-0.5 border border-[#020912]/15 text-[#020912]/60">
+                        {TIME_LABELS[t]}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {/* Intro */}
+                {prefs.intro && (
+                  <p className="text-sm text-[#020912]/70 mt-2">{prefs.intro}</p>
+                )}
+              </div>
+            );
+          })()
+        )}
 
         {/* 3. Links Section */}
         {isOwner ? (

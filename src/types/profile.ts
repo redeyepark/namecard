@@ -29,6 +29,18 @@ export interface UserLink {
   updatedAt: string;
 }
 
+export type CoffeeChatMethod = 'online' | 'offline' | 'any';
+export type CoffeeChatDay = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+export type CoffeeChatTime = 'morning' | 'afternoon' | 'evening';
+
+export interface CoffeeChatPreferences {
+  method: CoffeeChatMethod;
+  region: string;
+  days: CoffeeChatDay[];
+  times: CoffeeChatTime[];
+  intro: string;
+}
+
 export interface UserProfile {
   id: string;            // UUID, auth.users FK
   displayName: string;
@@ -36,6 +48,7 @@ export interface UserProfile {
   avatarUrl: string | null;
   isPublic: boolean;
   socialLinks?: SocialLink[];
+  coffeeChatPreferences?: CoffeeChatPreferences | null;
   createdAt: string;
   updatedAt: string;
 }

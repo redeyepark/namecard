@@ -1,5 +1,5 @@
 import { getSupabase } from './supabase';
-import type { UserProfile, ProfilePageData, UserLink, SocialLink } from '@/types/profile';
+import type { UserProfile, ProfilePageData, UserLink, SocialLink, CoffeeChatPreferences } from '@/types/profile';
 import type { GalleryCardData, CardTheme } from '@/types/card';
 
 /**
@@ -54,6 +54,7 @@ export async function getProfile(userId: string): Promise<ProfilePageData | null
       avatarUrl: profile.avatar_url || null,
       isPublic: profile.is_public ?? true,
       socialLinks: (profile.social_links as SocialLink[]) || [],
+      coffeeChatPreferences: (profile.coffee_chat_preferences as CoffeeChatPreferences | null) ?? null,
       createdAt: profile.created_at,
       updatedAt: profile.updated_at,
     },
@@ -87,6 +88,7 @@ export async function createProfile(
       bio: existing.bio || '',
       avatarUrl: existing.avatar_url || null,
       isPublic: existing.is_public ?? true,
+      coffeeChatPreferences: (existing.coffee_chat_preferences as CoffeeChatPreferences | null) ?? null,
       createdAt: existing.created_at,
       updatedAt: existing.updated_at,
     };
@@ -114,6 +116,7 @@ export async function createProfile(
     bio: created.bio || '',
     avatarUrl: created.avatar_url || null,
     isPublic: created.is_public ?? true,
+    coffeeChatPreferences: null,
     createdAt: created.created_at,
     updatedAt: created.updated_at,
   };
@@ -127,6 +130,7 @@ export async function updateProfile(
   userId: string,
   data: Partial<Pick<UserProfile, 'displayName' | 'bio' | 'avatarUrl' | 'isPublic'>> & {
     socialLinks?: SocialLink[];
+    coffeeChatPreferences?: CoffeeChatPreferences | null;
   }
 ): Promise<UserProfile> {
   const supabase = getSupabase();
@@ -163,6 +167,9 @@ export async function updateProfile(
   if (data.socialLinks !== undefined) {
     dbUpdates.social_links = data.socialLinks;
   }
+  if (data.coffeeChatPreferences !== undefined) {
+    dbUpdates.coffee_chat_preferences = data.coffeeChatPreferences;
+  }
 
   const { data: updated, error } = await supabase
     .from('user_profiles')
@@ -182,6 +189,7 @@ export async function updateProfile(
     avatarUrl: updated.avatar_url || null,
     isPublic: updated.is_public ?? true,
     socialLinks: (updated.social_links as SocialLink[]) || [],
+    coffeeChatPreferences: (updated.coffee_chat_preferences as CoffeeChatPreferences | null) ?? null,
     createdAt: updated.created_at,
     updatedAt: updated.updated_at,
   };
@@ -262,6 +270,7 @@ export async function ensureProfile(userId: string, email: string): Promise<User
       bio: existing.bio || '',
       avatarUrl: existing.avatar_url || null,
       isPublic: existing.is_public ?? true,
+      coffeeChatPreferences: (existing.coffee_chat_preferences as CoffeeChatPreferences | null) ?? null,
       createdAt: existing.created_at,
       updatedAt: existing.updated_at,
     };

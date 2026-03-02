@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateProfile, ensureProfile } from '@/lib/profile-storage';
 import { requireAuth, AuthError } from '@/lib/auth-utils';
-import type { SocialLink } from '@/types/profile';
+import type { SocialLink, CoffeeChatPreferences } from '@/types/profile';
 
 /**
  * GET /api/profiles/me
@@ -47,12 +47,13 @@ export async function PUT(request: NextRequest) {
     const user = await requireAuth();
 
     const body = await request.json();
-    const { displayName, bio, avatarUrl, isPublic, socialLinks } = body as {
+    const { displayName, bio, avatarUrl, isPublic, socialLinks, coffeeChatPreferences } = body as {
       displayName?: string;
       bio?: string;
       avatarUrl?: string | null;
       isPublic?: boolean;
       socialLinks?: SocialLink[];
+      coffeeChatPreferences?: CoffeeChatPreferences | null;
     };
 
     // Validate inputs before passing to storage layer
@@ -107,6 +108,7 @@ export async function PUT(request: NextRequest) {
       avatarUrl,
       isPublic,
       socialLinks,
+      coffeeChatPreferences,
     });
 
     return NextResponse.json({ profile: updatedProfile });

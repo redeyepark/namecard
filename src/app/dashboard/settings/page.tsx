@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/lib/supabase-auth';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
+import { CoffeeChatSettings } from '@/components/profile/CoffeeChatSettings';
 import type { UserProfile } from '@/types/profile';
 
 export default function SettingsPage() {
@@ -219,6 +220,19 @@ export default function SettingsPage() {
             </div>
           ) : profile ? (
             <ProfileEditForm profile={profile} onSave={handleProfileSave} />
+          ) : null}
+        </section>
+
+        {/* Coffee Chat Settings Section */}
+        <section>
+          <h2 className="text-lg font-bold text-[#020912] mb-3">커피챗 설정</h2>
+          {profile ? (
+            <CoffeeChatSettings
+              preferences={profile.coffeeChatPreferences ?? null}
+              onSave={async (prefs) => {
+                await handleProfileSave({ coffeeChatPreferences: prefs });
+              }}
+            />
           ) : null}
         </section>
 
