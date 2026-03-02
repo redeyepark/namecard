@@ -4,7 +4,7 @@
 |------|------|
 | SPEC ID | SPEC-GALLERY-001 |
 | 제목 | Admin Gallery View - 분류별 명함 갤러리 검토 |
-| 상태 | Completed |
+| 상태 | completed |
 | 우선순위 | High |
 | 생성일 | 2026-02-26 |
 | Lifecycle | spec-anchored |

@@ -1,7 +1,7 @@
 ---
 id: SPEC-VISIBILITY-001
 version: "1.1.0"
-status: implemented
+status: completed
 created: "2026-02-26"
 updated: "2026-02-26"
 author: MoAI

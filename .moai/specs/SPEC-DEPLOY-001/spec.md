@@ -7,7 +7,7 @@
 | SPEC ID | SPEC-DEPLOY-001 |
 | 제목 | Cloudflare Workers + Supabase Infrastructure Migration |
 | 생성일 | 2026-02-21 |
-| 상태 | Implemented |
+| 상태 | completed |
 | 우선순위 | High |
 | 담당 | expert-backend, expert-devops |
 | 관련 SPEC | SPEC-UI-001 (명함 편집기), SPEC-FLOW-001 (명함 제작 플로우), SPEC-AUTH-001 (인증) |

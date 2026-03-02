@@ -3,7 +3,7 @@
 ---
 id: SPEC-ADMIN-001
 version: 1.0.0
-status: Implemented
+status: completed
 created: 2026-02-21
 updated: 2026-02-22
 author: manager-spec

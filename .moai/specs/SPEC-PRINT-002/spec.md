@@ -3,7 +3,7 @@
 ---
 id: SPEC-PRINT-002
 version: 1.1.0
-status: Completed
+status: completed
 created: 2026-02-28
 updated: 2026-02-28
 author: manager-spec

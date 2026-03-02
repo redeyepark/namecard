@@ -1,5 +1,7 @@
 # SPEC-PRINT-001: Print-Ready PDF Export
 
+> **Status**: completed
+
 ## Overview
 
 Add print-ready PDF export functionality to the Namecard Editor, allowing users to download business card designs as high-quality PDFs suitable for professional printing.

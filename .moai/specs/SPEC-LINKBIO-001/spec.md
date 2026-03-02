@@ -2,9 +2,10 @@
 id: SPEC-LINKBIO-001
 title: Link-in-Bio Profile Redesign Phase 1
 version: "1.0.0"
-status: approved
+status: completed
+completed: "2026-03-02"
 created: "2026-03-01"
-updated: "2026-03-01"
+updated: "2026-03-02"
 author: MoAI
 priority: high
 tags: [profile, linkbio, mobile-first, social, links, portfolio]

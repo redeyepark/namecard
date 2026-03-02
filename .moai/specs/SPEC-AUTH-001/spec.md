@@ -7,7 +7,7 @@
 | SPEC ID | SPEC-AUTH-001 |
 | 제목 | Supabase Authentication & Role-Based Access Control |
 | 생성일 | 2026-02-21 |
-| 상태 | Implemented (REQ-AUTH-009 추가: 비밀번호 변경) |
+| 상태 | completed |
 | 우선순위 | High |
 | 관련 SPEC | SPEC-ADMIN-001 (관리자 대시보드), SPEC-FLOW-001 (명함 제작 플로우) |
 

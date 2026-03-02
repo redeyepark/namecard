@@ -53,10 +53,22 @@ namecard/
 │   │   │   └── login/
 │   │   │       ├── layout.tsx             # 관리자 로그인 레이아웃
 │   │   │       └── page.tsx               # 관리자 로그인 페이지
+│   │   ├── community/
+│   │   │   ├── questions/
+│   │   │   │   ├── page.tsx               # 질문 피드 페이지 (해시태그 필터, 무한 스크롤)
+│   │   │   │   └── [id]/
+│   │   │   │       ├── page.tsx           # 질문 상세 페이지 (생각 목록, 좋아요)
+│   │   │   │       └── QuestionDetailActions.tsx # 질문 상세 액션 (삭제 등)
+│   │   │   └── coffee-chat/
+│   │   │       ├── page.tsx               # 커피챗 탐색 페이지 (회원 그리드)
+│   │   │       ├── CoffeeChatDiscoverClient.tsx # 커피챗 탐색 클라이언트
+│   │   │       └── my/
+│   │   │           ├── page.tsx           # 내 커피챗 목록 페이지
+│   │   │           └── MyCoffeeChatClient.tsx # 내 커피챗 클라이언트
 │   │   ├── profile/
 │   │   │   └── [id]/
-│   │   │       ├── page.tsx               # 사용자 프로필 페이지 (Server Component)
-│   │   │       └── ProfileClient.tsx      # 프로필 클라이언트 컴포넌트
+│   │   │       ├── page.tsx               # 사용자 프로필 페이지 (Server Component, Link-in-Bio 스타일)
+│   │   │       └── ProfileClient.tsx      # 프로필 클라이언트 컴포넌트 (소셜 아이콘, 링크 목록)
 │   │   └── api/
 │   │       ├── auth/
 │   │       │   └── me/
@@ -100,11 +112,44 @@ namecard/
 │   │       │       └── route.ts           # POST (Gelato Webhook 수신, 공유 시크릿 인증)
 │   │       ├── profiles/
 │   │       │   ├── me/
-│   │       │   │   └── route.ts           # GET/PUT (내 프로필 조회/수정)
+│   │       │   │   ├── route.ts           # GET/PUT (내 프로필 조회/수정)
+│   │       │   │   ├── avatar/
+│   │       │   │   │   └── route.ts       # POST (아바타 이미지 업로드)
+│   │       │   │   └── links/
+│   │       │   │       ├── route.ts       # GET/POST (내 링크 목록/생성)
+│   │       │   │       ├── [linkId]/
+│   │       │   │       │   └── route.ts   # PUT/DELETE (링크 수정/삭제)
+│   │       │   │       └── reorder/
+│   │       │   │           └── route.ts   # PUT (링크 순서 변경)
 │   │       │   └── [id]/
 │   │       │       ├── route.ts           # GET (사용자 프로필 조회)
-│   │       │       └── cards/
-│   │       │           └── route.ts       # GET (사용자의 카드 목록)
+│   │       │       ├── cards/
+│   │       │       │   └── route.ts       # GET (사용자의 카드 목록)
+│   │       │       └── links/
+│   │       │           └── route.ts       # GET (사용자 공개 링크 목록)
+│   │       ├── questions/
+│   │       │   ├── route.ts               # GET/POST (질문 목록/생성, requireAuth for POST)
+│   │       │   └── [id]/
+│   │       │       ├── route.ts           # GET/DELETE (질문 조회/삭제)
+│   │       │       └── thoughts/
+│   │       │           ├── route.ts       # GET/POST (생각 목록/생성)
+│   │       │           └── [thoughtId]/
+│   │       │               └── route.ts   # DELETE (생각 삭제)
+│   │       ├── thoughts/
+│   │       │   └── [id]/
+│   │       │       └── like/
+│   │       │           └── route.ts       # POST/DELETE (생각 좋아요 토글)
+│   │       ├── coffee-chat/
+│   │       │   ├── route.ts               # GET/POST (커피챗 목록/생성, requireAuth)
+│   │       │   ├── [id]/
+│   │       │   │   ├── route.ts           # GET (커피챗 상세, requireAuth)
+│   │       │   │   └── respond/
+│   │       │   │       └── route.ts       # POST (커피챗 수락/거절/취소/완료)
+│   │       │   └── pending-count/
+│   │       │       └── route.ts           # GET (수신 대기 건수)
+│   │       ├── members/
+│   │       │   └── discoverable/
+│   │       │       └── route.ts           # GET (탐색 가능 회원 목록)
 │   │       ├── feed/
 │   │       │   └── route.ts               # GET (커뮤니티 피드, 필터/정렬)
 │   │       ├── cards/
@@ -173,9 +218,44 @@ namecard/
 │   │   │   ├── FeedContainer.tsx          # 피드 컨테이너 (무한 스크롤, 필터)
 │   │   │   ├── FeedCardThumbnail.tsx      # 피드 카드 썸네일 (좋아요/북마크 표시)
 │   │   │   └── FeedFilters.tsx            # 피드 필터 (테마, 정렬, 검색)
-│   │   ├── profile/                       # 사용자 프로필 컴포넌트
+│   │   ├── community/                     # 커뮤니티 컴포넌트 (질문/생각)
+│   │   │   ├── CommunityNav.tsx           # 커뮤니티 탭 네비게이션 (질문, 커피챗 + 배지)
+│   │   │   ├── QuestionCard.tsx           # 질문 카드 (해시태그, 생각 수 표시)
+│   │   │   ├── QuestionFeed.tsx           # 질문 피드 (무한 스크롤)
+│   │   │   ├── QuestionForm.tsx           # 질문 작성 폼
+│   │   │   ├── QuestionDetail.tsx         # 질문 상세 뷰
+│   │   │   ├── QuestionFilters.tsx        # 질문 필터 (해시태그)
+│   │   │   ├── ThoughtCard.tsx            # 생각 카드 (좋아요 표시)
+│   │   │   ├── ThoughtForm.tsx            # 생각 작성 폼
+│   │   │   ├── ThoughtList.tsx            # 생각 목록
+│   │   │   ├── ThoughtLikeButton.tsx      # 생각 좋아요 버튼
+│   │   │   ├── HashtagChip.tsx            # 해시태그 칩 컴포넌트
+│   │   │   └── __tests__/                 # 커뮤니티 컴포넌트 테스트
+│   │   │       ├── QuestionCard.test.tsx   # QuestionCard 단위 테스트
+│   │   │       └── ThoughtForm.test.tsx    # ThoughtForm 단위 테스트
+│   │   ├── coffee-chat/                   # 커피챗 컴포넌트
+│   │   │   ├── CoffeeChatCard.tsx         # 커피챗 요청 카드
+│   │   │   ├── CoffeeChatDetail.tsx       # 커피챗 상세 뷰
+│   │   │   ├── CoffeeChatList.tsx         # 커피챗 목록
+│   │   │   ├── CoffeeChatButton.tsx       # 커피챗 요청 버튼
+│   │   │   ├── CoffeeChatRequestModal.tsx # 커피챗 요청 모달
+│   │   │   ├── CoffeeChatActions.tsx      # 커피챗 액션 (수락/거절/취소/완료)
+│   │   │   ├── CoffeeChatStatusBadge.tsx  # 커피챗 상태 배지
+│   │   │   ├── CoffeeChatBadge.tsx        # 커피챗 Pending 카운트 배지 (60초 폴링)
+│   │   │   ├── MemberCard.tsx             # 회원 탐색 카드
+│   │   │   ├── MemberDiscoverGrid.tsx     # 회원 탐색 그리드 (무한 스크롤)
+│   │   │   └── __tests__/                 # 커피챗 컴포넌트 테스트
+│   │   │       └── CoffeeChatComponents.test.tsx # 커피챗 컴포넌트 단위 테스트
+│   │   ├── profile/                       # 사용자 프로필 컴포넌트 (Link-in-Bio 스타일)
 │   │   │   ├── ProfileHeader.tsx          # 프로필 헤더 (아바타, 이름, 소개)
 │   │   │   ├── ProfileEditForm.tsx        # 프로필 편집 폼
+│   │   │   ├── SocialIconRow.tsx          # 소셜 플랫폼 아이콘 배열 (Instagram, GitHub 등)
+│   │   │   ├── LinkButton.tsx             # 개별 링크 버튼
+│   │   │   ├── LinkList.tsx               # 링크 목록 렌더링
+│   │   │   ├── CardPortfolio.tsx          # 명함 카드 포트폴리오 갤러리
+│   │   │   ├── LinkEditor.tsx             # 링크 관리 편집기
+│   │   │   ├── LinkEditModal.tsx          # 링크 추가/수정 모달
+│   │   │   ├── SocialLinksEditor.tsx      # 소셜 링크 편집기
 │   │   │   └── ThemeDistribution.tsx      # 테마 사용 분포 차트
 │   │   ├── social/                        # 소셜 상호작용 컴포넌트
 │   │   │   ├── LikeButton.tsx             # 좋아요 버튼 (토글, 카운트 표시)
@@ -228,13 +308,26 @@ namecard/
 │   │   ├── useLike.ts                     # 좋아요 토글 훅 (낙관적 업데이트)
 │   │   ├── useBookmark.ts                 # 북마크 토글 훅 (낙관적 업데이트)
 │   │   ├── useCustomThemes.ts             # 커스텀 테마 CRUD 훅
-│   │   └── usePrintOrders.ts              # 인쇄 주문 CRUD + 견적 조회 훅
+│   │   ├── usePrintOrders.ts              # 인쇄 주문 CRUD + 견적 조회 훅
+│   │   ├── useAdminFilters.ts             # 관리자 필터 훅
+│   │   ├── useLinks.ts                    # 프로필 링크 CRUD 훅 (Link-in-Bio)
+│   │   ├── useQuestions.ts                # 질문 CRUD + 피드 훅 (커서 기반 페이지네이션)
+│   │   ├── useThoughts.ts                 # 생각 CRUD 훅 (질문별 생각 목록)
+│   │   ├── useThoughtLike.ts              # 생각 좋아요 토글 훅
+│   │   ├── useCoffeeChat.ts               # 커피챗 CRUD + 목록 훅 (커서 기반 페이지네이션)
+│   │   ├── useCoffeeChatCount.ts           # 커피챗 Pending 카운트 훅 (60초 폴링)
+│   │   └── __tests__/
+│   │       └── useThoughtLike.test.ts     # 생각 좋아요 훅 단위 테스트
 │   ├── types/
 │   │   ├── card.ts                        # 카드 타입 (CardData, SocialLink 등)
 │   │   ├── request.ts                     # 요청 타입 (CardRequest, RequestStatus, createdBy)
-│   │   ├── profile.ts                     # 프로필 타입 (UserProfile, ProfileStats 등)
+│   │   ├── profile.ts                     # 프로필 타입 (UserProfile, UserLink, SocialLink, ProfilePageData)
 │   │   ├── custom-theme.ts               # 커스텀 테마 타입 (CustomTheme, ThemeField 등)
-│   │   └── print-order.ts                 # 인쇄 주문 타입 (PrintOrder, PrintOrderItem, ShippingAddress)
+│   │   ├── print-order.ts                 # 인쇄 주문 타입 (PrintOrder, PrintOrderItem, ShippingAddress)
+│   │   ├── question.ts                    # 질문/생각 타입 (Question, Thought, QuestionWithAuthor, ThoughtWithAuthor)
+│   │   ├── coffee-chat.ts                 # 커피챗 타입 (CoffeeChat, CoffeeChatWithUsers, DiscoverableMember, VALID_TRANSITIONS)
+│   │   ├── event.ts                       # 이벤트 타입
+│   │   └── kakao.d.ts                     # 카카오 SDK 타입 선언
 │   ├── lib/
 │   │   ├── supabase.ts                    # 서버 Supabase 클라이언트 (service role key)
 │   │   ├── supabase-auth.ts               # 브라우저 Supabase 클라이언트 (anon key)
@@ -247,9 +340,17 @@ namecard/
 │   │   ├── validation.ts                  # 이미지 파일 검증 + Base64 변환
 │   │   ├── profile-storage.ts             # 프로필 DB 연산 (getProfile, updateProfile, getProfileCards 등)
 │   │   ├── gelato.ts                      # Gelato API 클라이언트 (fetch 기반, Workers 호환)
-│   │   └── gelato-types.ts                # Gelato API 타입 및 상수
-│   └── test/
-│       └── setup.ts                       # Vitest 테스트 환경 설정
+│   │   ├── gelato-types.ts                # Gelato API 타입 및 상수
+│   │   ├── event-storage.ts               # 이벤트 DB 연산
+│   │   ├── question-storage.ts            # 질문/생각 DB 연산 (stripHtml XSS 방지, 커서 기반 페이지네이션)
+│   │   └── coffee-chat-storage.ts         # 커피챗 DB 연산 (상태 전이 검증, rate limiting, 프로필 일괄 조회)
+│   ├── test/
+│   │   └── setup.ts                       # Vitest 테스트 환경 설정
+│   └── lib/__tests__/                     # 라이브러리 단위 테스트
+│       ├── question-storage.test.ts       # 질문 스토리지 단위 테스트
+│       ├── coffee-chat-storage.test.ts    # 커피챗 스토리지 단위 테스트
+│       ├── coffee-chat-transitions.test.ts # 커피챗 상태 전이 테스트
+│       └── coffee-chat-email.test.ts      # 커피챗 이메일 공개 테스트
 ├── .moai/                                 # MoAI-ADK 설정
 │   ├── config/                            # 프로젝트 설정 파일
 │   │   └── sections/                      # 설정 섹션 (quality, user, language)
@@ -271,7 +372,9 @@ namecard/
 │       ├── 007_add_custom_themes.sql      # 커스텀 테마 테이블 생성
 │       ├── 008_add_community.sql          # 커뮤니티 프로필/피드 테이블 생성
 │       ├── 009_add_likes_bookmarks.sql    # 좋아요/북마크 테이블 생성
-│       └── 010_add_print_orders.sql       # 인쇄 주문 테이블 (print_orders, print_order_items)
+│       ├── 010_add_print_orders.sql       # 인쇄 주문 테이블 (print_orders, print_order_items)
+│       ├── 011_add_questions_thoughts.sql # 질문/생각 테이블 (community_questions, community_thoughts, thought_likes + RLS + 트리거)
+│       └── 012_add_coffee_chat.sql        # 커피챗 테이블 (coffee_chat_requests + 5-상태 FSM + LEAST/GREATEST 유니크 인덱스)
 ├── _AEC/                                  # 참조용 디자인 에셋
 ├── public/                                # Static assets
 ├── package.json                           # 프로젝트 의존성 및 스크립트
@@ -315,6 +418,26 @@ Admin -> /admin/print -> PrintCardSelector (카드 선택) -> ShippingAddressFor
 
 [카드 편집기 흐름]
 Card Editor -> Zustand Store -> localStorage (persist) -> html-to-image -> PNG 다운로드
+
+[질문/생각 흐름]
+User -> /community/questions -> GET /api/questions (커서 기반 페이지네이션) -> Supabase DB (community_questions)
+User -> /community/questions/[id] -> GET /api/questions/[id] -> 질문 상세 + 생각 목록
+User -> POST /api/questions -> 질문 작성 (requireAuth) -> Supabase DB
+User -> POST /api/questions/[id]/thoughts -> 생각 작성 (requireAuth) -> 트리거 -> thought_count 자동 증가
+User -> POST /api/thoughts/[id]/like -> 생각 좋아요 토글 -> 트리거 -> like_count 자동 업데이트
+
+[커피챗 흐름]
+User -> /community/coffee-chat -> GET /api/members/discoverable (탐색 가능 회원) -> Supabase DB (user_profiles)
+User -> POST /api/coffee-chat -> 커피챗 요청 생성 (rate limit: 5건/24h) -> Supabase DB (coffee_chat_requests)
+Receiver -> POST /api/coffee-chat/[id]/respond -> 수락/거절 (이메일 조건부 공개) -> 상태 전이 검증
+User -> GET /api/coffee-chat/pending-count -> Pending 카운트 조회 (60초 폴링)
+User -> /community/coffee-chat/my -> GET /api/coffee-chat -> 내 요청/수신 목록 (커서 기반 페이지네이션)
+
+[Link-in-Bio 프로필 흐름]
+User -> /profile/[id] -> GET /api/profiles/[id] + GET /api/profiles/[id]/links -> 프로필 + 링크 렌더링
+Owner -> /dashboard/settings -> PUT /api/profiles/me (프로필 수정) -> POST /api/profiles/me/avatar (아바타 업로드)
+Owner -> POST/PUT/DELETE /api/profiles/me/links -> 커스텀 링크 CRUD
+Owner -> PUT /api/profiles/me/links/reorder -> 링크 순서 변경
 ```
 
 1. 사용자가 위저드에서 명함 정보를 입력하면 API를 통해 Supabase DB에 저장됩니다.
@@ -419,12 +542,50 @@ layout.tsx (Root - AuthProvider 래핑)
 ├── dashboard/bookmarks/page.tsx (Bookmarks) # 북마크한 카드 목록
 │   └── FeedCardThumbnail          # 카드 썸네일 (북마크 해제 가능)
 │
-├── profile/[id]/page.tsx (Profile) # 사용자 프로필
+├── community/questions/page.tsx (Questions) # 질문 피드
+│   ├── CommunityNav               # 커뮤니티 탭 네비게이션 (질문/커피챗)
+│   ├── QuestionFeed               # 질문 피드 (무한 스크롤)
+│   │   └── QuestionCard           # 질문 카드 (해시태그, 생각 수)
+│   │       └── HashtagChip        # 해시태그 칩
+│   ├── QuestionForm               # 질문 작성 폼
+│   └── QuestionFilters            # 질문 필터 (해시태그)
+│
+├── community/questions/[id]/page.tsx (QuestionDetail) # 질문 상세
+│   ├── QuestionDetail             # 질문 상세 뷰
+│   ├── QuestionDetailActions      # 질문 삭제 등 액션
+│   ├── ThoughtList                # 생각 목록
+│   │   └── ThoughtCard            # 생각 카드
+│   │       └── ThoughtLikeButton  # 생각 좋아요 버튼
+│   └── ThoughtForm               # 생각 작성 폼
+│
+├── community/coffee-chat/page.tsx (CoffeeChat Discover) # 커피챗 탐색
+│   ├── CommunityNav               # 커뮤니티 탭 네비게이션
+│   ├── CoffeeChatDiscoverClient   # 탐색 클라이언트
+│   └── MemberDiscoverGrid         # 회원 탐색 그리드
+│       └── MemberCard             # 회원 카드
+│           ├── CoffeeChatButton   # 커피챗 요청 버튼
+│           └── CoffeeChatRequestModal # 커피챗 요청 모달
+│
+├── community/coffee-chat/my/page.tsx (My CoffeeChat) # 내 커피챗
+│   ├── MyCoffeeChatClient         # 내 커피챗 클라이언트
+│   └── CoffeeChatList             # 커피챗 목록
+│       └── CoffeeChatCard         # 커피챗 요청 카드
+│           ├── CoffeeChatStatusBadge # 상태 배지
+│           ├── CoffeeChatDetail   # 커피챗 상세 뷰
+│           └── CoffeeChatActions  # 수락/거절/취소/완료 액션
+│
+├── profile/[id]/page.tsx (Profile) # 사용자 프로필 (Link-in-Bio)
 │   ├── ProfileClient              # 프로필 클라이언트 컴포넌트
 │   ├── ProfileHeader              # 프로필 헤더 (아바타, 이름, 소개)
+│   ├── SocialIconRow              # 소셜 플랫폼 아이콘 행
+│   ├── LinkList                   # 커스텀 링크 목록
+│   │   └── LinkButton             # 개별 링크 버튼
+│   ├── CardPortfolio              # 명함 카드 포트폴리오 갤러리
 │   ├── ProfileEditForm            # 프로필 편집 폼 (본인 프로필인 경우)
-│   ├── ThemeDistribution          # 테마 사용 분포 차트
-│   └── FeedCardThumbnail          # 사용자의 카드 목록
+│   ├── SocialLinksEditor          # 소셜 링크 편집기
+│   ├── LinkEditor                 # 커스텀 링크 관리
+│   │   └── LinkEditModal          # 링크 추가/수정 모달
+│   └── ThemeDistribution          # 테마 사용 분포 차트
 │
 ├── gallery/page.tsx (Feed)        # 커뮤니티 피드 (갤러리 확장)
 │   ├── FeedContainer              # 피드 컨테이너 (무한 스크롤)
@@ -484,30 +645,32 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/components/wizard/` | 6단계 명함 제작 위저드 컴포넌트 |
 | `src/components/dashboard/` | 사용자 대시보드 컴포넌트 (ProgressStepper, MyRequestList, RequestCard, EmptyState, MyRequestDetail) |
 | `src/components/feed/` | 커뮤니티 피드 컴포넌트 (FeedContainer, FeedCardThumbnail, FeedFilters) |
-| `src/components/profile/` | 사용자 프로필 컴포넌트 (ProfileHeader, ProfileEditForm, ThemeDistribution) |
+| `src/components/community/` | 커뮤니티 컴포넌트 - 질문/생각 (QuestionCard, QuestionFeed, QuestionForm, QuestionDetail, QuestionFilters, ThoughtCard, ThoughtForm, ThoughtList, ThoughtLikeButton, HashtagChip, CommunityNav) |
+| `src/components/coffee-chat/` | 커피챗 컴포넌트 (CoffeeChatCard, CoffeeChatDetail, CoffeeChatList, CoffeeChatButton, CoffeeChatRequestModal, CoffeeChatActions, CoffeeChatStatusBadge, CoffeeChatBadge, MemberCard, MemberDiscoverGrid) |
+| `src/components/profile/` | 사용자 프로필 컴포넌트 - Link-in-Bio 스타일 (ProfileHeader, ProfileEditForm, SocialIconRow, LinkButton, LinkList, CardPortfolio, LinkEditor, LinkEditModal, SocialLinksEditor, ThemeDistribution) |
 | `src/components/social/` | 소셜 상호작용 컴포넌트 (LikeButton, BookmarkButton) |
 | `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, EventPdfDownload, CustomThemeManager, PrintOrderManager, PrintCardSelector, PrintQuoteView, ShippingAddressForm, PrintOrderStatus, PrintOrderHistory 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
-| `src/hooks/` | 커스텀 React 훅 (좋아요, 북마크, 커스텀 테마) |
-| `src/types/` | TypeScript 타입 정의 (카드, 요청, 프로필, 커스텀 테마) |
-| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환, QR 코드/vCard 생성, 프로필 DB 연산). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수, `qrcode.ts`에 `generateVCard()`, `generateQRDataURL()`, `getCardPublicURL()` 함수, `profile-storage.ts`에 프로필 CRUD 함수 포함 |
+| `src/hooks/` | 커스텀 React 훅 (좋아요, 북마크, 커스텀 테마, 인쇄 주문, 링크, 질문, 생각, 생각 좋아요, 커피챗, 커피챗 카운트, 관리자 필터) |
+| `src/types/` | TypeScript 타입 정의 (카드, 요청, 프로필, 커스텀 테마, 인쇄 주문, 질문, 커피챗, 이벤트) |
+| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환, QR 코드/vCard 생성, 프로필 DB 연산, 질문/생각 DB 연산, 커피챗 DB 연산, 이벤트 DB 연산). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수, `qrcode.ts`에 `generateVCard()`, `generateQRDataURL()`, `getCardPublicURL()` 함수, `profile-storage.ts`에 프로필 CRUD 함수, `question-storage.ts`에 질문/생각 CRUD + `stripHtml()` 함수, `coffee-chat-storage.ts`에 커피챗 CRUD + 상태 전이 검증 함수 포함 |
 | `src/test/` | 테스트 환경 설정 |
 | `.github/workflows/` | GitHub Actions CI/CD 워크플로우 (Cloudflare Workers 배포) |
-| `supabase/migrations/` | Supabase DB 마이그레이션 파일 (커스텀 테마, 커뮤니티, 좋아요/북마크) |
+| `supabase/migrations/` | Supabase DB 마이그레이션 파일 (커스텀 테마, 커뮤니티, 좋아요/북마크, 인쇄 주문, 질문/생각, 커피챗) |
 
 ## 파일 수 현황
 
 | 카테고리 | 파일 수 |
 |---------|--------|
-| 페이지/레이아웃 (`.tsx` in `app/`) | 25 |
-| API 라우트 (`.ts` in `app/api/`) | 30 |
-| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 88 |
-| 커스텀 훅 (`.ts` in `hooks/`) | 4 |
+| 페이지/레이아웃 (`.tsx` in `app/`) | 34 |
+| API 라우트 (`.ts` in `app/api/`) | 44 |
+| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 115 |
+| 커스텀 훅 (`.ts` in `hooks/`) | 11 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
-| 타입 정의 (`.ts` in `types/`) | 5 |
-| 유틸리티 (`.ts` in `lib/`) | 12 |
+| 타입 정의 (`.ts` in `types/`) | 9 |
+| 유틸리티 (`.ts` in `lib/`) | 15 |
 | 미들웨어 (`.ts`) | 1 |
-| 테스트 (`.ts`, `.test.ts`) | 2 |
+| 테스트 (`.ts`, `.test.ts`, `.test.tsx`) | 9 |
 | 스타일시트 (`.css`) | 1 |
-| DB 마이그레이션 (`.sql`) | 4 |
-| 총 소스 파일 | 173 |
+| DB 마이그레이션 (`.sql`) | 12 |
+| 총 소스 파일 | 252 |

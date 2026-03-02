@@ -2,7 +2,7 @@
 id: SPEC-WF-001
 title: 확장 상태 워크플로우 및 요청 편집/취소 기능
 version: 1.0.0
-status: implemented
+status: completed
 created: 2026-02-22
 priority: high
 related-specs:
