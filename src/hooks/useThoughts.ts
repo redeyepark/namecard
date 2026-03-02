@@ -84,14 +84,14 @@ export function useThoughts(questionId: string, options: UseThoughtsOptions = {}
           body: JSON.stringify({ content }),
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-          const data = await res.json();
           throw new Error(data.error || '답변 작성에 실패했습니다.');
         }
 
-        const newThought = await res.json();
-        setThoughts((prev) => [newThought, ...prev]);
-        return newThought;
+        setThoughts((prev) => [data, ...prev]);
+        return data;
       } finally {
         setIsCreating(false);
       }

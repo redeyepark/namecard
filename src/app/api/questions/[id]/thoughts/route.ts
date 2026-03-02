@@ -104,8 +104,10 @@ export async function POST(
         { status: error.statusCode }
       );
     }
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    console.error('Error creating thought:', errorMessage);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
