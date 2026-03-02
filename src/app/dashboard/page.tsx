@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { UserMenu } from '@/components/auth/UserMenu';
 import { MyRequestList } from '@/components/dashboard/MyRequestList';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import type { RequestSummary } from '@/types/request';
@@ -68,19 +67,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#fcfcfc]">
-      {/* Header */}
-      <header className="bg-white border-b border-[rgba(2,9,18,0.1)]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-bold text-[#020912] hover:text-[#020912]/80 transition-colors"
-          >
-            Namecard
-          </Link>
-          <UserMenu />
-        </div>
-      </header>
-
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {/* Greeting */}
         <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-2xl sm:text-3xl font-bold text-[#020912] mb-6">

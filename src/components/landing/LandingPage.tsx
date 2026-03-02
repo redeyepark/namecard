@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginButton } from '@/components/auth/LoginButton';
-import { UserMenu } from '@/components/auth/UserMenu';
 import { UserHome } from '@/components/home/UserHome';
 import type { FeedCardData } from '@/types/card';
 
@@ -96,14 +95,16 @@ export function LandingPage() {
     <div className="min-h-screen flex flex-col bg-[#fcfcfc]">
 
       {/* ============================================================
-          HEADER - Simple, minimal
+          HEADER - Only for unauthenticated users (GlobalNav handles authenticated)
           ============================================================ */}
-      <header className="w-full max-w-5xl mx-auto px-6 sm:px-8 pt-8 flex items-center justify-between">
-        <span className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-semibold tracking-wide text-[#020912]">
-          Namecard
-        </span>
-        {isAuthenticated ? <UserMenu /> : <LoginButton />}
-      </header>
+      {!isAuthenticated && (
+        <header className="w-full max-w-5xl mx-auto px-6 sm:px-8 pt-8 flex items-center justify-between">
+          <span className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-semibold tracking-wide text-[#020912]">
+            Namecard
+          </span>
+          <LoginButton />
+        </header>
+      )}
 
       {/* ============================================================
           HERO SECTION

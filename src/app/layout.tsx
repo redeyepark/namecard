@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { KakaoProvider } from '@/components/providers/KakaoProvider';
 import { ToastProvider } from '@/components/ui/ToastProvider';
+import GlobalNav from '@/components/navigation/GlobalNav';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <KakaoProvider>
             <ToastProvider>
+              <GlobalNav />
               {children}
             </ToastProvider>
           </KakaoProvider>

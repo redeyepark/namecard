@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { UserMenu } from '@/components/auth/UserMenu';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ThemeDistribution } from '@/components/profile/ThemeDistribution';
 import { GalleryCardThumbnail } from '@/components/gallery/GalleryCardThumbnail';
@@ -221,7 +220,6 @@ export function UserHome({ embedded = false }: UserHomeProps) {
   if (error) {
     return (
       <div className="min-h-screen bg-[var(--color-bg)]">
-        <Header />
         <div className="flex flex-col items-center justify-center py-20" role="alert">
           <p className="text-sm text-red-600">{error}</p>
           <button
@@ -243,8 +241,6 @@ export function UserHome({ embedded = false }: UserHomeProps) {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
-      <Header />
-
       {/* Profile header */}
       {profile ? (
         <div className="bg-[var(--color-surface)] border-b border-[rgba(2,9,18,0.06)]">
@@ -338,27 +334,3 @@ export function UserHome({ embedded = false }: UserHomeProps) {
   );
 }
 
-/**
- * Minimal header with logo and user menu.
- * Refined with subtle shadow and taller height for premium feel.
- */
-function Header() {
-  return (
-    <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <div className="flex items-baseline gap-2">
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-bold text-[#020912] hover:text-[#020912]/80 transition-colors"
-          >
-            Namecard
-          </Link>
-          <span className="hidden sm:inline text-[10px] tracking-[0.15em] uppercase text-[#020912]/30 font-[family-name:var(--font-anonymous-pro),monospace]">
-            Studio
-          </span>
-        </div>
-        <UserMenu />
-      </div>
-    </header>
-  );
-}
