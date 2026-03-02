@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     // Check existing active chat
     const existingChat = await checkExistingActiveChat(user.id, receiverId);
-    if (existingChat) {
+    if (existingChat.exists) {
       return Response.json(
         { error: '이미 진행 중인 커피챗 요청이 있습니다.' },
         { status: 409 }

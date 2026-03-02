@@ -179,6 +179,30 @@ describe('checkExistingActiveChat', () => {
     expect(result.chatId).toBe('chat-abc-123');
   });
 
+  it('returns an object where exists=false is falsy when accessed via .exists (regression)', async () => {
+    // Regression test: checkExistingActiveChat always returns an object { exists: boolean }.
+    // The route handler must check `result.exists`, NOT just `if (result)` (objects are always truthy).
+    mockFrom.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        or: vi.fn().mockReturnValue({
+          in: vi.fn().mockReturnValue({
+            limit: vi.fn().mockReturnValue({
+              maybeSingle: vi
+                .fn()
+                .mockResolvedValue({ data: null, error: null }),
+            }),
+          }),
+        }),
+      }),
+    });
+
+    const result = await checkExistingActiveChat('user-a', 'user-b');
+    // The object itself is truthy (it's an object)
+    expect(result).toBeTruthy();
+    // But .exists must be false - this is what the route handler should check
+    expect(result.exists).toBe(false);
+  });
+
   it('checks both directions (A->B and B->A)', async () => {
     const mockOr = vi.fn().mockReturnValue({
       in: vi.fn().mockReturnValue({
