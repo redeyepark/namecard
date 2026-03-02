@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getProfile, getUserCards, getUserLinks } from '@/lib/profile-storage';
 import { getServerUser } from '@/lib/auth-utils';
+import { checkExistingActiveChat } from '@/lib/coffee-chat-storage';
 import { ProfileClient } from './ProfileClient';
 
 interface ProfilePageProps {
@@ -90,6 +91,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   // Fetch public links
   const links = await getUserLinks(id);
 
+  // Check for existing coffee chat between current user and this profile
+  let existingChatId: string | undefined;
+  if (user && !isOwner) {
+    const existing = await checkExistingActiveChat(user.id, id);
+    if (existing.exists) {
+      existingChatId = existing.chatId;
+    }
+  }
+
   return (
     <ProfileClient
       profile={profile}
@@ -100,6 +110,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       totalCards={totalCardPages}
       links={links}
       isOwner={isOwner}
+      isAuthenticated={!!user}
+      existingChatId={existingChatId}
     />
   );
 }

@@ -10,7 +10,10 @@ import { LinkList } from '@/components/profile/LinkList';
 import { LinkEditor } from '@/components/profile/LinkEditor';
 import { CardPortfolio } from '@/components/profile/CardPortfolio';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
+import CoffeeChatButton from '@/components/coffee-chat/CoffeeChatButton';
+import CoffeeChatRequestModal from '@/components/coffee-chat/CoffeeChatRequestModal';
 import type { SocialLink } from '@/types/profile';
+import type { MeetingPreference } from '@/types/coffee-chat';
 
 interface ProfileClientProps {
   profile: UserProfile;
@@ -21,6 +24,8 @@ interface ProfileClientProps {
   totalCards: number;
   links: UserLink[];
   isOwner: boolean;
+  isAuthenticated?: boolean;
+  existingChatId?: string;
 }
 
 /**
@@ -33,9 +38,12 @@ export function ProfileClient({
   initialCards,
   links,
   isOwner,
+  isAuthenticated = false,
+  existingChatId,
 }: ProfileClientProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentProfile, setCurrentProfile] = useState(profile);
+  const [showCoffeeChatModal, setShowCoffeeChatModal] = useState(false);
 
   const handleLinksUpdate = useCallback(() => {
     // Links are managed internally by LinkEditor via useLinks hook
@@ -97,6 +105,46 @@ export function ProfileClient({
           currentProfile.socialLinks.length > 0 && (
             <SocialIconRow socialLinks={currentProfile.socialLinks} />
           )}
+
+        {/* 2.5 Coffee Chat Button (non-owner only) */}
+        {!isOwner && (
+          <div className="mt-4 flex justify-center">
+            <CoffeeChatButton
+              targetUserId={currentProfile.id}
+              targetDisplayName={currentProfile.displayName}
+              isAuthenticated={isAuthenticated}
+              isPublicProfile={currentProfile.isPublic}
+              isSelf={isOwner}
+              existingChatId={existingChatId}
+              onRequestClick={() => setShowCoffeeChatModal(true)}
+            />
+          </div>
+        )}
+
+        {/* Coffee Chat Request Modal */}
+        <CoffeeChatRequestModal
+          isOpen={showCoffeeChatModal}
+          onClose={() => setShowCoffeeChatModal(false)}
+          targetUserId={currentProfile.id}
+          targetDisplayName={currentProfile.displayName}
+          targetAvatarUrl={currentProfile.avatarUrl ?? null}
+          onSubmit={async (data: {
+            receiverId: string;
+            message: string;
+            meetingPreference: MeetingPreference;
+          }) => {
+            const res = await fetch('/api/coffee-chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+            if (!res.ok) {
+              const err = await res.json();
+              throw new Error(err.error || '커피챗 요청에 실패했습니다.');
+            }
+            setShowCoffeeChatModal(false);
+          }}
+        />
 
         {/* 3. Links Section */}
         {isOwner ? (
