@@ -642,3 +642,199 @@ export async function toggleThoughtLike(
 
   return { liked, likeCount };
 }
+
+// ---------------------------------------------------------------------------
+// Admin Functions
+// ---------------------------------------------------------------------------
+
+/**
+ * Admin: Get all questions (including inactive) with offset-based pagination.
+ * Supports search by content and filtering by active status.
+ */
+export async function getAdminQuestions(options: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  includeInactive?: boolean;
+}): Promise<{ questions: QuestionWithAuthor[]; total: number }> {
+  const supabase = getSupabase();
+  const page = options.page ?? 0;
+  const limit = options.limit ?? 20;
+  const includeInactive = options.includeInactive ?? true;
+  const offset = page * limit;
+
+  // Build count query
+  let countQuery = supabase
+    .from('community_questions')
+    .select('*', { count: 'exact', head: true });
+
+  if (!includeInactive) {
+    countQuery = countQuery.eq('is_active', true);
+  }
+
+  if (options.search) {
+    countQuery = countQuery.ilike('content', `%${options.search}%`);
+  }
+
+  const { count } = await countQuery;
+  const total = count ?? 0;
+
+  // Build data query
+  let dataQuery = supabase
+    .from('community_questions')
+    .select('*');
+
+  if (!includeInactive) {
+    dataQuery = dataQuery.eq('is_active', true);
+  }
+
+  if (options.search) {
+    dataQuery = dataQuery.ilike('content', `%${options.search}%`);
+  }
+
+  dataQuery = dataQuery
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  const { data: rows, error } = await dataQuery;
+
+  if (error || !rows) {
+    return { questions: [], total: 0 };
+  }
+
+  // Batch-fetch author profiles
+  const authorIds = rows.map((r) => r.author_id as string);
+  const profileMap = await fetchAuthorProfiles(authorIds);
+
+  const questions: QuestionWithAuthor[] = rows.map((row) => {
+    const author = getAuthorFromMap(profileMap, row.author_id as string);
+    return mapQuestionRow(row, author, false);
+  });
+
+  return { questions, total };
+}
+
+/**
+ * Admin: Create a question without rate limiting.
+ * Reuses existing sanitization logic for content and hashtags.
+ */
+export async function adminCreateQuestion(
+  content: string,
+  hashtags: string[],
+  authorId?: string
+): Promise<QuestionWithAuthor> {
+  const supabase = getSupabase();
+
+  // Sanitize content
+  const cleanContent = stripHtml(content);
+  if (!cleanContent) {
+    throw new Error('Content must not be empty after sanitization');
+  }
+
+  // Clean hashtags: strip HTML, lowercase, remove # prefix, deduplicate, max 5, max 20 chars
+  const seen = new Set<string>();
+  const cleanHashtags: string[] = [];
+  for (const tag of hashtags) {
+    const cleaned = stripHtml(tag)
+      .toLowerCase()
+      .replace(/^#/, '')
+      .trim();
+    if (cleaned && cleaned.length <= 20 && !seen.has(cleaned)) {
+      seen.add(cleaned);
+      cleanHashtags.push(cleaned);
+      if (cleanHashtags.length >= 5) break;
+    }
+  }
+
+  // Use provided authorId or a system placeholder ID
+  const effectiveAuthorId = authorId || '00000000-0000-0000-0000-000000000000';
+
+  const { data: row, error } = await supabase
+    .from('community_questions')
+    .insert({
+      author_id: effectiveAuthorId,
+      content: cleanContent,
+      hashtags: cleanHashtags,
+    })
+    .select('*')
+    .single();
+
+  if (error || !row) {
+    throw new Error(`Failed to create question: ${error?.message || 'Unknown error'}`);
+  }
+
+  const profileMap = await fetchAuthorProfiles([effectiveAuthorId]);
+  const author = getAuthorFromMap(profileMap, effectiveAuthorId);
+
+  return mapQuestionRow(row, author, false);
+}
+
+/**
+ * Admin: Toggle question active status (is_active).
+ * Returns the new active state.
+ */
+export async function adminToggleQuestionActive(id: string): Promise<{ isActive: boolean }> {
+  const supabase = getSupabase();
+
+  // Fetch current state
+  const { data: existing, error: fetchError } = await supabase
+    .from('community_questions')
+    .select('is_active')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !existing) {
+    throw new Error('Question not found');
+  }
+
+  const newIsActive = !existing.is_active;
+
+  const { error: updateError } = await supabase
+    .from('community_questions')
+    .update({ is_active: newIsActive, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (updateError) {
+    throw new Error(`Failed to toggle question: ${updateError.message}`);
+  }
+
+  return { isActive: newIsActive };
+}
+
+/**
+ * Admin: Hard delete a question and all related data.
+ * Deletes thought_likes, community_thoughts, then the question itself.
+ */
+export async function adminDeleteQuestion(id: string): Promise<boolean> {
+  const supabase = getSupabase();
+
+  // First, get all thought IDs for this question to delete their likes
+  const { data: thoughts } = await supabase
+    .from('community_thoughts')
+    .select('id')
+    .eq('question_id', id);
+
+  if (thoughts && thoughts.length > 0) {
+    const thoughtIds = thoughts.map((t) => t.id as string);
+
+    // Delete thought_likes for all thoughts of this question
+    await supabase
+      .from('thought_likes')
+      .delete()
+      .in('thought_id', thoughtIds);
+
+    // Delete all thoughts for this question
+    await supabase
+      .from('community_thoughts')
+      .delete()
+      .eq('question_id', id);
+  }
+
+  // Delete the question itself
+  const { error: deleteError } = await supabase
+    .from('community_questions')
+    .delete()
+    .eq('id', id);
+
+  return !deleteError;
+}
