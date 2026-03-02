@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdminToken, AuthError } from '@/lib/auth-utils';
+import { requireAdminToken, getServerUser, AuthError } from '@/lib/auth-utils';
 import { getAdminQuestions, adminCreateQuestion } from '@/lib/question-storage';
 
 /**
@@ -97,10 +97,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Determine author: use provided authorId, or fall back to logged-in user
+    let effectiveAuthorId = authorId;
+    if (!effectiveAuthorId) {
+      const user = await getServerUser();
+      if (!user) {
+        return NextResponse.json(
+          { error: '질문을 생성하려면 Supabase 계정으로 로그인해야 합니다.' },
+          { status: 400 }
+        );
+      }
+      effectiveAuthorId = user.id;
+    }
+
     const question = await adminCreateQuestion(
       trimmed,
       hashtags || [],
-      authorId
+      effectiveAuthorId
     );
 
     return NextResponse.json({ question }, { status: 201 });

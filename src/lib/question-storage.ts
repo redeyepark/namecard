@@ -721,7 +721,7 @@ export async function getAdminQuestions(options: {
 export async function adminCreateQuestion(
   content: string,
   hashtags: string[],
-  authorId?: string
+  authorId: string
 ): Promise<QuestionWithAuthor> {
   const supabase = getSupabase();
 
@@ -746,13 +746,10 @@ export async function adminCreateQuestion(
     }
   }
 
-  // Use provided authorId or a system placeholder ID
-  const effectiveAuthorId = authorId || '00000000-0000-0000-0000-000000000000';
-
   const { data: row, error } = await supabase
     .from('community_questions')
     .insert({
-      author_id: effectiveAuthorId,
+      author_id: authorId,
       content: cleanContent,
       hashtags: cleanHashtags,
     })
@@ -763,8 +760,8 @@ export async function adminCreateQuestion(
     throw new Error(`Failed to create question: ${error?.message || 'Unknown error'}`);
   }
 
-  const profileMap = await fetchAuthorProfiles([effectiveAuthorId]);
-  const author = getAuthorFromMap(profileMap, effectiveAuthorId);
+  const profileMap = await fetchAuthorProfiles([authorId]);
+  const author = getAuthorFromMap(profileMap, authorId);
 
   return mapQuestionRow(row, author, false);
 }
