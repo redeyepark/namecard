@@ -586,7 +586,7 @@ export async function updateThought(
     .eq('user_id', userId)
     .eq('thought_id', thoughtId);
 
-  const isLiked = likeRows && likeRows.length > 0;
+  const isLiked = !!(likeRows && likeRows.length > 0);
 
   return mapThoughtRow(row, author, true, isLiked);
 }

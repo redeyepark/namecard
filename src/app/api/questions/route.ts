@@ -125,10 +125,7 @@ export async function POST(request: NextRequest) {
       );
     }
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    console.error('Error creating question:', {
-      userId: user?.id,
-      error: errorMessage,
-    });
+    console.error('Error creating question:', errorMessage);
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }
