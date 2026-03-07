@@ -477,7 +477,7 @@ export async function getThoughts(
 
 /**
  * Create a new thought on a question.
- * Strips HTML from content. Increments the parent question's thought_count.
+ * Strips HTML from content. The database trigger automatically increments the parent question's thought_count.
  */
 export async function createThought(
   questionId: string,
@@ -518,17 +518,9 @@ export async function createThought(
     throw new Error(`Failed to create thought: ${error?.message || 'Unknown error'}`);
   }
 
-  // Update question's thought_count with actual COUNT
-  const { count: thoughtCount } = await supabase
-    .from('community_thoughts')
-    .select('*', { count: 'exact', head: true })
-    .eq('question_id', questionId)
-    .eq('is_active', true);
-
-  await supabase
-    .from('community_questions')
-    .update({ thought_count: thoughtCount ?? 0, updated_at: new Date().toISOString() })
-    .eq('id', questionId);
+  // Note: The database trigger (trigger_update_thought_count) automatically
+  // increments community_questions.thought_count when a thought is inserted.
+  // We do not need to manually update it here.
 
   const profileMap = await fetchAuthorProfiles([authorId]);
   const author = getAuthorFromMap(profileMap, authorId);
@@ -538,16 +530,16 @@ export async function createThought(
 
 /**
  * Delete a thought. Verifies ownership (author_id === userId) before deleting.
- * Decrements the parent question's thought_count.
+ * The database trigger automatically decrements the parent question's thought_count.
  * @returns true if successfully deleted, false if not found or not owned.
  */
 export async function deleteThought(thoughtId: string, userId: string): Promise<boolean> {
   const supabase = getSupabase();
 
-  // Verify ownership and get question_id for count update
+  // Verify ownership before deleting
   const { data: existing, error: fetchError } = await supabase
     .from('community_thoughts')
-    .select('author_id, question_id')
+    .select('author_id')
     .eq('id', thoughtId)
     .single();
 
@@ -559,8 +551,6 @@ export async function deleteThought(thoughtId: string, userId: string): Promise<
     return false;
   }
 
-  const questionId = existing.question_id as string;
-
   const { error: deleteError } = await supabase
     .from('community_thoughts')
     .delete()
@@ -571,17 +561,9 @@ export async function deleteThought(thoughtId: string, userId: string): Promise<
     return false;
   }
 
-  // Update question's thought_count with actual COUNT
-  const { count: thoughtCount } = await supabase
-    .from('community_thoughts')
-    .select('*', { count: 'exact', head: true })
-    .eq('question_id', questionId)
-    .eq('is_active', true);
-
-  await supabase
-    .from('community_questions')
-    .update({ thought_count: thoughtCount ?? 0, updated_at: new Date().toISOString() })
-    .eq('id', questionId);
+  // Note: The database trigger (trigger_update_thought_count) automatically
+  // decrements community_questions.thought_count when a thought is deleted.
+  // We do not need to manually update it here.
 
   return true;
 }
@@ -592,7 +574,7 @@ export async function deleteThought(thoughtId: string, userId: string): Promise<
 
 /**
  * Toggle like on a thought. If already liked, removes the like; otherwise adds one.
- * Updates community_thoughts.like_count with actual COUNT.
+ * The database trigger automatically updates community_thoughts.like_count.
  * @returns the new like state and like count.
  */
 export async function toggleThoughtLike(
@@ -627,18 +609,16 @@ export async function toggleThoughtLike(
     liked = true;
   }
 
-  // Update like_count on community_thoughts with actual COUNT
-  const { count: newCount } = await supabase
-    .from('thought_likes')
-    .select('*', { count: 'exact', head: true })
-    .eq('thought_id', thoughtId);
-
-  const likeCount = newCount ?? 0;
-
-  await supabase
+  // Fetch the updated like_count from the database
+  // The trigger (trigger_update_thought_like_count) has already updated it,
+  // but we need to return the current value to the client
+  const { data: thought } = await supabase
     .from('community_thoughts')
-    .update({ like_count: likeCount })
-    .eq('id', thoughtId);
+    .select('like_count')
+    .eq('id', thoughtId)
+    .single();
+
+  const likeCount = (thought?.like_count as number) ?? 0;
 
   return { liked, likeCount };
 }

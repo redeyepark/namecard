@@ -64,10 +64,30 @@ export default async function middleware(req: NextRequest) {
     return response;
   }
 
-  // --- Below: Supabase auth for non-admin routes (unchanged) ---
+  // --- Below: Supabase auth for non-admin routes ---
 
-  // Create a Supabase client for the middleware.
-  // This refreshes the auth token on every request via cookie management.
+  // Early return for public routes - skip Supabase auth entirely for performance.
+  // This avoids the expensive getUser() network call on every public page request.
+  if (publicRoutes.includes(pathname)) {
+    return response;
+  }
+  for (const prefix of publicPrefixes) {
+    if (pathname.startsWith(prefix)) {
+      return response;
+    }
+  }
+
+  // Check if the route requires authentication
+  const isProtectedRoute = protectedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(route + '/')
+  );
+
+  // Non-protected, non-public routes (e.g. /community/*) - skip Supabase auth
+  if (!isProtectedRoute) {
+    return response;
+  }
+
+  // Only create Supabase client for protected routes that need auth validation
   let supabaseResponse = NextResponse.next({
     request: req,
   });
@@ -81,16 +101,12 @@ export default async function middleware(req: NextRequest) {
           return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          // Update request cookies for server-side operations
           cookiesToSet.forEach(({ name, value }) =>
             req.cookies.set(name, value)
           );
-          // CRITICAL FIX: Create new response with updated cookies
-          // This ensures refreshed tokens are sent back to the client
           supabaseResponse = NextResponse.next({
             request: req,
           });
-          // Set cookies on the response so client receives updated tokens
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
@@ -110,31 +126,12 @@ export default async function middleware(req: NextRequest) {
     user = authUser;
   } catch (err) {
     console.error('Error refreshing auth session in middleware:', err);
-    // Continue without user - let client handle logout
   }
 
-  // Use the response that may have been updated by setAll callback
   response = supabaseResponse;
 
-  // Allow public routes
-  if (publicRoutes.includes(pathname)) {
-    return response;
-  }
-
-  // Allow routes with public prefixes
-  for (const prefix of publicPrefixes) {
-    if (pathname.startsWith(prefix)) {
-      return response;
-    }
-  }
-
-  // Check if the route requires authentication
-  const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(route + '/')
-  );
-
   // Redirect unauthenticated users to login
-  if (!user && isProtectedRoute) {
+  if (!user) {
     const loginUrl = new URL('/login', req.nextUrl.origin);
     loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
