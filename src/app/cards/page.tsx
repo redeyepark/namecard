@@ -5,10 +5,10 @@ import { GalleryClient } from './GalleryClient';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '명함 갤러리 | Namecard',
+  title: '부캐 갤러리 | Namecard',
   description: '참가자들의 명함을 둘러보세요',
   openGraph: {
-    title: '명함 갤러리 | Namecard',
+    title: '부캐 갤러리 | Namecard',
     description: '참가자들의 명함을 둘러보세요',
   },
 };

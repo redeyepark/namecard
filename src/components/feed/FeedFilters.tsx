@@ -166,7 +166,7 @@ export function FeedFilters({
                     : 'bg-transparent text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)]'
                 }`}
               >
-                #{tag}
+                {tag.startsWith('#') ? tag : `#${tag}`}
               </button>
             );
           })}

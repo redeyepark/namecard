@@ -17,7 +17,7 @@ export function HashtagChip({ tag, onClick, isActive = false }: HashtagChipProps
           : 'bg-[#020912]/5 text-[#020912]/70 hover:bg-[#020912]/10'
       }`}
     >
-      #{tag}
+      {tag.startsWith('#') ? tag : `#${tag}`}
     </button>
   );
 }

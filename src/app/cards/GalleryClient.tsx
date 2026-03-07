@@ -34,7 +34,7 @@ export function GalleryClient({
           </Link>
           <div className="flex items-baseline gap-3">
             <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
-              명함 갤러리
+              부캐 갤러리
             </h1>
             {totalCards > 0 && (
               <span className="text-sm sm:text-base text-[#fcfcfc]/40 font-mono">
