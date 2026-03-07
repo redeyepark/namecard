@@ -14,13 +14,13 @@ import type {
 
 /**
  * Calculate user level from answer count.
- * Lv.1: 0 answers, Lv.2: 4+, Lv.3: 8+, Lv.4: 12+, Lv.5: 16
+ * Lv.1: 0 answers, Lv.2: 12+, Lv.3: 24+, Lv.4: 36+, Lv.5: 48
  */
 function calculateLevel(answerCount: number): number {
-  if (answerCount >= 16) return 5;
-  if (answerCount >= 12) return 4;
-  if (answerCount >= 8) return 3;
-  if (answerCount >= 4) return 2;
+  if (answerCount >= 48) return 5;
+  if (answerCount >= 36) return 4;
+  if (answerCount >= 24) return 3;
+  if (answerCount >= 12) return 2;
   return 1;
 }
 
@@ -152,9 +152,9 @@ export async function getMbtiProgress(userId: string): Promise<MbtiProgress> {
   const answeredCount = answerMap.size;
   const level = calculateLevel(answeredCount);
 
-  // Determine MBTI type if all 16 answered
+  // Determine MBTI type if all questions answered
   let mbtiType: string | null = null;
-  if (answeredCount >= 16) {
+  if (answeredCount >= questions.length && questions.length > 0) {
     // Fetch user profile mbti_type first
     const supabase = getSupabase();
     const { data: profile } = await supabase
@@ -280,7 +280,7 @@ export async function submitMbtiAnswer(
 
   // 6. Calculate MBTI type if all questions answered
   let mbtiType: string | null = null;
-  if (newAnsweredCount >= 16) {
+  if (newAnsweredCount >= allQuestions.length && allQuestions.length > 0) {
     // Build answer list with dimensions for calculation
     const answersWithDimension: MbtiAnswerWithQuestion[] = [];
 
