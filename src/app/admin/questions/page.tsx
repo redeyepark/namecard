@@ -1,7 +1,19 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionWithAuthor } from '@/types/question';
+import type { ThoughtWithAuthor } from '@/types/question';
+
+/**
+ * Represents the loaded thoughts state for a given question.
+ */
+interface ThoughtsState {
+  thoughts: ThoughtWithAuthor[];
+  loading: boolean;
+  error: string | null;
+  nextCursor: string | null;
+  hasMore: boolean;
+}
 
 /**
  * Format a date string as relative time (e.g., "3일 전", "2시간 전").
@@ -45,6 +57,10 @@ export default function AdminQuestionsPage() {
   // Action loading states
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Expanded thoughts state
+  const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(null);
+  const [thoughtsMap, setThoughtsMap] = useState<Record<string, ThoughtsState>>({});
 
   // Create form state
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -154,6 +170,71 @@ export default function AdminQuestionsPage() {
       }
     },
     []
+  );
+
+  // Fetch thoughts for a question
+  const fetchThoughts = useCallback(
+    async (questionId: string, cursor?: string) => {
+      setThoughtsMap((prev) => ({
+        ...prev,
+        [questionId]: {
+          ...(prev[questionId] || { thoughts: [], nextCursor: null, hasMore: false }),
+          loading: true,
+          error: null,
+        },
+      }));
+      try {
+        const params = new URLSearchParams();
+        params.set('limit', '10');
+        params.set('sort', 'latest');
+        if (cursor) params.set('cursor', cursor);
+
+        const res = await fetch(`/api/questions/${questionId}/thoughts?${params.toString()}`);
+        if (!res.ok) throw new Error('Failed to fetch thoughts');
+        const data = await res.json();
+
+        setThoughtsMap((prev) => {
+          const existing = prev[questionId];
+          const prevThoughts = cursor && existing ? existing.thoughts : [];
+          return {
+            ...prev,
+            [questionId]: {
+              thoughts: [...prevThoughts, ...data.thoughts],
+              loading: false,
+              error: null,
+              nextCursor: data.nextCursor,
+              hasMore: data.hasMore,
+            },
+          };
+        });
+      } catch {
+        setThoughtsMap((prev) => ({
+          ...prev,
+          [questionId]: {
+            ...(prev[questionId] || { thoughts: [], nextCursor: null, hasMore: false }),
+            loading: false,
+            error: '답변을 불러오는데 실패했습니다.',
+          },
+        }));
+      }
+    },
+    []
+  );
+
+  // Toggle thoughts expansion
+  const handleToggleThoughts = useCallback(
+    (questionId: string) => {
+      if (expandedQuestionId === questionId) {
+        setExpandedQuestionId(null);
+        return;
+      }
+      setExpandedQuestionId(questionId);
+      // Only fetch if we haven't loaded yet
+      if (!thoughtsMap[questionId]) {
+        fetchThoughts(questionId);
+      }
+    },
+    [expandedQuestionId, thoughtsMap, fetchThoughts]
   );
 
   // Create form: add hashtag
@@ -462,89 +543,223 @@ export default function AdminQuestionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {questions.map((q) => (
-                  <tr
-                    key={q.id}
-                    className="border-b border-[rgba(2,9,18,0.08)] hover:bg-[#e4f6ff]/50 transition-colors"
-                  >
-                    {/* Content (truncated) */}
-                    <td className="py-3 px-4 text-[#020912] max-w-[280px]">
-                      <span title={q.content}>
-                        {q.content.length > 60
-                          ? q.content.slice(0, 60) + '...'
-                          : q.content}
-                      </span>
-                    </td>
-
-                    {/* Author */}
-                    <td className="py-3 px-4 text-[#020912]/70 whitespace-nowrap">
-                      {q.author.displayName}
-                    </td>
-
-                    {/* Hashtags */}
-                    <td className="py-3 px-4">
-                      <div className="flex flex-wrap gap-1">
-                        {q.hashtags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="inline-block px-1.5 py-0.5 text-[10px] font-medium bg-[#020912]/5 text-[#020912]/60"
-                          >
-                            #{tag}
+                {questions.map((q) => {
+                  const isExpanded = expandedQuestionId === q.id;
+                  const thoughtsState = thoughtsMap[q.id];
+                  return (
+                    <React.Fragment key={q.id}>
+                      <tr
+                        className="border-b border-[rgba(2,9,18,0.08)] hover:bg-[#e4f6ff]/50 transition-colors"
+                      >
+                        {/* Content (truncated) */}
+                        <td className="py-3 px-4 text-[#020912] max-w-[280px]">
+                          <span title={q.content}>
+                            {q.content.length > 60
+                              ? q.content.slice(0, 60) + '...'
+                              : q.content}
                           </span>
-                        ))}
-                      </div>
-                    </td>
+                        </td>
 
-                    {/* Thought count */}
-                    <td className="py-3 px-4 text-[#020912]/70 tabular-nums">
-                      {q.thoughtCount}
-                    </td>
+                        {/* Author */}
+                        <td className="py-3 px-4 text-[#020912]/70 whitespace-nowrap">
+                          {q.author.displayName}
+                        </td>
 
-                    {/* Status badge */}
-                    <td className="py-3 px-4">
-                      {q.isActive ? (
-                        <span className="inline-block px-2 py-0.5 text-xs font-medium bg-[#dbe9e0] text-[#020912]">
-                          활성
-                        </span>
-                      ) : (
-                        <span className="inline-block px-2 py-0.5 text-xs font-medium bg-red-50 text-red-700">
-                          비활성
-                        </span>
+                        {/* Hashtags */}
+                        <td className="py-3 px-4">
+                          <div className="flex flex-wrap gap-1">
+                            {q.hashtags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-block px-1.5 py-0.5 text-[10px] font-medium bg-[#020912]/5 text-[#020912]/60"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+
+                        {/* Thought count - clickable to expand */}
+                        <td className="py-3 px-4">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleThoughts(q.id)}
+                            className={`inline-flex items-center gap-1 text-sm tabular-nums transition-colors ${
+                              q.thoughtCount > 0
+                                ? 'text-[#020912]/70 hover:text-[#020912] cursor-pointer'
+                                : 'text-[#020912]/30 cursor-default'
+                            }`}
+                            disabled={q.thoughtCount === 0}
+                            aria-expanded={isExpanded}
+                            aria-label={`답변 ${q.thoughtCount}개 ${isExpanded ? '접기' : '펼치기'}`}
+                          >
+                            {q.thoughtCount > 0 && (
+                              <svg
+                                className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2}
+                                stroke="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                              </svg>
+                            )}
+                            {q.thoughtCount}
+                          </button>
+                        </td>
+
+                        {/* Status badge */}
+                        <td className="py-3 px-4">
+                          {q.isActive ? (
+                            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-[#dbe9e0] text-[#020912]">
+                              활성
+                            </span>
+                          ) : (
+                            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-red-50 text-red-700">
+                              비활성
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Created date */}
+                        <td className="py-3 px-4 text-[#020912]/50 whitespace-nowrap">
+                          {formatRelativeTime(q.createdAt)}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleActive(q.id)}
+                              disabled={togglingId === q.id}
+                              className="text-sm text-[#020912]/60 hover:text-[#020912] transition-colors disabled:opacity-50"
+                            >
+                              {togglingId === q.id
+                                ? '처리 중...'
+                                : q.isActive
+                                  ? '비활성화'
+                                  : '활성화'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(q.id)}
+                              disabled={deletingId === q.id}
+                              className="text-sm text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+                            >
+                              {deletingId === q.id ? '삭제 중...' : '삭제'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Expanded thoughts row */}
+                      {isExpanded && (
+                        <tr className="border-b border-[rgba(2,9,18,0.08)]">
+                          <td colSpan={7} className="p-0">
+                            <div className="bg-[#f8f9fa] px-6 py-4">
+                              <h3 className="text-xs font-semibold text-[#020912]/50 uppercase tracking-wider mb-3">
+                                답변 목록 ({q.thoughtCount})
+                              </h3>
+
+                              {/* Loading state */}
+                              {thoughtsState?.loading && thoughtsState.thoughts.length === 0 && (
+                                <div className="text-center py-4 text-[#020912]/40 text-sm">
+                                  <svg
+                                    className="animate-spin h-4 w-4 mx-auto mb-1"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                  >
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                  </svg>
+                                  답변 로딩 중...
+                                </div>
+                              )}
+
+                              {/* Error state */}
+                              {thoughtsState?.error && (
+                                <div className="text-center py-3 text-red-500 text-sm">
+                                  {thoughtsState.error}
+                                  <button
+                                    type="button"
+                                    onClick={() => fetchThoughts(q.id)}
+                                    className="ml-2 text-[#020912]/60 hover:text-[#020912] underline"
+                                  >
+                                    재시도
+                                  </button>
+                                </div>
+                              )}
+
+                              {/* Thoughts list */}
+                              {thoughtsState && thoughtsState.thoughts.length > 0 && (
+                                <div className="space-y-2">
+                                  {thoughtsState.thoughts.map((thought) => (
+                                    <div
+                                      key={thought.id}
+                                      className="bg-white border border-[rgba(2,9,18,0.06)] px-4 py-3"
+                                    >
+                                      <div className="flex items-start justify-between gap-3">
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm text-[#020912] whitespace-pre-wrap break-words">
+                                            {thought.content}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-4 mt-2 text-xs text-[#020912]/40">
+                                        <span className="font-medium text-[#020912]/60">
+                                          {thought.author.displayName}
+                                        </span>
+                                        <span>{formatRelativeTime(thought.createdAt)}</span>
+                                        <span className="inline-flex items-center gap-0.5">
+                                          <svg
+                                            className="w-3 h-3"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth={1.5}
+                                            stroke="currentColor"
+                                            aria-hidden="true"
+                                          >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                                          </svg>
+                                          {thought.likeCount}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))}
+
+                                  {/* Load more button */}
+                                  {thoughtsState.hasMore && (
+                                    <div className="text-center pt-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => fetchThoughts(q.id, thoughtsState.nextCursor || undefined)}
+                                        disabled={thoughtsState.loading}
+                                        className="text-sm text-[#020912]/60 hover:text-[#020912] transition-colors disabled:opacity-50"
+                                      >
+                                        {thoughtsState.loading ? '로딩 중...' : '더 보기'}
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Empty state */}
+                              {thoughtsState && !thoughtsState.loading && !thoughtsState.error && thoughtsState.thoughts.length === 0 && (
+                                <p className="text-center py-3 text-sm text-[#020912]/30">
+                                  아직 답변이 없습니다.
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
                       )}
-                    </td>
-
-                    {/* Created date */}
-                    <td className="py-3 px-4 text-[#020912]/50 whitespace-nowrap">
-                      {formatRelativeTime(q.createdAt)}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleActive(q.id)}
-                          disabled={togglingId === q.id}
-                          className="text-sm text-[#020912]/60 hover:text-[#020912] transition-colors disabled:opacity-50"
-                        >
-                          {togglingId === q.id
-                            ? '처리 중...'
-                            : q.isActive
-                              ? '비활성화'
-                              : '활성화'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(q.id)}
-                          disabled={deletingId === q.id}
-                          className="text-sm text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
-                        >
-                          {deletingId === q.id ? '삭제 중...' : '삭제'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                    </React.Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
