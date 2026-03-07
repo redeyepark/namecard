@@ -86,7 +86,7 @@ export function SurveyCard({ survey, onTagClick }: SurveyCardProps) {
 
       {/* Hashtags */}
       {survey.hashtags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {survey.hashtags.map((tag) => (
             <HashtagChip
               key={tag}

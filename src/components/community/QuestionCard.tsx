@@ -62,7 +62,7 @@ export function QuestionCard({ question, onTagClick }: QuestionCardProps) {
 
       {/* Hashtags */}
       {question.hashtags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {question.hashtags.map((tag) => (
             <HashtagChip
               key={tag}

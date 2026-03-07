@@ -10,7 +10,11 @@ export function HashtagChip({ tag, onClick, isActive = false }: HashtagChipProps
   return (
     <button
       type="button"
-      onClick={() => onClick?.(tag)}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick?.(tag);
+      }}
       className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium transition-all duration-200 ${
         isActive
           ? 'bg-[#020912] text-[#fcfcfc]'
