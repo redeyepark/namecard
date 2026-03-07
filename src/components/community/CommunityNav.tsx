@@ -7,6 +7,7 @@ import CoffeeChatBadge from '@/components/coffee-chat/CoffeeChatBadge';
 
 const NAV_ITEMS = [
   { label: '질문', href: '/community/questions' },
+  { label: '설문', href: '/community/surveys' },
   { label: '커피챗', href: '/community/coffee-chat' },
 ];
 
