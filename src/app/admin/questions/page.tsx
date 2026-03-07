@@ -551,13 +551,34 @@ export default function AdminQuestionsPage() {
                       <tr
                         className="border-b border-[rgba(2,9,18,0.08)] hover:bg-[#e4f6ff]/50 transition-colors"
                       >
-                        {/* Content (truncated) */}
+                        {/* Content (truncated) - clickable to expand thoughts */}
                         <td className="py-3 px-4 text-[#020912] max-w-[280px]">
-                          <span title={q.content}>
-                            {q.content.length > 60
-                              ? q.content.slice(0, 60) + '...'
-                              : q.content}
-                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleThoughts(q.id)}
+                            className="text-left w-full hover:text-[#020912]/70 transition-colors cursor-pointer"
+                            title={q.content}
+                            aria-expanded={isExpanded}
+                            aria-label={`질문 답변 ${isExpanded ? '접기' : '펼치기'}`}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <svg
+                                className={`w-3 h-3 flex-shrink-0 transition-transform duration-200 text-[#020912]/40 ${isExpanded ? 'rotate-90' : ''}`}
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2}
+                                stroke="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                              </svg>
+                              <span>
+                                {q.content.length > 60
+                                  ? q.content.slice(0, 60) + '...'
+                                  : q.content}
+                              </span>
+                            </span>
+                          </button>
                         </td>
 
                         {/* Author */}
@@ -587,9 +608,8 @@ export default function AdminQuestionsPage() {
                             className={`inline-flex items-center gap-1 text-sm tabular-nums transition-colors ${
                               q.thoughtCount > 0
                                 ? 'text-[#020912]/70 hover:text-[#020912] cursor-pointer'
-                                : 'text-[#020912]/30 cursor-default'
+                                : 'text-[#020912]/30 hover:text-[#020912]/50 cursor-pointer'
                             }`}
-                            disabled={q.thoughtCount === 0}
                             aria-expanded={isExpanded}
                             aria-label={`답변 ${q.thoughtCount}개 ${isExpanded ? '접기' : '펼치기'}`}
                           >
