@@ -77,6 +77,7 @@ export function useThoughts(questionId: string, options: UseThoughtsOptions = {}
   const createThought = useCallback(
     async (content: string) => {
       setIsCreating(true);
+      setError(null);
       try {
         const res = await fetch(`/api/questions/${questionId}/thoughts`, {
           method: 'POST',
@@ -90,8 +91,13 @@ export function useThoughts(questionId: string, options: UseThoughtsOptions = {}
           throw new Error(data.error || '답변 작성에 실패했습니다.');
         }
 
+        // Ensure data is properly typed as ThoughtWithAuthor
         setThoughts((prev) => [data, ...prev]);
         return data;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : '답변 작성에 실패했습니다.';
+        setError(errorMessage);
+        throw err;
       } finally {
         setIsCreating(false);
       }
@@ -136,6 +142,52 @@ export function useThoughts(questionId: string, options: UseThoughtsOptions = {}
     []
   );
 
+  // Edit an existing thought
+  const editThought = useCallback(
+    async (thoughtId: string, content: string) => {
+      const prevThoughts = thoughts;
+
+      // Optimistic update
+      setThoughts((prev) =>
+        prev.map((t) =>
+          t.id === thoughtId
+            ? { ...t, content, updatedAt: new Date().toISOString() }
+            : t
+        )
+      );
+
+      try {
+        const res = await fetch(
+          `/api/questions/${questionId}/thoughts/${thoughtId}`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content }),
+          }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          // Rollback on error
+          setThoughts(prevThoughts);
+          throw new Error(data.error || '답변 수정에 실패했습니다.');
+        }
+
+        // Update with server response (to get correct updatedAt timestamp)
+        setThoughts((prev) =>
+          prev.map((t) => (t.id === thoughtId ? data : t))
+        );
+        return data;
+      } catch (err) {
+        // Rollback on error
+        setThoughts(prevThoughts);
+        throw err;
+      }
+    },
+    [questionId, thoughts]
+  );
+
   const retry = useCallback(() => {
     fetchThoughts(nextCursor, false);
   }, [fetchThoughts, nextCursor]);
@@ -149,6 +201,7 @@ export function useThoughts(questionId: string, options: UseThoughtsOptions = {}
     sentinelRef,
     createThought,
     deleteThought,
+    editThought,
     updateThoughtLike,
     retry,
   };

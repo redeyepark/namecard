@@ -96,6 +96,13 @@ export async function POST(
 
     const thought = await createThought(id, user.id, trimmedContent);
 
+    if (!thought) {
+      return NextResponse.json(
+        { error: '답변 작성에 실패했습니다.' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(thought, { status: 201 });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -105,7 +112,11 @@ export async function POST(
       );
     }
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    console.error('Error creating thought:', errorMessage);
+    console.error('Error creating thought:', {
+      questionId: id,
+      userId: user.id,
+      error: errorMessage,
+    });
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }

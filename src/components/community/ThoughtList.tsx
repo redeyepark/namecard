@@ -10,6 +10,7 @@ interface ThoughtListProps {
   hasMore: boolean;
   sentinelRef: (node?: Element | null) => void;
   onDelete: (thoughtId: string) => void;
+  onEdit: (thoughtId: string, content: string) => Promise<void>;
   onLikeChange: (thoughtId: string, liked: boolean, likeCount: number) => void;
   onRetry: () => void;
 }
@@ -21,6 +22,7 @@ export function ThoughtList({
   hasMore,
   sentinelRef,
   onDelete,
+  onEdit,
   onLikeChange,
   onRetry,
 }: ThoughtListProps) {
@@ -41,6 +43,7 @@ export function ThoughtList({
           key={thought.id}
           thought={thought}
           onDelete={onDelete}
+          onEdit={onEdit}
           onLikeChange={onLikeChange}
         />
       ))}

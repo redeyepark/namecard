@@ -47,8 +47,9 @@ export async function GET(request: NextRequest) {
  * Body: { content: string (10-500 chars), hashtags?: string[] (max 5, each max 20 chars) }
  */
 export async function POST(request: NextRequest) {
+  let user;
   try {
-    const user = await requireAuth();
+    user = await requireAuth();
 
     // Rate limit: 1 question per 60 seconds
     const rateLimited = await checkQuestionRateLimit(user.id);
@@ -108,6 +109,13 @@ export async function POST(request: NextRequest) {
       hashtags || []
     );
 
+    if (!question) {
+      return NextResponse.json(
+        { error: '질문 작성에 실패했습니다.' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(question, { status: 201 });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -116,8 +124,13 @@ export async function POST(request: NextRequest) {
         { status: error.statusCode }
       );
     }
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    console.error('Error creating question:', {
+      userId: user?.id,
+      error: errorMessage,
+    });
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -42,6 +42,7 @@ export function QuestionDetail({
     sentinelRef,
     createThought,
     deleteThought,
+    editThought,
     updateThoughtLike,
     retry,
   } = useThoughts(question.id);
@@ -68,6 +69,17 @@ export function QuestionDetail({
       }
     },
     [deleteThought]
+  );
+
+  const handleEditThought = useCallback(
+    async (thoughtId: string, content: string) => {
+      try {
+        await editThought(thoughtId, content);
+      } catch {
+        // Error handled by hook
+      }
+    },
+    [editThought]
   );
 
   return (
@@ -143,6 +155,7 @@ export function QuestionDetail({
           hasMore={hasMore}
           sentinelRef={sentinelRef}
           onDelete={handleDeleteThought}
+          onEdit={handleEditThought}
           onLikeChange={updateThoughtLike}
           onRetry={retry}
         />

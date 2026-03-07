@@ -529,6 +529,69 @@ export async function createThought(
 }
 
 /**
+ * Update an existing thought. Verifies ownership (author_id === userId) before updating.
+ * Strips HTML from content.
+ * @returns the updated ThoughtWithAuthor, or null if not found or not owned.
+ */
+export async function updateThought(
+  thoughtId: string,
+  userId: string,
+  content: string
+): Promise<ThoughtWithAuthor | null> {
+  const supabase = getSupabase();
+
+  const cleanContent = stripHtml(content);
+  if (!cleanContent) {
+    throw new Error('Content must not be empty after sanitization');
+  }
+
+  // Verify ownership before updating
+  const { data: existing, error: fetchError } = await supabase
+    .from('community_thoughts')
+    .select('author_id, question_id')
+    .eq('id', thoughtId)
+    .single();
+
+  if (fetchError || !existing) {
+    return null;
+  }
+
+  if (existing.author_id !== userId) {
+    return null;
+  }
+
+  // Update the thought
+  const { data: row, error: updateError } = await supabase
+    .from('community_thoughts')
+    .update({
+      content: cleanContent,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', thoughtId)
+    .eq('author_id', userId)
+    .select('*')
+    .single();
+
+  if (updateError || !row) {
+    return null;
+  }
+
+  const profileMap = await fetchAuthorProfiles([userId]);
+  const author = getAuthorFromMap(profileMap, userId);
+
+  // Check if current user has liked this thought
+  const { data: likeRows } = await supabase
+    .from('thought_likes')
+    .select('thought_id')
+    .eq('user_id', userId)
+    .eq('thought_id', thoughtId);
+
+  const isLiked = likeRows && likeRows.length > 0;
+
+  return mapThoughtRow(row, author, true, isLiked);
+}
+
+/**
  * Delete a thought. Verifies ownership (author_id === userId) before deleting.
  * The database trigger automatically decrements the parent question's thought_count.
  * @returns true if successfully deleted, false if not found or not owned.
