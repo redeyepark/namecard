@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { MyRequestList } from '@/components/dashboard/MyRequestList';
 import { EmptyState } from '@/components/dashboard/EmptyState';
+import { RecentQuestions } from '@/components/dashboard/RecentQuestions';
 import type { RequestSummary } from '@/types/request';
 
 function Spinner() {
@@ -96,6 +97,9 @@ export default function DashboardPage() {
             <span className="text-sm font-semibold">설정</span>
           </Link>
         </div>
+
+        {/* Recent Questions */}
+        <RecentQuestions />
 
         {/* Request List */}
         <h2 className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-bold text-[#020912] mb-4">
