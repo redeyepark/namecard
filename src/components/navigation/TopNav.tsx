@@ -26,6 +26,11 @@ const navLinks: NavLink[] = [
     matchPrefix: '/community',
     showBadge: true,
   },
+  {
+    label: '\uBD80\uCE90\uAD00\uB9AC',
+    href: '/dashboard',
+    matchPrefix: '/dashboard',
+  },
 ];
 
 export default function TopNav() {

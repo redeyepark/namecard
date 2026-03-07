@@ -118,8 +118,8 @@ export default function BottomTabBar() {
       badge: true,
     },
     {
-      key: 'dashboard',
-      label: '\uB9C8\uC774',
+      key: 'sub-cards',
+      label: '\uBD80\uCE90\uAD00\uB9AC',
       href: '/dashboard',
       icon: DashboardIcon,
       matchPrefix: '/dashboard',
