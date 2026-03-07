@@ -56,8 +56,8 @@ export function ThoughtCard({ thought, onDelete, onEdit, onLikeChange }: Thought
       setEditError(null);
 
       const trimmed = editContent.trim();
-      if (trimmed.length < 5) {
-        setEditError('답변은 최소 5자 이상 입력해주세요.');
+      if (trimmed.length < 1) {
+        setEditError('답변을 입력해주세요.');
         return;
       }
       if (trimmed.length > 1000) {
@@ -133,7 +133,7 @@ export function ThoughtCard({ thought, onDelete, onEdit, onLikeChange }: Thought
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || editContent.trim().length < 5}
+                disabled={isSubmitting || editContent.trim().length < 1}
                 className="px-3 py-1.5 text-xs font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {isSubmitting ? '저장 중...' : '저장'}

@@ -18,8 +18,8 @@ export function ThoughtForm({ isAuthenticated, isCreating, onSubmit }: ThoughtFo
       setError(null);
 
       const trimmed = content.trim();
-      if (trimmed.length < 5) {
-        setError('답변은 최소 5자 이상 입력해주세요.');
+      if (trimmed.length < 1) {
+        setError('답변을 입력해주세요.');
         return;
       }
       if (trimmed.length > 1000) {
@@ -64,7 +64,7 @@ export function ThoughtForm({ isAuthenticated, isCreating, onSubmit }: ThoughtFo
           </span>
           <button
             type="submit"
-            disabled={isCreating || content.trim().length < 5}
+            disabled={isCreating || content.trim().length < 1}
             className="px-4 py-1.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
           >
             {isCreating ? '보내는 중...' : '보내기'}

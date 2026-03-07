@@ -87,9 +87,9 @@ export async function POST(
     }
 
     const trimmedContent = content.trim();
-    if (trimmedContent.length < 5 || trimmedContent.length > 1000) {
+    if (trimmedContent.length < 1 || trimmedContent.length > 1000) {
       return NextResponse.json(
-        { error: '답변은 5자 이상 1000자 이하로 작성해주세요.' },
+        { error: '답변은 1자 이상 1000자 이하로 작성해주세요.' },
         { status: 400 }
       );
     }
