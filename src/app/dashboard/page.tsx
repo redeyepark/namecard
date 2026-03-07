@@ -8,6 +8,8 @@ import { MyRequestList } from '@/components/dashboard/MyRequestList';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { RecentQuestions } from '@/components/dashboard/RecentQuestions';
 import type { RequestSummary } from '@/types/request';
+import { MbtiLevelBadge } from '@/components/mbti/MbtiLevelBadge';
+import { MbtiResultBadge } from '@/components/mbti/MbtiResultBadge';
 
 function Spinner() {
   return (
@@ -30,6 +32,8 @@ export default function DashboardPage() {
   const [requests, setRequests] = useState<RequestSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mbtiLevel, setMbtiLevel] = useState<number | null>(null);
+  const [mbtiType, setMbtiType] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -54,6 +58,21 @@ export default function DashboardPage() {
     }
 
     fetchMyRequests();
+
+    async function fetchMbtiProgress() {
+      try {
+        const res = await fetch('/api/mbti/questions');
+        if (res.ok) {
+          const data = await res.json();
+          setMbtiLevel(data.level);
+          setMbtiType(data.mbtiType);
+        }
+      } catch {
+        // MBTI data is non-critical; fail silently
+      }
+    }
+
+    fetchMbtiProgress();
   }, [user]);
 
   if (authLoading) {
@@ -70,9 +89,13 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#fcfcfc]">
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {/* Greeting */}
-        <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-2xl sm:text-3xl font-bold text-[#020912] mb-6">
-          {user.name ? `안녕하세요, ${user.name}님` : '안녕하세요'}
-        </h1>
+        <div className="flex items-center gap-2 mb-6">
+          <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-2xl sm:text-3xl font-bold text-[#020912]">
+            {user.name ? `안녕하세요, ${user.name}님` : '안녕하세요'}
+          </h1>
+          {mbtiLevel !== null && mbtiLevel > 0 && <MbtiLevelBadge level={mbtiLevel} />}
+          {mbtiType && <MbtiResultBadge mbtiType={mbtiType} />}
+        </div>
 
         {/* Quick Actions - 2 cards only */}
         <div className="grid grid-cols-2 gap-3 mb-10">

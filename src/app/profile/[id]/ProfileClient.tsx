@@ -12,6 +12,8 @@ import { CardPortfolio } from '@/components/profile/CardPortfolio';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
 import CoffeeChatButton from '@/components/coffee-chat/CoffeeChatButton';
 import CoffeeChatRequestModal from '@/components/coffee-chat/CoffeeChatRequestModal';
+import { MbtiLevelBadge } from '@/components/mbti/MbtiLevelBadge';
+import { MbtiResultBadge } from '@/components/mbti/MbtiResultBadge';
 import type { SocialLink, CoffeeChatMethod, CoffeeChatDay, CoffeeChatTime } from '@/types/profile';
 import type { MeetingPreference } from '@/types/coffee-chat';
 
@@ -48,6 +50,8 @@ interface ProfileClientProps {
   isOwner: boolean;
   isAuthenticated?: boolean;
   existingChatId?: string;
+  mbtiLevel?: number;
+  mbtiType?: string | null;
 }
 
 /**
@@ -62,6 +66,8 @@ export function ProfileClient({
   isOwner,
   isAuthenticated = false,
   existingChatId,
+  mbtiLevel,
+  mbtiType,
 }: ProfileClientProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentProfile, setCurrentProfile] = useState(profile);
@@ -121,6 +127,14 @@ export function ProfileClient({
       <div className="max-w-[680px] mx-auto px-4 py-8">
         {/* 1. Profile Header - avatar, name, bio */}
         <ProfileHeader profile={currentProfile} />
+
+        {/* 1.5 MBTI Badges */}
+        {(mbtiLevel || mbtiType) && (
+          <div className="flex items-center justify-center gap-2 mt-1 mb-2">
+            {mbtiLevel !== undefined && mbtiLevel > 0 && <MbtiLevelBadge level={mbtiLevel} />}
+            {mbtiType && <MbtiResultBadge mbtiType={mbtiType} />}
+          </div>
+        )}
 
         {/* 2. Social Icons Row */}
         {currentProfile.socialLinks &&

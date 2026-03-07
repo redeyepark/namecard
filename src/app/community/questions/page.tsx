@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getServerUser } from '@/lib/auth-utils';
 import { CommunityNav } from '@/components/community/CommunityNav';
+import { MbtiSection } from '@/components/mbti/MbtiSection';
 import { QuestionFeed } from '@/components/community/QuestionFeed';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,7 @@ export default async function QuestionsPage() {
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6">
         <CommunityNav />
+        <MbtiSection isAuthenticated={!!user} />
         <QuestionFeed isAuthenticated={!!user} />
       </main>
     </div>

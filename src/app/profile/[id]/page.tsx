@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getProfile, getUserCards, getUserLinks } from '@/lib/profile-storage';
 import { getServerUser } from '@/lib/auth-utils';
 import { checkExistingActiveChat } from '@/lib/coffee-chat-storage';
+import { getMbtiProgress } from '@/lib/mbti-storage';
 import { ProfileClient } from './ProfileClient';
 
 interface ProfilePageProps {
@@ -91,6 +92,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   // Fetch public links
   const links = await getUserLinks(id);
 
+  // Fetch MBTI progress for this profile
+  let mbtiLevel: number | undefined;
+  let mbtiType: string | null | undefined;
+  try {
+    const mbtiProgress = await getMbtiProgress(id);
+    mbtiLevel = mbtiProgress.level;
+    mbtiType = mbtiProgress.mbtiType;
+  } catch {
+    // MBTI data is non-critical
+  }
+
   // Check for existing coffee chat between current user and this profile
   let existingChatId: string | undefined;
   if (user && !isOwner) {
@@ -112,6 +124,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       isOwner={isOwner}
       isAuthenticated={!!user}
       existingChatId={existingChatId}
+      mbtiLevel={mbtiLevel}
+      mbtiType={mbtiType}
     />
   );
 }
