@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { useSurveyDetail } from '@/hooks/useSurveyDetail';
 import { useSurveyVote } from '@/hooks/useSurveyVote';
+import { Button } from '@/components/ui';
 import { HashtagChip } from '@/components/community/HashtagChip';
 import { SurveyVoteUI } from './SurveyVoteUI';
 import { SurveyResults } from './SurveyResults';
@@ -43,7 +44,7 @@ export function SurveyDetail({ surveyId, isAuthenticated }: SurveyDetailProps) {
     return (
       <div className="flex justify-center py-16">
         <svg
-          className="animate-spin h-5 w-5 text-[#020912]/30"
+          className="animate-spin h-5 w-5 text-primary/30"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -59,14 +60,16 @@ export function SurveyDetail({ surveyId, isAuthenticated }: SurveyDetailProps) {
   if (error) {
     return (
       <div className="text-center py-16">
-        <p className="text-xs text-red-500">{error}</p>
-        <button
+        <p className="text-xs text-error">{error}</p>
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={refetch}
-          className="mt-2 px-3 py-1 text-xs font-medium text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
+          className="mt-2"
         >
           다시 시도
-        </button>
+        </Button>
       </div>
     );
   }
@@ -74,7 +77,7 @@ export function SurveyDetail({ surveyId, isAuthenticated }: SurveyDetailProps) {
   if (!survey) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <p className="text-sm text-[#020912]/30">설문을 찾을 수 없습니다.</p>
+        <p className="text-sm text-primary/30">설문을 찾을 수 없습니다.</p>
       </div>
     );
   }
@@ -93,39 +96,39 @@ export function SurveyDetail({ surveyId, isAuthenticated }: SurveyDetailProps) {
             className="w-8 h-8 object-cover"
           />
         ) : (
-          <div className="w-8 h-8 bg-[#020912]/10 flex items-center justify-center text-sm font-medium text-[#020912]/50">
+          <div className="w-8 h-8 bg-primary/10 flex items-center justify-center text-sm font-medium text-primary/50">
             {survey.author.displayName.charAt(0)}
           </div>
         )}
         <div className="flex flex-col">
-          <span className="text-sm font-medium text-[#020912]">
+          <span className="text-sm font-medium text-primary">
             {survey.author.displayName}
           </span>
-          <span className="text-xs text-[#020912]/30">
+          <span className="text-xs text-primary/30">
             {getRelativeTime(survey.createdAt)}
           </span>
         </div>
         {survey.isOfficial && <OfficialBadge />}
         {survey.isClosed && (
-          <span className="text-[10px] px-1.5 py-0.5 bg-[#020912]/10 text-[#020912]/50 font-medium">
+          <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary/50 font-medium">
             마감
           </span>
         )}
       </div>
 
       {/* Question */}
-      <h2 className="text-lg font-semibold text-[#020912] leading-relaxed mb-2">
+      <h2 className="text-lg font-semibold text-primary leading-relaxed mb-2">
         {survey.question}
       </h2>
 
       {/* Select mode indicator */}
-      <p className="text-xs text-[#020912]/40 mb-4">
+      <p className="text-xs text-primary/40 mb-4">
         {survey.selectMode === 'single' ? '단일 선택' : '복수 선택 가능'}
       </p>
 
       {/* Close time */}
       {survey.closesAt && (
-        <p className="text-xs text-[#020912]/40 mb-4">
+        <p className="text-xs text-primary/40 mb-4">
           마감: {new Date(survey.closesAt).toLocaleString('ko-KR')}
         </p>
       )}
@@ -141,7 +144,7 @@ export function SurveyDetail({ surveyId, isAuthenticated }: SurveyDetailProps) {
         )}
         {showResults && <SurveyResults survey={survey} />}
         {!isAuthenticated && !survey.hasVoted && !survey.isClosed && (
-          <p className="text-xs text-[#020912]/40 py-4 text-center">
+          <p className="text-xs text-primary/40 py-4 text-center">
             투표하려면 로그인이 필요합니다.
           </p>
         )}
@@ -149,7 +152,7 @@ export function SurveyDetail({ surveyId, isAuthenticated }: SurveyDetailProps) {
 
       {/* Hashtags */}
       {survey.hashtags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 pt-4 border-t border-[rgba(2,9,18,0.08)]">
+        <div className="flex flex-wrap gap-1.5 pt-4 border-t border-primary/[0.08]">
           {survey.hashtags.map((tag) => (
             <HashtagChip key={tag} tag={tag} />
           ))}

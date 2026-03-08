@@ -6,9 +6,9 @@ export function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       {/* Card/Document icon */}
-      <div className="w-16 h-16 bg-[#e4f6ff] flex items-center justify-center mb-4">
+      <div className="w-16 h-16 bg-accent-blue flex items-center justify-center mb-4">
         <svg
-          className="w-8 h-8 text-[#020912]"
+          className="w-8 h-8 text-primary"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
@@ -22,15 +22,15 @@ export function EmptyState() {
           />
         </svg>
       </div>
-      <h3 className="text-base font-semibold text-[#020912] mb-1">
+      <h3 className="text-base font-semibold text-primary mb-1">
         아직 제작 요청이 없습니다
       </h3>
-      <p className="text-sm text-[#020912]/50 mb-6">
+      <p className="text-sm text-primary/50 mb-6">
         나만의 명함을 만들어보세요
       </p>
       <Link
         href="/create"
-        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors"
+        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-secondary bg-primary hover:bg-primary/90 transition-colors"
       >
         <svg
           className="w-4 h-4"

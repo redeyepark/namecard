@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useCardStore } from '@/stores/useCardStore';
+import { Button } from '@/components/ui';
 
 export function HashtagEditor() {
   const hashtags = useCardStore((state) => state.card.back.hashtags);
@@ -29,7 +30,7 @@ export function HashtagEditor() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-text-primary">
         Hashtags
       </label>
 
@@ -38,13 +39,13 @@ export function HashtagEditor() {
           {hashtags.map((tag, index) => (
             <span
               key={index}
-              className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-bg text-text-primary rounded-full text-sm"
             >
               {tag}
               <button
                 type="button"
                 onClick={() => removeHashtag(index)}
-                className="text-gray-400 hover:text-red-500 focus-visible:text-red-500 transition-colors p-0.5"
+                className="text-text-tertiary hover:text-error focus-visible:text-error transition-colors p-0.5"
                 aria-label={`Remove ${tag}`}
               >
                 <svg
@@ -75,16 +76,17 @@ export function HashtagEditor() {
           onKeyDown={handleKeyDown}
           placeholder="#NewTag"
           maxLength={30}
-          className="flex-1 px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+          className="flex-1 px-3 py-2.5 border border-border-medium rounded-radius-md text-sm bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px]"
           aria-label="Add hashtag"
         />
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="md"
           onClick={handleAdd}
-          className="px-4 py-2.5 bg-gray-800 text-white text-sm rounded-md hover:bg-gray-700 focus-visible:ring-2 focus-visible:ring-gray-800 focus-visible:ring-offset-2 transition-colors min-h-[44px]"
+          className="min-h-[44px]"
         >
           Add
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ export default function CoffeeChatCard({ chat, onRespond }: CoffeeChatCardProps)
   const otherPerson = chat.isRequester ? chat.receiver : chat.requester;
 
   return (
-    <div className="border border-[rgba(2,9,18,0.1)] bg-white p-4 mb-3">
+    <div className="border border-primary/10 bg-surface p-4 mb-3">
       {/* Top row: avatar + name + status */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -39,11 +39,11 @@ export default function CoffeeChatCard({ chat, onRespond }: CoffeeChatCardProps)
               className="w-9 h-9 rounded-full object-cover flex-shrink-0"
             />
           ) : (
-            <div className="w-9 h-9 rounded-full bg-[#020912]/10 flex items-center justify-center text-xs font-semibold text-[#020912]/60 flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary/60 flex-shrink-0">
               {otherPerson.displayName.charAt(0)}
             </div>
           )}
-          <span className="text-sm font-semibold text-[#020912] truncate">
+          <span className="text-sm font-semibold text-primary truncate">
             {otherPerson.displayName}
           </span>
         </div>
@@ -51,12 +51,12 @@ export default function CoffeeChatCard({ chat, onRespond }: CoffeeChatCardProps)
       </div>
 
       {/* Message preview */}
-      <p className="text-sm text-[#020912]/70 line-clamp-2 mb-2">
+      <p className="text-sm text-primary/70 line-clamp-2 mb-2">
         {chat.message}
       </p>
 
       {/* Meta row: meeting preference + relative time */}
-      <div className="flex items-center gap-2 text-xs text-[#020912]/40">
+      <div className="flex items-center gap-2 text-xs text-primary/40">
         <span>{MEETING_PREFERENCE_LABELS[chat.meetingPreference]}</span>
         <span aria-hidden="true">&middot;</span>
         <span>{getRelativeTime(chat.createdAt)}</span>
@@ -64,14 +64,14 @@ export default function CoffeeChatCard({ chat, onRespond }: CoffeeChatCardProps)
 
       {/* Accepted: show email if available */}
       {chat.status === 'accepted' && otherPerson.email && (
-        <div className="mt-3 bg-[#020912]/5 px-3 py-2 text-xs text-[#020912]/70">
+        <div className="mt-3 bg-primary/5 px-3 py-2 text-xs text-primary/70">
           {'\uc774\uba54\uc77c: '}{otherPerson.email}
         </div>
       )}
 
       {/* Accepted: show response message if available */}
       {chat.status === 'accepted' && chat.responseMessage && (
-        <div className="mt-2 px-3 py-2 border-l-2 border-[#020912]/20 text-xs text-[#020912]/60">
+        <div className="mt-2 px-3 py-2 border-l-2 border-primary/20 text-xs text-primary/60">
           {chat.responseMessage}
         </div>
       )}

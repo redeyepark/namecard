@@ -14,16 +14,16 @@ interface StepConfig {
 }
 
 const BASE_STEPS: StepConfig[] = [
-  { key: 'submitted', label: '의뢰됨', color: 'text-[#020912]', bgColor: 'bg-[#020912]' },
-  { key: 'processing', label: '작업중', color: 'text-[#020912]/70', bgColor: 'bg-[#020912]' },
-  { key: 'confirmed', label: '확정', color: 'text-[#020912]', bgColor: 'bg-[#020912]' },
+  { key: 'submitted', label: '의뢰됨', color: 'text-primary', bgColor: 'bg-primary' },
+  { key: 'processing', label: '작업중', color: 'text-primary/70', bgColor: 'bg-primary' },
+  { key: 'confirmed', label: '확정', color: 'text-primary', bgColor: 'bg-primary' },
 ];
 
 const DELIVERED_STEP: StepConfig = {
   key: 'delivered',
   label: '배송 완료',
-  color: 'text-[#020912]',
-  bgColor: 'bg-[#020912]',
+  color: 'text-primary',
+  bgColor: 'bg-primary',
 };
 
 function getStepsForStatus(status: RequestStatus): StepConfig[] {
@@ -95,14 +95,14 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
           let labelColor = step.color;
 
           if (isRejected) {
-            circleBg = 'bg-red-500';
-            labelColor = 'text-red-600';
+            circleBg = 'bg-error';
+            labelColor = 'text-error';
           } else if (isCancelled) {
-            circleBg = 'bg-gray-300';
-            labelColor = 'text-gray-400';
+            circleBg = 'bg-text-tertiary';
+            labelColor = 'text-text-tertiary';
           } else if (isRevisionRequested && index === 0) {
-            circleBg = 'bg-[#ffa639]';
-            labelColor = 'text-[#ffa639]';
+            circleBg = 'bg-accent-orange';
+            labelColor = 'text-accent-orange';
           }
 
           // Override label for special statuses
@@ -122,13 +122,13 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
                 <div className="relative">
                   {/* Cancelled: all grey */}
                   {isCancelled && (
-                    <div className="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-full bg-text-tertiary flex items-center justify-center">
                       {index === steps.length - 1 ? (
-                        <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" aria-hidden="true">
+                        <svg className="w-3.5 h-3.5 text-text-secondary" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       ) : (
-                        <span className="text-xs font-bold text-gray-500">{index + 1}</span>
+                        <span className="text-xs font-bold text-text-secondary">{index + 1}</span>
                       )}
                     </div>
                   )}
@@ -165,14 +165,14 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
                         </div>
                       )}
                       {isFuture && (
-                        <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-xs font-bold text-gray-400">{index + 1}</span>
+                        <div className="w-7 h-7 rounded-full bg-border-light flex items-center justify-center">
+                          <span className="text-xs font-bold text-text-tertiary">{index + 1}</span>
                         </div>
                       )}
                     </>
                   )}
                 </div>
-                <span className={`mt-1.5 text-[10px] font-medium ${isCancelled ? 'text-gray-400' : isRejected ? labelColor : isFuture ? 'text-gray-400' : labelColor}`}>
+                <span className={`mt-1.5 text-[10px] font-medium ${isCancelled ? 'text-text-tertiary' : isRejected ? labelColor : isFuture ? 'text-text-tertiary' : labelColor}`}>
                   {displayLabel}
                 </span>
               </div>
@@ -183,14 +183,14 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
                   <div
                     className={`h-0.5 w-full ${
                       isCancelled
-                        ? 'bg-gray-200'
+                        ? 'bg-border-light'
                         : isRejected
-                          ? 'bg-red-300'
+                          ? 'bg-error/30'
                           : index < currentIndex
                             ? steps[index + 1]
-                              ? (isRevisionRequested && index === 0 ? 'bg-[#ffa639]/50' : steps[index + 1].bgColor)
-                              : 'bg-gray-200'
-                            : 'bg-gray-200'
+                              ? (isRevisionRequested && index === 0 ? 'bg-accent-orange/50' : steps[index + 1].bgColor)
+                              : 'bg-border-light'
+                            : 'bg-border-light'
                     }`}
                   />
                 </div>
@@ -202,7 +202,7 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
 
       {/* Status note below stepper */}
       {isRevisionRequested && (
-        <p className="mt-2 text-xs text-[#ffa639] text-center font-medium">
+        <p className="mt-2 text-xs text-accent-orange text-center font-medium">
           관리자가 수정을 요청했습니다. 내용을 수정 후 다시 제출해주세요.
         </p>
       )}

@@ -42,19 +42,19 @@ export function ShareUrlDisplay({ url, isVisible }: ShareUrlDisplayProps) {
         type="text"
         readOnly
         value={url}
-        className="flex-1 text-xs text-[#020912]/70 bg-gray-50 border border-[rgba(2,9,18,0.15)] px-3 py-1.5 rounded select-all focus:outline-none"
+        className="flex-1 text-xs text-primary/70 bg-bg border border-border-medium px-3 py-1.5 rounded select-all focus:outline-none"
         onClick={(e) => (e.target as HTMLInputElement).select()}
       />
       <button
         type="button"
         onClick={handleCopy}
-        className="flex-shrink-0 p-1.5 text-[#020912]/60 hover:text-[#020912] border border-[rgba(2,9,18,0.15)] rounded hover:bg-gray-50 transition-colors"
+        className="flex-shrink-0 p-1.5 text-primary/60 hover:text-primary border border-border-medium rounded hover:bg-bg transition-colors"
         aria-label="URL 복사"
         title="URL 복사"
       >
         {copied ? (
           <svg
-            className="w-4 h-4 text-[#2d8c3c]"
+            className="w-4 h-4 text-success"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}

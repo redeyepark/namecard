@@ -112,14 +112,14 @@ export function IllustrationUploader({
     <div className="space-y-2">
       {/* Mode toggle */}
       {!disabled && (
-        <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+        <div className="flex rounded-lg border border-border-medium overflow-hidden">
           <button
             type="button"
             onClick={() => handleModeSwitch('file')}
             className={`flex-1 px-3 py-1.5 text-xs font-medium transition-colors min-h-[44px] ${
               uploadMode === 'file'
                 ? 'bg-amber-600 text-white'
-                : 'bg-white text-gray-600 hover:bg-gray-50'
+                : 'bg-surface text-text-secondary hover:bg-bg'
             }`}
           >
             파일 업로드
@@ -130,7 +130,7 @@ export function IllustrationUploader({
             className={`flex-1 px-3 py-1.5 text-xs font-medium transition-colors min-h-[44px] ${
               uploadMode === 'url'
                 ? 'bg-amber-600 text-white'
-                : 'bg-white text-gray-600 hover:bg-gray-50'
+                : 'bg-surface text-text-secondary hover:bg-bg'
             }`}
           >
             URL 입력
@@ -142,7 +142,7 @@ export function IllustrationUploader({
         <>
           {currentImage ? (
             <div className="space-y-2">
-              <div className="relative w-full aspect-[29/45] max-w-[200px] rounded-lg overflow-hidden border border-gray-200">
+              <div className="relative w-full aspect-[29/45] max-w-[200px] rounded-lg overflow-hidden border border-border-medium">
                 <img
                   src={currentImage}
                   alt="Uploaded illustration"
@@ -153,7 +153,7 @@ export function IllustrationUploader({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium py-1 min-h-[44px]"
+                  className="text-sm text-info hover:text-info/80 font-medium py-1 min-h-[44px]"
                 >
                   다른 이미지 선택
                 </button>
@@ -177,10 +177,10 @@ export function IllustrationUploader({
               }}
               className={`w-full aspect-[29/45] max-w-[200px] border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition-all duration-200 ${
                 disabled
-                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                  ? 'border-border-medium bg-bg cursor-not-allowed'
                   : isDragging
-                    ? 'border-blue-500 bg-blue-50 cursor-pointer'
-                    : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 cursor-pointer'
+                    ? 'border-focus-ring bg-accent-blue cursor-pointer'
+                    : 'border-border-medium hover:border-primary/40 hover:bg-bg cursor-pointer'
               }`}
               aria-label="Upload illustration image"
             >
@@ -192,18 +192,18 @@ export function IllustrationUploader({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                className="text-gray-400 mb-2"
+                className="text-text-tertiary mb-2"
                 aria-hidden="true"
               >
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
-              <p className="text-xs text-gray-500 text-center px-2">
+              <p className="text-xs text-text-secondary text-center px-2">
                 {disabled ? '편집 불가' : '일러스트 업로드'}
               </p>
               {!disabled && (
-                <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP</p>
+                <p className="text-xs text-text-tertiary mt-1">PNG, JPG, WebP</p>
               )}
             </div>
           )}
@@ -216,14 +216,14 @@ export function IllustrationUploader({
             onChange={handleUrlChange}
             placeholder="https://example.com/image.png"
             disabled={disabled}
-            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent min-h-[44px]"
+            className="w-full px-3 py-2 text-sm border border-border-medium rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange focus-visible:border-transparent min-h-[44px]"
             aria-label="Illustration image URL"
           />
           {urlValue && (
-            <div className="relative w-full aspect-[29/45] max-w-[200px] rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+            <div className="relative w-full aspect-[29/45] max-w-[200px] rounded-lg overflow-hidden border border-border-medium bg-bg">
               {urlPreviewError ? (
                 <div className="w-full h-full flex items-center justify-center">
-                  <p className="text-xs text-gray-400 text-center px-2">
+                  <p className="text-xs text-text-tertiary text-center px-2">
                     미리보기를 불러올 수 없습니다
                   </p>
                 </div>
@@ -251,7 +251,7 @@ export function IllustrationUploader({
       />
 
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-error" role="alert">
           {error}
         </p>
       )}

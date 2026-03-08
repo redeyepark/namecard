@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import type { ThoughtWithAuthor } from '@/types/question';
+import { Button } from '@/components/ui';
 import { ThoughtLikeButton } from './ThoughtLikeButton';
 
 function getRelativeTime(dateStr: string): string {
@@ -79,7 +80,7 @@ export function ThoughtCard({ thought, onDelete, onEdit, onLikeChange }: Thought
   );
 
   return (
-    <div className="py-4 border-b border-[rgba(2,9,18,0.08)]">
+    <div className="py-4 border-b border-primary/[0.08]">
       {/* Author info */}
       <div className="flex items-center gap-2 mb-2">
         <Link href={`/profile/${thought.author.id}`} className="flex items-center gap-2 group">
@@ -90,19 +91,19 @@ export function ThoughtCard({ thought, onDelete, onEdit, onLikeChange }: Thought
               className="w-6 h-6 object-cover"
             />
           ) : (
-            <div className="w-6 h-6 bg-[#020912]/10 flex items-center justify-center text-[10px] font-medium text-[#020912]/50">
+            <div className="w-6 h-6 bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary/50">
               {thought.author.displayName.charAt(0)}
             </div>
           )}
-          <span className="text-sm font-medium text-[#020912] group-hover:underline">
+          <span className="text-sm font-medium text-primary group-hover:underline">
             {thought.author.displayName}
           </span>
         </Link>
-        <span className="text-xs text-[#020912]/30">
+        <span className="text-xs text-primary/30">
           {getRelativeTime(thought.createdAt)}
         </span>
         {thought.isOwner && (
-          <span className="text-[10px] px-1.5 py-0.5 bg-[#020912]/5 text-[#020912]/50">
+          <span className="text-[10px] px-1.5 py-0.5 bg-primary/5 text-primary/50">
             내 답변
           </span>
         )}
@@ -116,37 +117,39 @@ export function ThoughtCard({ thought, onDelete, onEdit, onLikeChange }: Thought
             onChange={(e) => setEditContent(e.target.value)}
             maxLength={1000}
             rows={3}
-            className="w-full px-3 py-2.5 text-sm text-[#020912] bg-[#020912]/[0.02] border border-[rgba(2,9,18,0.15)] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 resize-none transition-all duration-200"
+            className="w-full px-3 py-2.5 text-sm text-primary bg-primary/[0.02] border border-border-medium placeholder:text-primary/30 focus:outline-none focus:border-primary/40 resize-none transition-all duration-200"
           />
           <div className="flex items-center justify-between gap-2 mt-2">
-            <span className="text-xs text-[#020912]/30">
+            <span className="text-xs text-primary/30">
               {editContent.length}/1000
             </span>
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={handleEditCancel}
                 disabled={isSubmitting}
-                className="px-3 py-1.5 text-xs font-medium text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] disabled:opacity-50 transition-all duration-200"
               >
                 취소
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
+                variant="primary"
+                size="sm"
                 disabled={isSubmitting || editContent.trim().length < 1}
-                className="px-3 py-1.5 text-xs font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {isSubmitting ? '저장 중...' : '저장'}
-              </button>
+              </Button>
             </div>
           </div>
           {editError && (
-            <p className="mt-1 text-xs text-red-500">{editError}</p>
+            <p className="mt-1 text-xs text-error">{editError}</p>
           )}
         </form>
       ) : (
         <>
-          <p className="text-sm text-[#020912]/80 leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-primary/80 leading-relaxed whitespace-pre-wrap">
             {thought.content}
           </p>
 
@@ -166,14 +169,14 @@ export function ThoughtCard({ thought, onDelete, onEdit, onLikeChange }: Thought
                 <button
                   type="button"
                   onClick={handleEditClick}
-                  className="text-xs text-[#020912]/30 hover:text-[#020912]/70 transition-all duration-200"
+                  className="text-xs text-primary/30 hover:text-primary/70 transition-all duration-200"
                 >
                   수정
                 </button>
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="text-xs text-[#020912]/30 hover:text-red-500 transition-all duration-200"
+                  className="text-xs text-primary/30 hover:text-error transition-all duration-200"
                 >
                   삭제
                 </button>

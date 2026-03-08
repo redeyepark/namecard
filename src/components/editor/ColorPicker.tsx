@@ -24,7 +24,7 @@ export function ColorPicker({ color, onChange, label }: ColorPickerProps) {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-text-primary">
         {label}
       </label>
       <div className="grid grid-cols-5 gap-3">
@@ -42,16 +42,16 @@ export function ColorPicker({ color, onChange, label }: ColorPickerProps) {
               <div
                 className={`w-10 h-10 border-2 transition-all ${
                   isSelected
-                    ? 'ring-2 ring-offset-2 ring-[#020912] border-[#020912] scale-110'
-                    : 'border-gray-200 hover:border-gray-400 hover:scale-105'
+                    ? 'ring-2 ring-offset-2 ring-primary border-primary scale-110'
+                    : 'border-border-light hover:border-border-medium hover:scale-105'
                 }`}
                 style={{ backgroundColor: preset.hex }}
               />
               <span
                 className={`text-xs leading-tight text-center ${
                   isSelected
-                    ? 'font-semibold text-[#020912]'
-                    : 'text-gray-500 group-hover:text-gray-700'
+                    ? 'font-semibold text-primary'
+                    : 'text-text-secondary group-hover:text-text-primary'
                 }`}
               >
                 {preset.label}

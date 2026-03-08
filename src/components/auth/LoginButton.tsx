@@ -7,7 +7,7 @@ export function LoginButton() {
   const { user, isLoading, signOut } = useAuth();
 
   if (isLoading) {
-    return <div className="w-16 h-8 rounded-lg bg-gray-200 animate-pulse" />;
+    return <div className="w-16 h-8 rounded-lg bg-divider animate-pulse" />;
   }
 
   if (!user) {

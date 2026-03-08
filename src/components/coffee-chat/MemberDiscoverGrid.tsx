@@ -16,17 +16,17 @@ interface MemberDiscoverGridProps {
 
 function SkeletonCard() {
   return (
-    <div className="border border-[rgba(2,9,18,0.1)] bg-white p-4 animate-pulse">
+    <div className="border border-primary/10 bg-surface p-4 animate-pulse">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-12 h-12 rounded-full bg-[#020912]/10" />
+        <div className="w-12 h-12 rounded-full bg-primary/10" />
         <div className="flex-1 min-w-0">
-          <div className="h-3.5 bg-[#020912]/10 w-20 mb-1.5" />
-          <div className="h-2.5 bg-[#020912]/5 w-14" />
+          <div className="h-3.5 bg-primary/10 w-20 mb-1.5" />
+          <div className="h-2.5 bg-primary/5 w-14" />
         </div>
       </div>
-      <div className="h-2.5 bg-[#020912]/5 w-full mb-1" />
-      <div className="h-2.5 bg-[#020912]/5 w-3/4 mb-3" />
-      <div className="h-8 bg-[#020912]/5 w-full mt-3" />
+      <div className="h-2.5 bg-primary/5 w-full mb-1" />
+      <div className="h-2.5 bg-primary/5 w-3/4 mb-3" />
+      <div className="h-8 bg-primary/5 w-full mt-3" />
     </div>
   );
 }
@@ -52,7 +52,7 @@ export default function MemberDiscoverGrid({
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder={'\ud68c\uc6d0 \uac80\uc0c9...'}
-        className="w-full border border-[rgba(2,9,18,0.15)] p-3 text-sm text-[#020912] placeholder:text-[#020912]/30 mb-4 focus:outline-none focus:border-[#020912]/40 bg-white"
+        className="w-full border border-border-medium p-3 text-sm text-primary placeholder:text-primary/30 mb-4 focus:outline-none focus:border-primary/40 bg-surface"
       />
 
       {/* Skeleton loading state */}
@@ -67,7 +67,7 @@ export default function MemberDiscoverGrid({
       {/* Empty state */}
       {showEmpty && (
         <div className="text-center py-12">
-          <p className="text-sm text-[#020912]/40">
+          <p className="text-sm text-primary/40">
             {searchQuery
               ? '\uac80\uc0c9 \uacb0\uacfc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4'
               : '\ucee4\ud53c\ucc57 \uac00\ub2a5\ud55c \ud68c\uc6d0\uc774 \uc5c6\uc2b5\ub2c8\ub2e4'}
@@ -92,7 +92,7 @@ export default function MemberDiscoverGrid({
       {/* Loading more indicator */}
       {loading && members.length > 0 && (
         <div className="flex justify-center py-4">
-          <div className="w-5 h-5 border-2 border-[#020912]/20 border-t-[#020912] rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
         </div>
       )}
 

@@ -1,36 +1,186 @@
 @import "tailwindcss";
 
-/* Design tokens */
+/*
+ * ============================================================================
+ * Design Tokens - Namecard Design System
+ * ============================================================================
+ *
+ * Token Architecture:
+ *   :root    - CSS custom properties for var() references in components
+ *   @theme   - Tailwind CSS v4 theme registration for utility class generation
+ *
+ * Generated Utility Classes:
+ *   Colors:  bg-primary, text-secondary, border-border-medium, etc.
+ *   Radius:  rounded-radius-sm, rounded-radius-md, etc.
+ *   Shadow:  shadow-sm, shadow-card, etc.
+ *   Font:    font-heading, font-body, font-card
+ *
+ * Semantic Colors:
+ *   bg-error, text-success, border-warning, text-info, ring-focus-ring
+ *
+ * Dark Mode Extensibility:
+ *   See "Dark Mode Extension Point" section below for .dark override structure
+ *
+ * Spacing Scale (REQ-O-001):
+ *   This project uses Tailwind's default spacing scale (4px base).
+ *   Standard increments: 1=4px, 2=8px, 3=12px, 4=16px, 6=24px, 8=32px
+ *   Use Tailwind spacing utilities (p-4, m-6, gap-3) for consistent spacing.
+ * ============================================================================
+ */
+
+/* --------------------------------------------------------------------------
+ * CSS Custom Properties (var() references)
+ * -------------------------------------------------------------------------- */
 :root {
+  /* Brand colors */
   --color-primary: #020912;
   --color-secondary: #fcfcfc;
+
+  /* Background & surface */
   --color-bg: #F8F9FA;
   --color-surface: #FFFFFF;
+
+  /* Text hierarchy */
   --color-text-primary: #1A1A1A;
   --color-text-secondary: #6B7280;
   --color-text-tertiary: #9CA3AF;
+
+  /* Accent palette */
   --color-accent-blue: #e4f6ff;
   --color-accent-green: #dbe9e0;
   --color-accent-peach: #ffdfc8;
   --color-accent-orange: #ffa639;
+
+  /* Borders & dividers */
   --color-border-light: rgba(2, 9, 18, 0.08);
   --color-border-medium: rgba(2, 9, 18, 0.15);
   --color-border-dark: rgba(252, 252, 252, 0.15);
   --color-divider: #E5E7EB;
+
+  /* Semantic status colors */
+  --color-error: #DC2626;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-info: #2563EB;
+  --color-focus-ring: rgba(2, 9, 18, 0.3);
+
+  /* Typography */
   --font-heading: 'Figtree', sans-serif;
   --font-body: 'Anonymous Pro', monospace;
   --font-card: 'Nanum Myeongjo', serif;
+
+  /* Border radius */
   --radius: 0px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
+
+  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
+
+/* --------------------------------------------------------------------------
+ * Tailwind CSS v4 Theme Token Registration
+ *
+ * Registers all design tokens as Tailwind theme values, enabling utility
+ * class generation (e.g., bg-primary, text-error, rounded-radius-md).
+ * -------------------------------------------------------------------------- */
+@theme {
+  /* Brand colors */
+  --color-primary: #020912;
+  --color-secondary: #fcfcfc;
+
+  /* Background & surface */
+  --color-bg: #F8F9FA;
+  --color-surface: #FFFFFF;
+
+  /* Text hierarchy */
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+
+  /* Accent palette */
+  --color-accent-blue: #e4f6ff;
+  --color-accent-green: #dbe9e0;
+  --color-accent-peach: #ffdfc8;
+  --color-accent-orange: #ffa639;
+
+  /* Borders & dividers */
+  --color-border-light: rgba(2, 9, 18, 0.08);
+  --color-border-medium: rgba(2, 9, 18, 0.15);
+  --color-border-dark: rgba(252, 252, 252, 0.15);
+  --color-divider: #E5E7EB;
+
+  /* Semantic status colors */
+  --color-error: #DC2626;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-info: #2563EB;
+  --color-focus-ring: rgba(2, 9, 18, 0.3);
+
+  /* Typography */
+  --font-heading: 'Figtree', sans-serif;
+  --font-body: 'Anonymous Pro', monospace;
+  --font-card: 'Nanum Myeongjo', serif;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+ * Dark Mode Extension Point (REQ-S-001)
+ *
+ * When dark mode is implemented, override tokens using the .dark selector.
+ * The @theme tokens remain unchanged; only :root custom properties need
+ * per-mode overrides since components use var() references.
+ *
+ * Example structure:
+ *
+ *   .dark {
+ *     --color-primary: #E2E8F0;
+ *     --color-secondary: #0F172A;
+ *     --color-bg: #1E293B;
+ *     --color-surface: #334155;
+ *     --color-text-primary: #F1F5F9;
+ *     --color-text-secondary: #94A3B8;
+ *     --color-text-tertiary: #64748B;
+ *     --color-accent-blue: #1E3A5F;
+ *     --color-accent-green: #1A3A2A;
+ *     --color-accent-peach: #3D2B1F;
+ *     --color-accent-orange: #B36D1A;
+ *     --color-border-light: rgba(226, 232, 240, 0.08);
+ *     --color-border-medium: rgba(226, 232, 240, 0.15);
+ *     --color-border-dark: rgba(15, 23, 42, 0.15);
+ *     --color-divider: #334155;
+ *     --color-error: #EF4444;
+ *     --color-success: #22C55E;
+ *     --color-warning: #F59E0B;
+ *     --color-info: #3B82F6;
+ *     --color-focus-ring: rgba(226, 232, 240, 0.3);
+ *     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+ *     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+ *     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+ *     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.25);
+ *   }
+ *
+ * To activate dark mode, add class="dark" to <html> element and use
+ * a toggle mechanism (localStorage + system preference detection).
+ * -------------------------------------------------------------------------- */
 
 body {
   font-family: var(--font-heading);

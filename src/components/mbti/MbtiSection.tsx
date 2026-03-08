@@ -13,11 +13,11 @@ export function MbtiSection({ isAuthenticated }: MbtiSectionProps) {
   // Unauthenticated state
   if (!isAuthenticated) {
     return (
-      <div className="border border-[rgba(2,9,18,0.15)] p-6 mb-6">
+      <div className="border border-border-medium p-6 mb-6">
         <div className="flex items-center gap-2 mb-3">
-          <h2 className="text-sm font-bold text-[#020912]">MBTI</h2>
+          <h2 className="text-sm font-bold text-primary">MBTI</h2>
         </div>
-        <p className="text-xs text-[#020912]/40">
+        <p className="text-xs text-primary/40">
           로그인 후 MBTI 진단을 시작해보세요
         </p>
       </div>
@@ -32,10 +32,10 @@ function MbtiSectionContent() {
 
   if (loading) {
     return (
-      <div className="border border-[rgba(2,9,18,0.15)] p-6 mb-6">
+      <div className="border border-border-medium p-6 mb-6">
         <div className="flex justify-center py-4">
           <svg
-            className="animate-spin h-5 w-5 text-[#020912]/30"
+            className="animate-spin h-5 w-5 text-primary/30"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -51,12 +51,12 @@ function MbtiSectionContent() {
 
   if (error && !progress) {
     return (
-      <div className="border border-[rgba(2,9,18,0.15)] p-6 mb-6">
-        <p className="text-xs text-red-500 mb-2">{error}</p>
+      <div className="border border-border-medium p-6 mb-6">
+        <p className="text-xs text-error mb-2">{error}</p>
         <button
           type="button"
           onClick={retry}
-          className="px-3 py-1 text-xs font-medium text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
+          className="px-3 py-1 text-xs font-medium text-primary border border-border-medium hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
         >
           다시 시도
         </button>
@@ -72,22 +72,22 @@ function MbtiSectionContent() {
   return (
     <div className="mb-6">
       {/* Header */}
-      <div className="border border-[rgba(2,9,18,0.15)] p-4 mb-px">
+      <div className="border border-border-medium p-4 mb-px">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold text-[#020912]">MBTI</h2>
+            <h2 className="text-sm font-bold text-primary">MBTI</h2>
             <MbtiLevelBadge level={level} />
             {mbtiType && <MbtiResultBadge mbtiType={mbtiType} />}
           </div>
-          <span className="text-xs text-[#020912]/40">
+          <span className="text-xs text-primary/40">
             {answeredCount}/{totalCount}
           </span>
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-1 bg-[#020912]/5">
+        <div className="w-full h-1 bg-primary/5">
           <div
-            className="h-full bg-[#020912] transition-all duration-500 ease-out"
+            className="h-full bg-primary transition-all duration-500 ease-out"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -95,8 +95,8 @@ function MbtiSectionContent() {
 
       {/* Error message (non-blocking) */}
       {error && (
-        <div className="px-4 py-2 bg-red-50 border border-red-100 mb-px">
-          <p className="text-xs text-red-500">{error}</p>
+        <div className="px-4 py-2 bg-error/10 border border-error/20 mb-px">
+          <p className="text-xs text-error">{error}</p>
         </div>
       )}
 

@@ -18,10 +18,10 @@ export function ViewToggle({ mode, onChange }: ViewToggleProps) {
       <button
         type="button"
         onClick={() => onChange('table')}
-        className={`inline-flex items-center justify-center w-8 h-8 transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 ${
+        className={`inline-flex items-center justify-center w-8 h-8 transition-colors focus-visible:outline-none focus:ring-2 focus-visible:ring-primary/30 ${
           mode === 'table'
-            ? 'bg-[#020912] text-white'
-            : 'bg-white text-[#020912]/50 border border-[rgba(2,9,18,0.15)]'
+            ? 'bg-primary text-secondary'
+            : 'bg-surface text-primary/50 border border-border-medium'
         }`}
         style={{ borderRadius: 0 }}
         role="radio"
@@ -44,10 +44,10 @@ export function ViewToggle({ mode, onChange }: ViewToggleProps) {
       <button
         type="button"
         onClick={() => onChange('gallery')}
-        className={`inline-flex items-center justify-center w-8 h-8 transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 ${
+        className={`inline-flex items-center justify-center w-8 h-8 transition-colors focus-visible:outline-none focus:ring-2 focus-visible:ring-primary/30 ${
           mode === 'gallery'
-            ? 'bg-[#020912] text-white'
-            : 'bg-white text-[#020912]/50 border border-[rgba(2,9,18,0.15)]'
+            ? 'bg-primary text-secondary'
+            : 'bg-surface text-primary/50 border border-border-medium'
         }`}
         style={{ borderRadius: 0 }}
         role="radio"

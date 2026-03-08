@@ -80,10 +80,10 @@ export function AdminGalleryFilters({
         <button
           type="button"
           onClick={onToggleOpen}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus:ring-2 focus-visible:ring-primary/30 ${
             isOpen || activeFilterCount > 0
-              ? 'bg-[#020912] text-white'
-              : 'bg-white text-[#020912]/70 border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff]'
+              ? 'bg-primary text-secondary'
+              : 'bg-surface text-primary/70 border border-border-medium hover:bg-accent-blue'
           }`}
           aria-expanded={isOpen}
           aria-controls="admin-filter-panel"
@@ -104,14 +104,14 @@ export function AdminGalleryFilters({
           </svg>
           {'\uD544\uD130'}
           {activeFilterCount > 0 && (
-            <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold bg-white text-[#020912] rounded-full">
+            <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold bg-surface text-primary rounded-full">
               {activeFilterCount}
             </span>
           )}
         </button>
 
         {isAnyFilterActive && filteredCount !== totalCount && (
-          <span className="text-xs text-[#020912]/60">
+          <span className="text-xs text-primary/60">
             {filteredCount}{'\uAC74'} / {'\uC804\uCCB4'} {totalCount}{'\uAC74'}
           </span>
         )}
@@ -120,7 +120,7 @@ export function AdminGalleryFilters({
           <button
             type="button"
             onClick={onResetAll}
-            className="text-xs text-[#020912]/50 hover:text-[#020912] underline underline-offset-2 transition-colors"
+            className="text-xs text-primary/50 hover:text-primary underline underline-offset-2 transition-colors"
           >
             {'\uCD08\uAE30\uD654'}
           </button>
@@ -134,7 +134,7 @@ export function AdminGalleryFilters({
           isOpen ? 'max-h-[500px] opacity-100 mb-3' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="bg-[#fcfcfc] border border-[rgba(2,9,18,0.08)] p-4 space-y-3">
+        <div className="bg-secondary border border-divider p-4 space-y-3">
           {/* Theme filter */}
           <FilterSection label={'\uD14C\uB9C8'}>
             <div className="flex flex-wrap gap-1.5">
@@ -172,10 +172,10 @@ export function AdminGalleryFilters({
                     key={group.name}
                     type="button"
                     onClick={() => onSetColorGroup(group.name)}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 ${
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus:ring-2 focus-visible:ring-primary/30 ${
                       filters.selectedColorGroup === group.name
-                        ? 'bg-[#020912] text-white'
-                        : 'bg-white text-[#020912]/70 border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff]'
+                        ? 'bg-primary text-secondary'
+                        : 'bg-surface text-primary/70 border border-border-medium hover:bg-accent-blue'
                     }`}
                     aria-pressed={filters.selectedColorGroup === group.name}
                   >
@@ -183,7 +183,7 @@ export function AdminGalleryFilters({
                       className={`w-4 h-4 rounded-full border flex-shrink-0 ${
                         filters.selectedColorGroup === group.name
                           ? 'border-white ring-1 ring-white'
-                          : 'border-[rgba(2,9,18,0.2)]'
+                          : 'border-primary/20'
                       }`}
                       style={{
                         backgroundColor: group.hex,
@@ -215,7 +215,7 @@ export function AdminGalleryFilters({
                   <button
                     type="button"
                     onClick={() => setShowAllHashtags(!showAllHashtags)}
-                    className="px-2.5 py-1 text-xs font-medium text-[#020912]/50 hover:text-[#020912] underline underline-offset-2 transition-colors"
+                    className="px-2.5 py-1 text-xs font-medium text-primary/50 hover:text-primary underline underline-offset-2 transition-colors"
                   >
                     {showAllHashtags
                       ? '\uC811\uAE30'
@@ -267,7 +267,7 @@ function FilterSection({
 }) {
   return (
     <div>
-      <div className="text-xs font-medium text-[#020912]/50 mb-1.5">{label}</div>
+      <div className="text-xs font-medium text-primary/50 mb-1.5">{label}</div>
       {children}
     </div>
   );
@@ -291,10 +291,10 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 ${
+      className={`px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus:ring-2 focus-visible:ring-primary/30 ${
         active
-          ? 'bg-[#020912] text-white'
-          : 'bg-white text-[#020912]/70 border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff]'
+          ? 'bg-primary text-secondary'
+          : 'bg-surface text-primary/70 border border-border-medium hover:bg-accent-blue'
       }`}
       aria-pressed={active}
     >
@@ -331,10 +331,10 @@ function SegmentButton({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 ${borderClass} ${
+      className={`px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus:ring-2 focus-visible:ring-primary/30 ${borderClass} ${
         active
-          ? 'bg-[#020912] text-white border-[#020912]'
-          : 'bg-white text-[#020912]/70 border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff]'
+          ? 'bg-primary text-secondary border-primary'
+          : 'bg-surface text-primary/70 border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff]'
       }`}
       aria-pressed={active}
     >

@@ -66,13 +66,13 @@ export function ImageUploader() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-text-primary">
         Avatar Image
       </label>
 
       {avatarImage ? (
         <div className="space-y-2">
-          <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-200">
+          <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-border-light">
             <img
               src={avatarImage}
               alt="Uploaded avatar"
@@ -82,7 +82,7 @@ export function ImageUploader() {
           <button
             type="button"
             onClick={handleRemove}
-            className="text-sm text-red-600 hover:text-red-700 focus-visible:text-red-700 font-medium py-1 min-h-[44px]"
+            className="text-sm text-error hover:text-error/80 focus-visible:text-error/80 font-medium py-1 min-h-[44px]"
             aria-label="Remove uploaded avatar image"
           >
             Remove Image
@@ -104,15 +104,15 @@ export function ImageUploader() {
           }}
           className={`w-full border-2 border-dashed rounded-lg p-4 sm:p-6 text-center cursor-pointer transition-all duration-200 min-h-[80px] flex flex-col items-center justify-center ${
             isDragging
-              ? 'border-blue-500 bg-blue-50 scale-[1.01]'
-              : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+              ? 'border-focus-ring bg-accent-blue/20 scale-[1.01]'
+              : 'border-border-medium hover:border-primary/40 hover:bg-bg'
           }`}
           aria-label="Upload avatar image by drag and drop or click"
         >
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-text-secondary">
             Drag &amp; drop or click to upload
           </p>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-text-tertiary mt-1">
             PNG, JPG, WebP (max 5MB)
           </p>
         </div>
@@ -128,7 +128,7 @@ export function ImageUploader() {
       />
 
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-error" role="alert">
           {error}
         </p>
       )}

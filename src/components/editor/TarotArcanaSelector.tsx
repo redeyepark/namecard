@@ -12,7 +12,7 @@ export function TarotArcanaSelector() {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-text-primary">
         Arcana
       </label>
       <div
@@ -32,8 +32,8 @@ export function TarotArcanaSelector() {
               onClick={() => setTarotArcana(arcanaConfig.id as TarotArcana)}
               className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border-2 transition-all min-h-[44px] ${
                 isSelected
-                  ? 'border-gray-900 bg-gray-50 shadow-sm'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  ? 'border-primary bg-bg shadow-sm'
+                  : 'border-border-light bg-surface hover:border-border-medium'
               }`}
             >
               {/* Colored dot */}
@@ -50,14 +50,14 @@ export function TarotArcanaSelector() {
               <div className="flex flex-col items-start min-w-0">
                 <span
                   className={`text-xs font-medium leading-tight ${
-                    isSelected ? 'text-gray-900' : 'text-gray-600'
+                    isSelected ? 'text-text-primary' : 'text-text-secondary'
                   }`}
                 >
                   {arcanaConfig.name}
                 </span>
                 <span
                   className={`text-xs leading-tight ${
-                    isSelected ? 'text-gray-500' : 'text-gray-400'
+                    isSelected ? 'text-text-secondary' : 'text-text-tertiary'
                   }`}
                 >
                   {arcanaConfig.label}

@@ -16,7 +16,7 @@ export function CommunityNav() {
   const { count } = useCoffeeChatCount();
 
   return (
-    <nav className="flex border-b border-[rgba(2,9,18,0.15)]">
+    <nav className="flex border-b border-border-medium">
       {NAV_ITEMS.map((item) => {
         const isActive = pathname?.startsWith(item.href);
 
@@ -26,8 +26,8 @@ export function CommunityNav() {
             href={item.href}
             className={`px-4 py-3 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
               isActive
-                ? 'text-[#020912] border-b-2 border-[#020912]'
-                : 'text-[#020912]/40 hover:text-[#020912]/70'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-primary/40 hover:text-primary/70'
             }`}
           >
             {item.label}

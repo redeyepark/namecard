@@ -87,14 +87,14 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
   };
 
   return (
-    <div className="bg-white border border-[rgba(2,9,18,0.15)] p-6">
+    <div className="bg-surface border border-border-medium p-6">
       {/* Feedback */}
       {feedback && (
         <div
           className={`mb-4 p-3 text-sm ${
             feedback.type === 'success'
-              ? 'bg-green-50 border border-green-200 text-green-700'
-              : 'bg-red-50 border border-red-200 text-red-700'
+              ? 'bg-success/10 border border-success/20 text-success'
+              : 'bg-error/10 border border-error/20 text-error'
           }`}
           role={feedback.type === 'error' ? 'alert' : 'status'}
         >
@@ -104,7 +104,7 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
 
       {/* Method Selection */}
       <div className="mb-5">
-        <label className="block text-sm font-medium text-[#020912]/70 mb-2">
+        <label className="block text-sm font-medium text-primary/70 mb-2">
           만남 방식
         </label>
         <div className="flex gap-2">
@@ -115,8 +115,8 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
               onClick={() => setMethod(m)}
               className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${
                 method === m
-                  ? 'bg-[#020912] text-[#fcfcfc]'
-                  : 'border border-[#020912]/20 text-[#020912]/70 hover:bg-[#020912]/5'
+                  ? 'bg-primary text-secondary'
+                  : 'border border-[#020912]/20 text-primary/70 hover:bg-primary/5'
               }`}
             >
               {METHOD_LABELS[m]}
@@ -130,7 +130,7 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
         <div className="mb-5">
           <label
             htmlFor="coffee-chat-region"
-            className="block text-sm font-medium text-[#020912]/70 mb-2"
+            className="block text-sm font-medium text-primary/70 mb-2"
           >
             선호 지역
           </label>
@@ -140,14 +140,14 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
             value={region}
             onChange={(e) => setRegion(e.target.value)}
             placeholder="예: 서울 강남, 판교"
-            className="w-full px-4 py-2.5 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent transition-all duration-200"
           />
         </div>
       )}
 
       {/* Day Checkboxes */}
       <div className="mb-5">
-        <label className="block text-sm font-medium text-[#020912]/70 mb-2">
+        <label className="block text-sm font-medium text-primary/70 mb-2">
           선호 요일
         </label>
         <div className="flex gap-1.5">
@@ -158,8 +158,8 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
               onClick={() => toggleDay(d)}
               className={`flex-1 px-1 py-2 text-sm font-medium transition-colors ${
                 days.includes(d)
-                  ? 'bg-[#020912] text-[#fcfcfc]'
-                  : 'border border-[#020912]/20 text-[#020912]/70 hover:bg-[#020912]/5'
+                  ? 'bg-primary text-secondary'
+                  : 'border border-[#020912]/20 text-primary/70 hover:bg-primary/5'
               }`}
             >
               {DAY_LABELS[d]}
@@ -170,7 +170,7 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
 
       {/* Time Checkboxes */}
       <div className="mb-5">
-        <label className="block text-sm font-medium text-[#020912]/70 mb-2">
+        <label className="block text-sm font-medium text-primary/70 mb-2">
           선호 시간대
         </label>
         <div className="flex gap-2">
@@ -181,8 +181,8 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
               onClick={() => toggleTime(t)}
               className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${
                 times.includes(t)
-                  ? 'bg-[#020912] text-[#fcfcfc]'
-                  : 'border border-[#020912]/20 text-[#020912]/70 hover:bg-[#020912]/5'
+                  ? 'bg-primary text-secondary'
+                  : 'border border-[#020912]/20 text-primary/70 hover:bg-primary/5'
               }`}
             >
               {TIME_LABELS[t]}
@@ -196,7 +196,7 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
       <div className="mb-5">
         <label
           htmlFor="coffee-chat-intro"
-          className="block text-sm font-medium text-[#020912]/70 mb-2"
+          className="block text-sm font-medium text-primary/70 mb-2"
         >
           소개 메시지
         </label>
@@ -210,9 +210,9 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
           }}
           placeholder="어떤 주제로 대화하고 싶은지 알려주세요"
           rows={3}
-          className="w-full px-4 py-2.5 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent resize-none transition-all duration-200"
+          className="w-full px-4 py-2.5 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent resize-none transition-all duration-200"
         />
-        <p className="mt-1 text-xs text-[#020912]/40 text-right">
+        <p className="mt-1 text-xs text-primary/40 text-right">
           {intro.length}/100
         </p>
       </div>
@@ -222,7 +222,7 @@ export function CoffeeChatSettings({ preferences, onSave }: CoffeeChatSettingsPr
         type="button"
         onClick={handleSave}
         disabled={isSaving}
-        className="w-full py-3 bg-[#020912] text-[#fcfcfc] text-sm font-semibold hover:bg-[#020912]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+        className="w-full py-3 bg-primary text-secondary text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
       >
         {isSaving ? (
           <span className="inline-flex items-center gap-2">

@@ -313,14 +313,14 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
       aria-label="CSV and Excel bulk upload"
     >
       <div
-        className="bg-white rounded-xl shadow-xl border border-gray-100 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col mx-4"
+        className="bg-surface rounded-xl shadow-xl border border-divider w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col mx-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">CSV / Excel 대량 등록</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-divider">
+          <h2 className="text-lg font-semibold text-primary">CSV / Excel 대량 등록</h2>
           <button
             onClick={handleClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-text-tertiary hover:text-text-secondary hover:bg-divider rounded-lg transition-colors"
             aria-label="Close"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -333,12 +333,12 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
           {step === 'select' && (
             <div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">이벤트 할당 (선택)</label>
+                <label className="block text-sm font-medium text-text-primary mb-1">이벤트 할당 (선택)</label>
                 <EventSelector
                   value={selectedEventId}
                   onChange={setSelectedEventId}
                 />
-                <p className="text-xs text-gray-400 mt-1">선택하면 업로드된 모든 의뢰에 해당 이벤트가 할당됩니다.</p>
+                <p className="text-xs text-text-tertiary mt-1">선택하면 업로드된 모든 의뢰에 해당 이벤트가 할당됩니다.</p>
               </div>
               <div className="mb-3 flex justify-end">
                 <button
@@ -354,7 +354,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
               </div>
               <div
                 className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
-                  dragOver ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-amber-300 hover:bg-gray-50'
+                  dragOver ? 'border-amber-400 bg-amber-50' : 'border-border-medium hover:border-amber-300 hover:bg-bg'
                 }`}
                 onClick={() => fileInputRef.current?.click()}
                 onDrop={handleDrop}
@@ -370,11 +370,11 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
                 }}
                 aria-label="Drop CSV or Excel file here or click to browse"
               >
-                <svg className="w-10 h-10 mx-auto mb-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+                <svg className="w-10 h-10 mx-auto mb-3 text-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
-                <p className="text-sm text-gray-600 mb-1">파일을 드래그하거나 클릭하여 선택하세요</p>
-                <p className="text-xs text-gray-400">.csv, .xlsx, .xls 파일 지원</p>
+                <p className="text-sm text-text-secondary mb-1">파일을 드래그하거나 클릭하여 선택하세요</p>
+                <p className="text-xs text-text-tertiary">.csv, .xlsx, .xls 파일 지원</p>
               </div>
               <input
                 ref={fileInputRef}
@@ -384,9 +384,9 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
                 className="hidden"
                 aria-hidden="true"
               />
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <p className="text-xs font-medium text-gray-500 mb-2">컬럼 형식 (CSV / Excel 동일):</p>
-                <p className="text-xs text-gray-400 font-mono">
+              <div className="mt-4 p-4 bg-bg rounded-lg">
+                <p className="text-xs font-medium text-text-secondary mb-2">컬럼 형식 (CSV / Excel 동일):</p>
+                <p className="text-xs text-text-tertiary font-mono">
                   사진URL, 이름(앞), 이름(뒤), 관심사, 키워드1, 키워드2, 키워드3, 이메일, 페이스북, 인스타그램, 링크드인, 배경색
                 </p>
               </div>
@@ -397,48 +397,48 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-500">{fileName}</span>
+                  <span className="text-sm text-text-secondary">{fileName}</span>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                     총 {parsedRows.length}건
                   </span>
                 </div>
-                <button onClick={resetState} className="text-xs text-gray-500 hover:text-gray-700 underline">
+                <button onClick={resetState} className="text-xs text-text-secondary hover:text-text-primary underline">
                   다른 파일 선택
                 </button>
               </div>
 
-              <div className="overflow-x-auto border border-gray-200 rounded-lg">
+              <div className="overflow-x-auto border border-border-medium rounded-lg">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200">
-                      <th className="text-left py-2 px-3 font-medium text-gray-500 whitespace-nowrap">#</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500 whitespace-nowrap">이름(앞)</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500 whitespace-nowrap">이름(뒤)</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500 whitespace-nowrap">관심사</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500 whitespace-nowrap">키워드</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500 whitespace-nowrap">이메일</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500 whitespace-nowrap">배경색</th>
+                    <tr className="bg-bg border-b border-border-medium">
+                      <th className="text-left py-2 px-3 font-medium text-text-secondary whitespace-nowrap">#</th>
+                      <th className="text-left py-2 px-3 font-medium text-text-secondary whitespace-nowrap">이름(앞)</th>
+                      <th className="text-left py-2 px-3 font-medium text-text-secondary whitespace-nowrap">이름(뒤)</th>
+                      <th className="text-left py-2 px-3 font-medium text-text-secondary whitespace-nowrap">관심사</th>
+                      <th className="text-left py-2 px-3 font-medium text-text-secondary whitespace-nowrap">키워드</th>
+                      <th className="text-left py-2 px-3 font-medium text-text-secondary whitespace-nowrap">이메일</th>
+                      <th className="text-left py-2 px-3 font-medium text-text-secondary whitespace-nowrap">배경색</th>
                     </tr>
                   </thead>
                   <tbody>
                     {previewRows.map((row, idx) => (
-                      <tr key={idx} className="border-b border-gray-100">
-                        <td className="py-2 px-3 text-gray-400">{idx + 1}</td>
-                        <td className="py-2 px-3 text-gray-900 font-medium">{row.displayName || '-'}</td>
-                        <td className="py-2 px-3 text-gray-700">{row.fullName || '-'}</td>
-                        <td className="py-2 px-3 text-gray-700">{row.interest || '-'}</td>
-                        <td className="py-2 px-3 text-gray-700">
+                      <tr key={idx} className="border-b border-divider">
+                        <td className="py-2 px-3 text-text-tertiary">{idx + 1}</td>
+                        <td className="py-2 px-3 text-primary font-medium">{row.displayName || '-'}</td>
+                        <td className="py-2 px-3 text-text-primary">{row.fullName || '-'}</td>
+                        <td className="py-2 px-3 text-text-primary">{row.interest || '-'}</td>
+                        <td className="py-2 px-3 text-text-primary">
                           {[row.keyword1, row.keyword2, row.keyword3].filter(Boolean).join(', ') || '-'}
                         </td>
-                        <td className="py-2 px-3 text-gray-700 truncate max-w-[160px]">{row.email || '-'}</td>
+                        <td className="py-2 px-3 text-text-primary truncate max-w-[160px]">{row.email || '-'}</td>
                         <td className="py-2 px-3">
                           {row.bgColor ? (
                             <span className="inline-flex items-center gap-1.5">
                               <span
-                                className="w-3 h-3 rounded-full border border-gray-200 inline-block"
+                                className="w-3 h-3 rounded-full border border-border-medium inline-block"
                                 style={{ backgroundColor: row.bgColor.match(/#[0-9A-Fa-f]{6}/)?.[0] || '#ccc' }}
                               />
-                              <span className="text-gray-600">{row.bgColor}</span>
+                              <span className="text-text-secondary">{row.bgColor}</span>
                             </span>
                           ) : (
                             '-'
@@ -451,7 +451,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
               </div>
 
               {parsedRows.length > 5 && (
-                <p className="text-xs text-gray-400 mt-2 text-center">
+                <p className="text-xs text-text-tertiary mt-2 text-center">
                   ... 외 {parsedRows.length - 5}건 더 있음
                 </p>
               )}
@@ -464,38 +464,38 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              <p className="text-sm text-gray-600">{parsedRows.length}건 등록 중...</p>
-              <p className="text-xs text-gray-400 mt-1">잠시만 기다려 주세요</p>
+              <p className="text-sm text-text-secondary">{parsedRows.length}건 등록 중...</p>
+              <p className="text-xs text-text-tertiary mt-1">잠시만 기다려 주세요</p>
             </div>
           )}
 
           {step === 'result' && result && (
             <div>
               {result.success > 0 && (
-                <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg mb-4">
-                  <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <div className="flex items-center gap-3 p-4 bg-success/5 border border-success/20 rounded-lg mb-4">
+                  <svg className="w-5 h-5 text-success flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   <div>
-                    <p className="text-sm text-green-800 font-medium">{result.success}건 등록 완료</p>
+                    <p className="text-sm text-success font-medium">{result.success}건 등록 완료</p>
                     {result.autoRegistered > 0 && (
-                      <p className="text-xs text-green-700 mt-1">{result.autoRegistered}명 자동 가입</p>
+                      <p className="text-xs text-success mt-1">{result.autoRegistered}명 자동 가입</p>
                     )}
                   </div>
                 </div>
               )}
 
               {result.failed > 0 && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="p-4 bg-error/5 border border-error/20 rounded-lg">
                   <div className="flex items-center gap-2 mb-3">
-                    <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                    <svg className="w-5 h-5 text-error flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                     </svg>
-                    <p className="text-sm text-red-800 font-medium">{result.failed}건 실패</p>
+                    <p className="text-sm text-error font-medium">{result.failed}건 실패</p>
                   </div>
                   <ul className="space-y-1 ml-7">
                     {result.errors.map((err, idx) => (
-                      <li key={idx} className="text-xs text-red-700">
+                      <li key={idx} className="text-xs text-error">
                         {err.row > 0 ? `Row ${err.row}: ` : ''}{err.error}
                       </li>
                     ))}
@@ -512,11 +512,11 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-divider bg-bg">
           {step === 'preview' && (
             <button
               onClick={handleUpload}
-              className="min-h-[44px] px-6 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+              className="min-h-[44px] px-6 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange focus-visible:ring-offset-2"
             >
               전체 등록 ({parsedRows.length}건)
             </button>
@@ -525,7 +525,7 @@ export function BulkUploadModal({ isOpen, onClose, onComplete }: BulkUploadModal
           {(step === 'select' || step === 'result') && (
             <button
               onClick={handleClose}
-              className="min-h-[44px] px-6 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+              className="min-h-[44px] px-6 bg-divider text-text-primary text-sm font-medium rounded-lg hover:bg-border-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-medium focus-visible:ring-offset-2"
             >
               닫기
             </button>

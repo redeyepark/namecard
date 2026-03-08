@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { Button } from '@/components/ui';
 
 interface ThoughtFormProps {
   isAuthenticated: boolean;
@@ -39,8 +40,8 @@ export function ThoughtForm({ isAuthenticated, isCreating, onSubmit }: ThoughtFo
 
   if (!isAuthenticated) {
     return (
-      <div className="py-4 text-center border-t border-[rgba(2,9,18,0.15)]">
-        <p className="text-sm text-[#020912]/40">
+      <div className="py-4 text-center border-t border-border-medium">
+        <p className="text-sm text-primary/40">
           로그인 후 생각을 공유해 보세요
         </p>
       </div>
@@ -48,7 +49,7 @@ export function ThoughtForm({ isAuthenticated, isCreating, onSubmit }: ThoughtFo
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border-t border-[rgba(2,9,18,0.15)] pt-4">
+    <form onSubmit={handleSubmit} className="border-t border-border-medium pt-4">
       <div className="relative">
         <textarea
           value={content}
@@ -56,23 +57,24 @@ export function ThoughtForm({ isAuthenticated, isCreating, onSubmit }: ThoughtFo
           placeholder="나의 생각을 공유해 주세요..."
           rows={3}
           maxLength={1000}
-          className="w-full px-3 py-2.5 text-sm text-[#020912] bg-[#020912]/[0.02] border border-[rgba(2,9,18,0.15)] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 resize-none transition-all duration-200"
+          className="w-full px-3 py-2.5 text-sm text-primary bg-primary/[0.02] border border-border-medium placeholder:text-primary/30 focus:outline-none focus:border-primary/40 resize-none transition-all duration-200"
         />
         <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-[#020912]/30">
+          <span className="text-xs text-primary/30">
             {content.length}/1000
           </span>
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="sm"
             disabled={isCreating || content.trim().length < 1}
-            className="px-4 py-1.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
           >
             {isCreating ? '보내는 중...' : '보내기'}
-          </button>
+          </Button>
         </div>
       </div>
       {error && (
-        <p className="mt-1 text-xs text-red-500">{error}</p>
+        <p className="mt-1 text-xs text-error">{error}</p>
       )}
     </form>
   );

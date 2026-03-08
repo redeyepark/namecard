@@ -73,7 +73,7 @@ export function SocialShareButtons({
       name: 'X',
       ariaLabel: 'X(Twitter)로 공유',
       color: 'bg-black',
-      hoverColor: 'hover:bg-gray-800',
+      hoverColor: 'hover:bg-primary/90',
       icon: (
         // X (Twitter) logo
         <svg
@@ -141,8 +141,8 @@ export function SocialShareButtons({
     {
       name: '링크 복사',
       ariaLabel: '링크 복사',
-      color: 'bg-gray-600',
-      hoverColor: 'hover:bg-gray-500',
+      color: 'bg-text-secondary',
+      hoverColor: 'hover:bg-text-secondary/80',
       icon: (
         // Chain link icon
         <svg
@@ -172,7 +172,7 @@ export function SocialShareButtons({
           onClick={platform.action}
           disabled={disabled}
           aria-label={platform.ariaLabel}
-          className={`flex flex-col items-center justify-center gap-1.5 rounded-none px-2 py-3 text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020912] disabled:pointer-events-none disabled:opacity-50 min-h-[44px] ${platform.color} ${platform.hoverColor}`}
+          className={`flex flex-col items-center justify-center gap-1.5 rounded-none px-2 py-3 text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-primary disabled:pointer-events-none disabled:opacity-50 min-h-[44px] ${platform.color} ${platform.hoverColor}`}
         >
           {platform.icon}
           <span className="text-xs font-medium">{platform.name}</span>

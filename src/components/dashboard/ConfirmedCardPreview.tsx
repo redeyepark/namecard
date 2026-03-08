@@ -903,8 +903,8 @@ export function ConfirmedCardPreview({
   const isHearthstone = card.theme === 'hearthstone';
 
   return (
-    <div className="bg-white rounded-xl p-4 border border-gray-100">
-      <h2 className="text-sm font-medium text-gray-700 mb-3">
+    <div className="bg-surface rounded-xl p-4 border border-bg">
+      <h2 className="text-sm font-medium text-text-primary mb-3">
         확정된 명함
       </h2>
 
@@ -939,14 +939,14 @@ export function ConfirmedCardPreview({
       </div>
 
       <div className="flex justify-center mt-3">
-        <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+        <div className="inline-flex rounded-lg border border-divider overflow-hidden">
           <button
             type="button"
             onClick={() => setSide('front')}
             className={`px-4 py-1.5 text-xs font-medium transition-colors ${
               side === 'front'
-                ? 'bg-gray-900 text-white'
-                : 'bg-white text-gray-600 hover:bg-gray-50'
+                ? 'bg-primary text-secondary'
+                : 'bg-surface text-text-secondary hover:bg-bg'
             }`}
             aria-pressed={side === 'front'}
           >
@@ -957,8 +957,8 @@ export function ConfirmedCardPreview({
             onClick={() => setSide('back')}
             className={`px-4 py-1.5 text-xs font-medium transition-colors ${
               side === 'back'
-                ? 'bg-gray-900 text-white'
-                : 'bg-white text-gray-600 hover:bg-gray-50'
+                ? 'bg-primary text-secondary'
+                : 'bg-surface text-text-secondary hover:bg-bg'
             }`}
             aria-pressed={side === 'back'}
           >

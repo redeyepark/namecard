@@ -7,7 +7,7 @@ import { CardBack } from '@/components/card/CardBack';
 export const MiniPreview = React.memo(function MiniPreview() {
   return (
     <section aria-label="Card preview">
-      <h2 className="text-xs font-medium text-gray-500 mb-2">미리보기</h2>
+      <h2 className="text-xs font-medium text-text-secondary mb-2">미리보기</h2>
       <div className="flex gap-3 justify-center">
         {/* Front card miniature - aspect-[29/45] at 240px = 372px height, scaled 0.5 = 186px */}
         <div className="w-[120px] h-[186px] overflow-hidden">

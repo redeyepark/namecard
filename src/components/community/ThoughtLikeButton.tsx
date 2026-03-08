@@ -33,8 +33,8 @@ export function ThoughtLikeButton({
       disabled={isLoading}
       className={`inline-flex items-center gap-1 px-2 py-1 text-xs transition-all duration-200 ${
         liked
-          ? 'text-red-500'
-          : 'text-[#020912]/40 hover:text-[#020912]/70'
+          ? 'text-error'
+          : 'text-primary/40 hover:text-primary/70'
       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
     >

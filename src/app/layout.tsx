@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-[#fcfcfc]">
+      <body className="min-h-screen bg-secondary">
         <AuthProvider>
           <KakaoProvider>
             <ToastProvider>

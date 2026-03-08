@@ -41,11 +41,11 @@ export function MyCoffeeChatClient() {
   return (
     <>
       {/* Header */}
-      <header className="bg-[#020912] text-[#fcfcfc]">
+      <header className="bg-primary text-secondary">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <Link
             href="/community/coffee-chat"
-            className="inline-flex items-center gap-1 text-xs text-[#fcfcfc]/50 hover:text-[#fcfcfc]/80 transition-colors mb-3"
+            className="inline-flex items-center gap-1 text-xs text-secondary/50 hover:text-secondary/80 transition-colors mb-3"
           >
             <svg
               className="w-3 h-3"

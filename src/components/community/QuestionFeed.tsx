@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useQuestions } from '@/hooks/useQuestions';
+import { Button } from '@/components/ui';
 import { QuestionCard } from './QuestionCard';
 import { QuestionFilters } from './QuestionFilters';
 import { QuestionForm } from './QuestionForm';
@@ -59,7 +60,7 @@ export function QuestionFeed({ isAuthenticated }: QuestionFeedProps) {
         </div>
       ) : !loading ? (
         <div className="flex flex-col items-center justify-center py-20">
-          <p className="text-sm text-[#020912]/30">
+          <p className="text-sm text-primary/30">
             아직 질문이 없습니다. 첫 번째 질문을 올려보세요!
           </p>
         </div>
@@ -69,7 +70,7 @@ export function QuestionFeed({ isAuthenticated }: QuestionFeedProps) {
       {loading && (
         <div className="flex justify-center py-8">
           <svg
-            className="animate-spin h-5 w-5 text-[#020912]/30"
+            className="animate-spin h-5 w-5 text-primary/30"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -84,20 +85,22 @@ export function QuestionFeed({ isAuthenticated }: QuestionFeedProps) {
       {/* Error */}
       {error && (
         <div className="text-center py-8">
-          <p className="text-xs text-red-500">{error}</p>
-          <button
+          <p className="text-xs text-error">{error}</p>
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={retry}
-            className="mt-2 px-3 py-1 text-xs font-medium text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
+            className="mt-2"
           >
             다시 시도
-          </button>
+          </Button>
         </div>
       )}
 
       {/* End of feed */}
       {!hasMore && questions.length > 0 && !loading && (
-        <p className="text-center py-8 text-xs text-[#020912]/20">
+        <p className="text-center py-8 text-xs text-primary/20">
           더 이상 질문이 없습니다
         </p>
       )}
@@ -110,7 +113,7 @@ export function QuestionFeed({ isAuthenticated }: QuestionFeedProps) {
         <button
           type="button"
           onClick={() => setIsFormOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 flex items-center justify-center bg-[#020912] text-[#fcfcfc] shadow-lg hover:bg-[#020912]/80 transition-all duration-200 z-40"
+          className="fixed bottom-6 right-6 w-14 h-14 flex items-center justify-center bg-primary text-secondary shadow-lg hover:bg-primary/80 transition-all duration-200 z-40"
           aria-label="질문하기"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">

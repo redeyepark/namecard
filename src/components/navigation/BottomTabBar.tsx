@@ -141,9 +141,8 @@ export default function BottomTabBar() {
     <nav
       role="navigation"
       aria-label="\uC8FC \uB0B4\uBE44\uAC8C\uC774\uC158"
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#fcfcfc] border-t"
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-secondary border-t border-border-medium"
       style={{
-        borderColor: 'rgba(2, 9, 18, 0.1)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
@@ -160,8 +159,8 @@ export default function BottomTabBar() {
                 transition-colors duration-150
                 ${
                   active
-                    ? 'text-[#020912] border-t-2 border-[#020912]'
-                    : 'text-[#020912]/40 border-t-2 border-transparent'
+                    ? 'text-primary border-t-2 border-primary'
+                    : 'text-primary/40 border-t-2 border-transparent'
                 }
               `}
             >

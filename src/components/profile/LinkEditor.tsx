@@ -119,7 +119,7 @@ export function LinkEditor({ links: initialLinks, onUpdate }: LinkEditorProps) {
                   type="button"
                   onClick={() => handleDelete(link.id)}
                   disabled={isLoading}
-                  className="w-8 h-8 flex items-center justify-center text-[var(--color-text-secondary)] hover:text-red-500 transition-colors disabled:opacity-50"
+                  className="w-8 h-8 flex items-center justify-center text-[var(--color-text-secondary)] hover:text-error transition-colors disabled:opacity-50"
                   aria-label="링크 삭제"
                 >
                   <Trash2 className="w-4 h-4" aria-hidden="true" />

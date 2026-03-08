@@ -38,10 +38,10 @@ export function ProgressBar() {
                   className={`
                     flex items-center justify-center rounded-full font-medium text-sm transition-all duration-200
                     ${isCurrent
-                      ? 'w-10 h-10 bg-[#020912] text-white ring-4 ring-[#e4f6ff]'
+                      ? 'w-10 h-10 bg-primary text-secondary ring-4 ring-accent-blue'
                       : isCompleted
-                        ? 'w-9 h-9 bg-[#020912] text-white cursor-pointer hover:bg-[#0a1628]'
-                        : 'w-9 h-9 bg-gray-200 text-gray-400 cursor-default'
+                        ? 'w-9 h-9 bg-primary text-secondary cursor-pointer hover:bg-primary/90'
+                        : 'w-9 h-9 bg-divider text-text-tertiary cursor-default'
                     }
                   `}
                 >
@@ -69,10 +69,10 @@ export function ProgressBar() {
                 <span
                   className={`mt-1.5 text-xs font-medium hidden min-[400px]:block ${
                     isCurrent
-                      ? 'text-[#020912]'
+                      ? 'text-primary'
                       : isCompleted
-                        ? 'text-gray-700'
-                        : 'text-gray-400'
+                        ? 'text-text-primary'
+                        : 'text-text-tertiary'
                   }`}
                 >
                   {label}
@@ -83,7 +83,7 @@ export function ProgressBar() {
               {stepNumber < STEP_LABELS.length && (
                 <div
                   className={`flex-1 h-0.5 mx-2 ${
-                    stepNumber < wizardStep ? 'bg-[#020912]' : 'bg-gray-200'
+                    stepNumber < wizardStep ? 'bg-primary' : 'bg-divider'
                   }`}
                   aria-hidden="true"
                 />

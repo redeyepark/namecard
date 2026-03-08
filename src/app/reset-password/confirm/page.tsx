@@ -76,12 +76,12 @@ export default function ResetPasswordConfirmPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcfcfc] px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-secondary px-4">
       {/* Back to login */}
       <div className="w-full max-w-sm mb-6">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1 text-sm text-[#020912]/60 hover:text-[#ffa639] transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-primary/60 hover:text-accent-orange transition-colors"
         >
           <svg
             className="w-4 h-4"
@@ -101,12 +101,12 @@ export default function ResetPasswordConfirmPage() {
       </div>
 
       {/* Reset confirm card */}
-      <div className="w-full max-w-sm bg-white border border-[rgba(2,9,18,0.15)] p-8">
+      <div className="w-full max-w-sm bg-surface border border-border-medium p-8">
         {/* Logo / Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-[#020912] mb-4">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-primary mb-4">
             <svg
-              className="w-7 h-7 text-white"
+              className="w-7 h-7 text-secondary"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -119,10 +119,10 @@ export default function ResetPasswordConfirmPage() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-[#020912]">
+          <h1 className="text-2xl font-bold text-primary">
             새 비밀번호 설정
           </h1>
-          <p className="mt-2 text-sm text-[#020912]/50">
+          <p className="mt-2 text-sm text-primary/50">
             새로운 비밀번호를 입력해주세요
           </p>
         </div>
@@ -130,9 +130,9 @@ export default function ResetPasswordConfirmPage() {
         {/* Success message */}
         {success ? (
           <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#dbe9e0] mb-2">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-green mb-2">
               <svg
-                className="w-8 h-8 text-[#020912]"
+                className="w-8 h-8 text-primary"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
@@ -145,15 +145,15 @@ export default function ResetPasswordConfirmPage() {
                 />
               </svg>
             </div>
-            <p className="text-base font-medium text-[#020912]">
+            <p className="text-base font-medium text-primary">
               비밀번호가 성공적으로 변경되었습니다.
             </p>
-            <p className="text-sm text-[#020912]/50">
+            <p className="text-sm text-primary/50">
               잠시 후 로그인 페이지로 이동합니다...
             </p>
             <Link
               href="/login"
-              className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-[#020912] hover:text-[#ffa639] transition-colors"
+              className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary hover:text-accent-orange transition-colors"
             >
               로그인 페이지로 이동
               <svg
@@ -176,7 +176,7 @@ export default function ResetPasswordConfirmPage() {
           <div className="text-center space-y-4">
             <div className="flex justify-center">
               <svg
-                className="w-8 h-8 animate-spin text-[#020912]/30"
+                className="w-8 h-8 animate-spin text-primary/30"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -195,7 +195,7 @@ export default function ResetPasswordConfirmPage() {
                 />
               </svg>
             </div>
-            <p className="text-sm text-[#020912]/50">
+            <p className="text-sm text-primary/50">
               인증 정보를 확인하고 있습니다...
             </p>
           </div>
@@ -204,10 +204,10 @@ export default function ResetPasswordConfirmPage() {
             {/* Error message */}
             {error && (
               <div
-                className="mb-6 p-3 bg-red-50 border border-red-200"
+                className="mb-6 p-3 bg-error/10 border border-error/20"
                 role="alert"
               >
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-error">{error}</p>
               </div>
             )}
 
@@ -216,7 +216,7 @@ export default function ResetPasswordConfirmPage() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-[#020912]/70 mb-1"
+                  className="block text-sm font-medium text-primary/70 mb-1"
                 >
                   새 비밀번호
                 </label>
@@ -230,12 +230,12 @@ export default function ResetPasswordConfirmPage() {
                     required
                     minLength={6}
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 pr-10 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent disabled:opacity-50 transition-all duration-200"
+                    className="w-full px-4 py-2.5 pr-10 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent disabled:opacity-50 transition-all duration-200"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#020912]/40 hover:text-[#020912]/70 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary/70 transition-colors"
                     aria-label={
                       showPassword ? '비밀번호 숨기기' : '비밀번호 보기'
                     }
@@ -281,7 +281,7 @@ export default function ResetPasswordConfirmPage() {
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-[#020912]/70 mb-1"
+                  className="block text-sm font-medium text-primary/70 mb-1"
                 >
                   비밀번호 확인
                 </label>
@@ -294,14 +294,14 @@ export default function ResetPasswordConfirmPage() {
                   required
                   minLength={6}
                   disabled={isLoading}
-                  className="w-full px-4 py-2.5 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent disabled:opacity-50 transition-all duration-200"
+                  className="w-full px-4 py-2.5 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent disabled:opacity-50 transition-all duration-200"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-[#020912] text-[#fcfcfc] text-sm font-semibold hover:bg-[#020912]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="w-full py-3 bg-primary text-secondary text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {isLoading ? (
                   <span className="inline-flex items-center gap-2">
@@ -335,13 +335,13 @@ export default function ResetPasswordConfirmPage() {
         )}
 
         {/* Terms */}
-        <div className="mt-6 pt-6 border-t border-[rgba(2,9,18,0.08)] text-center">
-          <p className="text-xs text-[#020912]/30">Namecard Editor</p>
+        <div className="mt-6 pt-6 border-t border-divider text-center">
+          <p className="text-xs text-primary/30">Namecard Editor</p>
         </div>
       </div>
 
       {/* Footer */}
-      <p className="mt-8 text-xs text-[#020912]/30">Namecard Editor</p>
+      <p className="mt-8 text-xs text-primary/30">Namecard Editor</p>
     </div>
   );
 }

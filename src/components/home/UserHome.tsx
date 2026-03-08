@@ -92,7 +92,7 @@ export function UserHome({ embedded = false }: UserHomeProps) {
     if (error) {
       return (
         <div className="text-center py-12" role="alert">
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-error">{error}</p>
           <button
             type="button"
             onClick={() => window.location.reload()}
@@ -185,7 +185,7 @@ export function UserHome({ embedded = false }: UserHomeProps) {
                   </p>
                   <Link
                     href="/create"
-                    className="mt-8 inline-flex items-center gap-2 px-8 py-3 bg-[#020912] text-[#fcfcfc] text-sm font-semibold font-[family-name:var(--font-figtree),sans-serif] hover:bg-[#020912]/90 transition-colors"
+                    className="mt-8 inline-flex items-center gap-2 px-8 py-3 bg-primary text-secondary text-sm font-semibold font-[family-name:var(--font-figtree),sans-serif] hover:bg-primary/90 transition-colors"
                   >
                     첫 번째 명함 만들기
                   </Link>
@@ -202,7 +202,7 @@ export function UserHome({ embedded = false }: UserHomeProps) {
   // --- Standalone mode: full-page with loading/error states ---
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020912]">
+      <div className="min-h-screen flex items-center justify-center bg-primary">
         <svg
           className="animate-spin h-6 w-6 text-white/40"
           xmlns="http://www.w3.org/2000/svg"
@@ -221,7 +221,7 @@ export function UserHome({ embedded = false }: UserHomeProps) {
     return (
       <div className="min-h-screen bg-[var(--color-bg)]">
         <div className="flex flex-col items-center justify-center py-20" role="alert">
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-error">{error}</p>
           <button
             type="button"
             onClick={() => window.location.reload()}
@@ -319,7 +319,7 @@ export function UserHome({ embedded = false }: UserHomeProps) {
                 </p>
                 <Link
                   href="/create"
-                  className="mt-8 inline-flex items-center gap-2 px-8 py-3 bg-[#020912] text-[#fcfcfc] text-sm font-semibold font-[family-name:var(--font-figtree),sans-serif] hover:bg-[#020912]/90 transition-colors"
+                  className="mt-8 inline-flex items-center gap-2 px-8 py-3 bg-primary text-secondary text-sm font-semibold font-[family-name:var(--font-figtree),sans-serif] hover:bg-primary/90 transition-colors"
                 >
                   첫 번째 명함 만들기
                 </Link>

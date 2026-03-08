@@ -36,14 +36,14 @@ export function AdminCardPreview({ card, illustrationUrl }: AdminCardPreviewProp
         </div>
 
         <div className="flex justify-center mt-3">
-          <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+          <div className="inline-flex rounded-lg border border-border-medium overflow-hidden">
             <button
               type="button"
               onClick={() => setSide('front')}
               className={`px-4 py-1.5 text-xs font-medium transition-colors ${
                 side === 'front'
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
+                  ? 'bg-primary text-secondary'
+                  : 'bg-surface text-text-secondary hover:bg-bg'
               }`}
               aria-pressed={side === 'front'}
             >
@@ -54,8 +54,8 @@ export function AdminCardPreview({ card, illustrationUrl }: AdminCardPreviewProp
               onClick={() => setSide('back')}
               className={`px-4 py-1.5 text-xs font-medium transition-colors ${
                 side === 'back'
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
+                  ? 'bg-primary text-secondary'
+                  : 'bg-surface text-text-secondary hover:bg-bg'
               }`}
               aria-pressed={side === 'back'}
             >

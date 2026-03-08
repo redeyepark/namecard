@@ -14,7 +14,7 @@ interface AdminGalleryGridProps {
 export function AdminGalleryGrid({ requests }: AdminGalleryGridProps) {
   if (requests.length === 0) {
     return (
-      <div className="text-center py-12 text-[#020912]/50 text-sm">
+      <div className="text-center py-12 text-primary/50 text-sm">
         표시할 의뢰가 없습니다.
       </div>
     );

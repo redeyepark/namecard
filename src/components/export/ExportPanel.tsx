@@ -335,8 +335,8 @@ export function ExportPanel({
           w-full flex items-center gap-3 px-4 py-3 text-sm text-left
           min-h-[44px] transition-colors
           ${isDisabled
-            ? 'text-gray-400 cursor-not-allowed'
-            : 'text-gray-800 hover:bg-gray-50 active:bg-gray-100'
+            ? 'text-text-tertiary cursor-not-allowed'
+            : 'text-primary hover:bg-bg active:bg-divider'
           }
         `}
       >
@@ -345,7 +345,7 @@ export function ExportPanel({
         </span>
         <span className="flex-1">{item.label}</span>
         {isLoading && (
-          <span className="shrink-0 w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+          <span className="shrink-0 w-4 h-4 border-2 border-border-medium border-t-text-secondary rounded-full animate-spin" />
         )}
       </button>
     );
@@ -356,7 +356,7 @@ export function ExportPanel({
   function renderSectionLabel(label: string) {
     return (
       <div className="px-4 pt-3 pb-1">
-        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+        <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
           {label}
         </span>
       </div>
@@ -371,12 +371,12 @@ export function ExportPanel({
       {renderSectionLabel('다운로드')}
       {downloadItems.map(renderMenuItem)}
 
-      <div className="my-1 border-t border-gray-100" />
+      <div className="my-1 border-t border-divider" />
 
       {/* Social share section */}
       {renderSectionLabel('소셜 공유')}
       {!isPublic && cardId && (
-        <div className="mx-4 mb-2 px-3 py-2 bg-amber-50 border border-amber-200 text-xs text-amber-800">
+        <div className="mx-4 mb-2 px-3 py-2 bg-warning/10 border border-warning/20 text-xs text-warning">
           이 카드는 비공개 상태입니다. 소셜 공유를 사용하려면 먼저 공개로 변경하세요.
         </div>
       )}
@@ -398,7 +398,7 @@ export function ExportPanel({
         />
       </div>
 
-      <div className="my-1 border-t border-gray-100" />
+      <div className="my-1 border-t border-divider" />
 
       {/* Misc section */}
       {renderSectionLabel('기타')}
@@ -422,8 +422,8 @@ export function ExportPanel({
         aria-haspopup="true"
         aria-label="내보내기 및 공유 메뉴 열기"
         className="
-          w-full px-4 py-3 bg-gray-900 text-white font-medium
-          hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-gray-900
+          w-full px-4 py-3 bg-primary text-secondary font-medium
+          hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary
           focus-visible:ring-offset-2 transition-colors min-h-[44px]
           flex items-center justify-center gap-2
         "

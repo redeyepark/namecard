@@ -38,7 +38,7 @@ export function EventFilter({ value, onChange }: EventFilterProps) {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={loading}
-      className="px-3 py-2 text-sm border border-[rgba(2,9,18,0.15)] rounded bg-white text-[#020912] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 disabled:opacity-50"
+      className="px-3 py-2 text-sm border border-border-medium rounded bg-surface text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-50"
     >
       <option value="">전체</option>
       <option value="none">미할당</option>

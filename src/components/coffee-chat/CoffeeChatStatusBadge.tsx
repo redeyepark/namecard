@@ -8,11 +8,11 @@ interface CoffeeChatStatusBadgeProps {
 }
 
 const STATUS_STYLES: Record<CoffeeChatStatus, string> = {
-  pending: 'bg-[#f59e0b] text-[#020912]',
-  accepted: 'bg-[#10b981] text-[#fcfcfc]',
-  declined: 'bg-[#6b7280] text-[#fcfcfc]',
-  cancelled: 'bg-[#6b7280] text-[#fcfcfc]',
-  completed: 'bg-[#020912] text-[#fcfcfc]',
+  pending: 'bg-warning text-primary',
+  accepted: 'bg-success text-secondary',
+  declined: 'bg-text-secondary text-secondary',
+  cancelled: 'bg-text-secondary text-secondary',
+  completed: 'bg-primary text-secondary',
 };
 
 export default function CoffeeChatStatusBadge({ status }: CoffeeChatStatusBadgeProps) {

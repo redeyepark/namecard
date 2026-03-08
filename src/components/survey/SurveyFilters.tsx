@@ -21,8 +21,8 @@ export function SurveyFilters({
           onClick={() => onSortChange('latest')}
           className={`px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
             currentSort === 'latest'
-              ? 'text-[#020912] border-b-2 border-[#020912]'
-              : 'text-[#020912]/40 hover:text-[#020912]/70'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-primary/40 hover:text-primary/70'
           }`}
         >
           최신순
@@ -32,8 +32,8 @@ export function SurveyFilters({
           onClick={() => onSortChange('popular')}
           className={`px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
             currentSort === 'popular'
-              ? 'text-[#020912] border-b-2 border-[#020912]'
-              : 'text-[#020912]/40 hover:text-[#020912]/70'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-primary/40 hover:text-primary/70'
           }`}
         >
           인기순
@@ -44,7 +44,7 @@ export function SurveyFilters({
         <button
           type="button"
           onClick={onTagClear}
-          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-[#020912] text-[#fcfcfc] transition-all duration-200 hover:bg-[#020912]/80"
+          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-primary text-secondary transition-all duration-200 hover:bg-primary/80"
         >
           #{currentTag}
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">

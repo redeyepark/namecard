@@ -19,16 +19,16 @@ export function RequestCard({ request }: RequestCardProps) {
   return (
     <Link
       href={`/dashboard/${request.id}`}
-      className="block bg-white border border-[rgba(2,9,18,0.15)] p-4 hover:border-[#020912]/30 transition-all duration-200"
+      className="block bg-surface border border-border-medium p-4 hover:border-primary/30 transition-all duration-200"
     >
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold text-[#020912]">{request.displayName}</h3>
-          <p className="text-xs text-[#020912]/50 mt-0.5">{submittedDate}</p>
+          <h3 className="text-sm font-semibold text-primary">{request.displayName}</h3>
+          <p className="text-xs text-primary/50 mt-0.5">{submittedDate}</p>
         </div>
         <StatusBadge status={request.status} />
       </div>
-      <div className="pt-2 border-t border-[rgba(2,9,18,0.08)]">
+      <div className="pt-2 border-t border-primary/8">
         <ProgressStepper currentStatus={request.status} />
       </div>
     </Link>

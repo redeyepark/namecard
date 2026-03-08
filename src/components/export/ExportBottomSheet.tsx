@@ -59,14 +59,14 @@ export function ExportBottomSheet({ children, onClose }: ExportBottomSheetProps)
         aria-label="내보내기 및 공유 메뉴"
         tabIndex={-1}
         className="
-          relative w-full bg-white
+          relative w-full bg-surface
           max-h-[80vh] overflow-y-auto
           animate-slide-up
         "
       >
         {/* Drag handle (visual only) */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 bg-gray-300 rounded-full" />
+          <div className="w-10 h-1 bg-border-medium rounded-full" />
         </div>
 
         {children}

@@ -68,7 +68,7 @@ export function ExportDropdown({ children, onClose, triggerRef }: ExportDropdown
       tabIndex={-1}
       className="
         absolute z-50
-        bg-white border border-gray-200 shadow-lg
+        bg-surface border border-border-medium shadow-lg
         max-h-[70vh] overflow-y-auto
         animate-dropdown-in
       "

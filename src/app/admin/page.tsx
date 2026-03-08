@@ -30,13 +30,13 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  submitted: 'bg-[#e4f6ff] border-[#e4f6ff]',
-  processing: 'bg-[#ffa639]/20 border-[#ffa639]/30',
-  revision_requested: 'bg-[#ffdfc8] border-[#ffdfc8]',
-  confirmed: 'bg-[#dbe9e0] border-[#dbe9e0]',
-  rejected: 'bg-red-50 border-red-100',
-  delivered: 'bg-[#020912]/5 border-[#020912]/10',
-  cancelled: 'bg-gray-50 border-gray-100',
+  submitted: 'bg-accent-blue border-accent-blue',
+  processing: 'bg-accent-orange/20 border-accent-orange/30',
+  revision_requested: 'bg-accent-peach border-accent-peach',
+  confirmed: 'bg-accent-green border-accent-green',
+  rejected: 'bg-error/10 border-error/20',
+  delivered: 'bg-primary/5 border-[#020912]/10',
+  cancelled: 'bg-bg border-divider',
 };
 
 const THEME_LABELS: Record<string, string> = {
@@ -170,7 +170,7 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-20 text-gray-500">
+      <div className="text-center py-20 text-text-secondary">
         <svg
           className="animate-spin h-6 w-6 mx-auto mb-2"
           xmlns="http://www.w3.org/2000/svg"
@@ -189,7 +189,7 @@ export default function AdminDashboardPage() {
   if (error || !stats) {
     return (
       <div className="text-center py-20" role="alert">
-        <p className="text-red-600 text-sm">{error || '\uB370\uC774\uD130\uB97C \uBD88\uB7EC\uC62C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.'}</p>
+        <p className="text-error text-sm">{error || '\uB370\uC774\uD130\uB97C \uBD88\uB7EC\uC62C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.'}</p>
       </div>
     );
   }
@@ -200,15 +200,15 @@ export default function AdminDashboardPage() {
       <div className="mb-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-[#020912]">{'\uB300\uC2DC\uBCF4\uB4DC'}</h1>
-            <p className="mt-1 text-sm text-[#020912]/50">
+            <h1 className="text-2xl font-bold text-primary">{'\uB300\uC2DC\uBCF4\uB4DC'}</h1>
+            <p className="mt-1 text-sm text-primary/50">
               {'\uBA85\uD568 \uC758\uB8B0 \uD604\uD669\uC744 \uD55C\uB208\uC5D0 \uD655\uC778\uD569\uB2C8\uB2E4.'}
             </p>
           </div>
           <button
             onClick={handleBulkPublish}
             disabled={bulkPublishing}
-            className="min-h-[44px] px-4 bg-[#dbe9e0] text-[#020912] border border-[#dbe9e0] text-sm font-medium hover:bg-[#c5ddc9] transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+            className="min-h-[44px] px-4 bg-accent-green text-primary border border-accent-green text-sm font-medium hover:bg-accent-green/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
           >
             {bulkPublishing ? (
               <svg
@@ -234,8 +234,8 @@ export default function AdminDashboardPage() {
           <div
             className={`mt-3 px-4 py-2.5 text-sm border ${
               bulkPublishResult.startsWith('\uC624\uB958')
-                ? 'bg-red-50 border-red-100 text-red-700'
-                : 'bg-[#dbe9e0] border-[#dbe9e0] text-[#020912]'
+                ? 'bg-error/10 border-error/20 text-error'
+                : 'bg-accent-green border-accent-green text-primary'
             }`}
             role="alert"
           >
@@ -247,9 +247,9 @@ export default function AdminDashboardPage() {
       {/* Section A: Status Summary Cards */}
       <div className="mb-8">
         {/* Total Count */}
-        <div className="mb-4 bg-[#020912] text-[#fcfcfc] px-5 py-4 border border-[#020912]">
+        <div className="mb-4 bg-primary text-secondary px-5 py-4 border border-[#020912]">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[#fcfcfc]/70">{'\uC804\uCCB4 \uC758\uB8B0'}</span>
+            <span className="text-sm font-medium text-secondary/70">{'\uC804\uCCB4 \uC758\uB8B0'}</span>
             <span className="text-3xl font-bold">{stats.total}</span>
           </div>
         </div>
@@ -261,10 +261,10 @@ export default function AdminDashboardPage() {
               key={status}
               className={`px-4 py-3 border ${STATUS_COLORS[status]}`}
             >
-              <div className="text-xs font-medium text-[#020912]/60 mb-1">
+              <div className="text-xs font-medium text-primary/60 mb-1">
                 {STATUS_LABELS[status]}
               </div>
-              <div className="text-2xl font-bold text-[#020912]">
+              <div className="text-2xl font-bold text-primary">
                 {stats.byStatus[status] || 0}
               </div>
             </div>
@@ -279,10 +279,10 @@ export default function AdminDashboardPage() {
               className={`px-3 py-2 border ${STATUS_COLORS[status]}`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#020912]/50">
+                <span className="text-xs text-primary/50">
                   {STATUS_LABELS[status]}
                 </span>
-                <span className="text-sm font-semibold text-[#020912]/70">
+                <span className="text-sm font-semibold text-primary/70">
                   {stats.byStatus[status] || 0}
                 </span>
               </div>
@@ -295,29 +295,29 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Section C: Event Breakdown */}
         <div>
-          <h2 className="text-sm font-semibold text-[#020912] mb-3">{'\uC774\uBCA4\uD2B8\uBCC4 \uD604\uD669'}</h2>
-          <div className="bg-white border border-[rgba(2,9,18,0.15)]">
+          <h2 className="text-sm font-semibold text-primary mb-3">{'\uC774\uBCA4\uD2B8\uBCC4 \uD604\uD669'}</h2>
+          <div className="bg-surface border border-border-medium">
             {stats.byEvent.length === 0 ? (
-              <div className="text-center py-6 text-gray-500 text-sm">
+              <div className="text-center py-6 text-text-secondary text-sm">
                 {'\uB370\uC774\uD130 \uC5C6\uC74C'}
               </div>
             ) : (
-              <div className="divide-y divide-[rgba(2,9,18,0.08)]">
+              <div className="divide-y divide-divider">
                 {stats.byEvent.map((item) => {
                   const barWidth = stats.total > 0 ? (item.count / stats.total) * 100 : 0;
                   return (
                     <div key={item.eventId ?? 'none'} className="px-4 py-2.5">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium text-[#020912] truncate max-w-[70%]">
+                        <span className="text-xs font-medium text-primary truncate max-w-[70%]">
                           {item.eventName}
                         </span>
-                        <span className="text-xs font-semibold text-[#020912]/70">
+                        <span className="text-xs font-semibold text-primary/70">
                           {item.count}{'\uAC74'}
                         </span>
                       </div>
-                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-bg rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#e4f6ff] rounded-full transition-all"
+                          className="h-full bg-accent-blue rounded-full transition-all"
                           style={{ width: `${barWidth}%` }}
                         />
                       </div>
@@ -331,14 +331,14 @@ export default function AdminDashboardPage() {
 
         {/* Section D: Theme Breakdown */}
         <div>
-          <h2 className="text-sm font-semibold text-[#020912] mb-3">{'\uD14C\uB9C8\uBCC4 \uD604\uD669'}</h2>
-          <div className="bg-white border border-[rgba(2,9,18,0.15)]">
+          <h2 className="text-sm font-semibold text-primary mb-3">{'\uD14C\uB9C8\uBCC4 \uD604\uD669'}</h2>
+          <div className="bg-surface border border-border-medium">
             {Object.keys(stats.byTheme).length === 0 ? (
-              <div className="text-center py-6 text-gray-500 text-sm">
+              <div className="text-center py-6 text-text-secondary text-sm">
                 {'\uB370\uC774\uD130 \uC5C6\uC74C'}
               </div>
             ) : (
-              <div className="divide-y divide-[rgba(2,9,18,0.08)]">
+              <div className="divide-y divide-divider">
                 {Object.entries(stats.byTheme)
                   .sort(([, a], [, b]) => b - a)
                   .map(([theme, count]) => {
@@ -346,16 +346,16 @@ export default function AdminDashboardPage() {
                     return (
                       <div key={theme} className="px-4 py-2.5">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-medium text-[#020912]">
+                          <span className="text-xs font-medium text-primary">
                             {THEME_LABELS[theme] || theme}
                           </span>
-                          <span className="text-xs font-semibold text-[#020912]/70">
+                          <span className="text-xs font-semibold text-primary/70">
                             {count}{'\uAC74'}
                           </span>
                         </div>
-                        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-bg rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-[#ffa639]/30 rounded-full transition-all"
+                            className="h-full bg-accent-orange/30 rounded-full transition-all"
                             style={{ width: `${barWidth}%` }}
                           />
                         </div>
@@ -373,12 +373,12 @@ export default function AdminDashboardPage() {
         {/* Header row: title, view toggle, filter button, bulk upload */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-semibold text-[#020912]">{'\uC804\uCCB4 \uC758\uB8B0 \uBAA9\uB85D'}</h2>
+            <h2 className="text-sm font-semibold text-primary">{'\uC804\uCCB4 \uC758\uB8B0 \uBAA9\uB85D'}</h2>
             <ViewToggle mode={viewMode} onChange={setViewMode} />
           </div>
           <button
             onClick={() => setShowBulkUpload(true)}
-            className="min-h-[44px] px-4 bg-white text-[#020912] border border-[rgba(2,9,18,0.15)] text-sm font-medium hover:bg-[#e4f6ff] transition-colors focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:ring-offset-2 flex items-center gap-2"
+            className="min-h-[44px] px-4 bg-surface text-primary border border-border-medium text-sm font-medium hover:bg-accent-blue transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:ring-offset-2 flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -395,14 +395,14 @@ export default function AdminDashboardPage() {
               value={filters.searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={'\uC774\uB984 \uB610\uB294 ID \uAC80\uC0C9...'}
-              className="text-sm border border-[rgba(2,9,18,0.15)] rounded-none bg-white px-3 py-1.5 pr-8 text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 w-52"
+              className="text-sm border border-border-medium rounded-none bg-surface px-3 py-1.5 pr-8 text-primary placeholder:text-primary/30 focus:outline-none focus:border-[#020912]/40 w-52"
               aria-label={'\uC774\uB984 \uB610\uB294 ID\uB85C \uAC80\uC0C9'}
             />
             {filters.searchQuery !== '' && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#020912]/30 hover:text-[#020912]/60 transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary/60 transition-colors"
                 aria-label={'\uAC80\uC0C9\uC5B4 \uC9C0\uC6B0\uAE30'}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -412,7 +412,7 @@ export default function AdminDashboardPage() {
             )}
           </div>
 
-          <label className="text-xs font-medium text-[#020912]/60">{'\uC774\uBCA4\uD2B8'}:</label>
+          <label className="text-xs font-medium text-primary/60">{'\uC774\uBCA4\uD2B8'}:</label>
           <EventFilter value={filters.eventFilter} onChange={setEventFilter} />
         </div>
 
@@ -437,7 +437,7 @@ export default function AdminDashboardPage() {
 
         {/* Content: loading / error / table / gallery */}
         {reqLoading ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-text-secondary">
             <svg
               className="animate-spin h-5 w-5 mx-auto mb-2"
               xmlns="http://www.w3.org/2000/svg"
@@ -452,10 +452,10 @@ export default function AdminDashboardPage() {
           </div>
         ) : reqError ? (
           <div className="text-center py-12" role="alert">
-            <p className="text-red-600 text-sm">{reqError}</p>
+            <p className="text-error text-sm">{reqError}</p>
           </div>
         ) : viewMode === 'table' ? (
-          <div className="bg-white border border-[rgba(2,9,18,0.15)]">
+          <div className="bg-surface border border-border-medium">
             <RequestList
               externalData={filteredRequests}
               onDeleteSuccess={handleDeleteSuccess}

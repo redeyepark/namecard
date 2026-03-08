@@ -23,7 +23,7 @@ export default function MemberCard({
   }
 
   return (
-    <div className="border border-[rgba(2,9,18,0.1)] bg-white p-4">
+    <div className="border border-primary/10 bg-surface p-4">
       <div className="flex items-center gap-3 mb-2">
         {member.avatarUrl ? (
           <img
@@ -32,22 +32,22 @@ export default function MemberCard({
             className="w-12 h-12 rounded-full object-cover"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-[#020912]/10 flex items-center justify-center text-sm font-semibold text-[#020912]/60">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary/60">
             {member.displayName.charAt(0)}
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-[#020912] truncate">
+          <p className="text-sm font-semibold text-primary truncate">
             {member.displayName}
           </p>
-          <p className="text-xs text-[#020912]/40">
+          <p className="text-xs text-primary/40">
             {'\uba85\ud568 '}{member.cardCount}{'\uac1c'}
           </p>
         </div>
       </div>
 
       {member.bio && (
-        <p className="text-xs text-[#020912]/60 line-clamp-2 mb-1">
+        <p className="text-xs text-primary/60 line-clamp-2 mb-1">
           {member.bio}
         </p>
       )}
@@ -58,8 +58,8 @@ export default function MemberCard({
         onClick={() => onRequestClick(member)}
         className={`w-full mt-3 py-2 text-xs font-medium border transition-colors duration-150 ${
           disabled
-            ? 'border-[#020912]/20 text-[#020912]/30 cursor-not-allowed'
-            : 'border-[#020912] text-[#020912] hover:bg-[#020912] hover:text-[#fcfcfc]'
+            ? 'border-primary/20 text-primary/30 cursor-not-allowed'
+            : 'border-primary text-primary hover:bg-primary hover:text-secondary'
         }`}
       >
         {buttonLabel}

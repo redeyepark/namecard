@@ -14,7 +14,7 @@ export function TabSwitch() {
 
   return (
     <div
-      className="flex gap-1 bg-[#e4f6ff] p-1 border border-[rgba(2,9,18,0.15)]"
+      className="flex gap-1 bg-accent-blue p-1 border border-border-medium"
       role="tablist"
       aria-label="Card side selection"
     >
@@ -28,8 +28,8 @@ export function TabSwitch() {
           onClick={() => setActiveSide(side)}
           className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-200 min-h-[44px] ${
             activeSide === side
-              ? 'bg-[#020912] text-[#fcfcfc]'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-primary text-secondary'
+              : 'text-text-secondary hover:text-text-primary'
           }`}
         >
           {label}

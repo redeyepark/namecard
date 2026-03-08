@@ -25,7 +25,7 @@ export function ExportButton() {
       onClick={handleExport}
       disabled={isExporting}
       aria-label={isExporting ? 'Exporting card images' : 'Download card as PNG images'}
-      className="w-full px-4 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-wait transition-colors min-h-[44px]"
+      className="w-full px-4 py-3 bg-primary text-secondary rounded-lg font-medium hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-wait transition-colors min-h-[44px]"
     >
       {isExporting ? 'Exporting...' : 'Download PNG'}
     </button>

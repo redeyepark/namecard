@@ -94,8 +94,8 @@ export function FeedFilters({
               onClick={() => handleThemeClick(tab.value)}
               className={`flex-shrink-0 px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-[#020912] text-[#fcfcfc]'
-                  : 'bg-transparent text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)]'
+                  ? 'bg-primary text-secondary'
+                  : 'bg-transparent text-primary border border-border-medium hover:border-[rgba(2,9,18,0.4)]'
               }`}
             >
               {tab.label}
@@ -110,8 +110,8 @@ export function FeedFilters({
           onClick={() => onSortChange('newest')}
           className={`px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
             currentSort === 'newest'
-              ? 'bg-[#020912] text-[#fcfcfc]'
-              : 'bg-transparent text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)]'
+              ? 'bg-primary text-secondary'
+              : 'bg-transparent text-primary border border-border-medium hover:border-[rgba(2,9,18,0.4)]'
           }`}
           aria-pressed={currentSort === 'newest'}
         >
@@ -121,8 +121,8 @@ export function FeedFilters({
           onClick={() => onSortChange('popular')}
           className={`px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
             currentSort === 'popular'
-              ? 'bg-[#020912] text-[#fcfcfc]'
-              : 'bg-transparent text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)]'
+              ? 'bg-primary text-secondary'
+              : 'bg-transparent text-primary border border-border-medium hover:border-[rgba(2,9,18,0.4)]'
           }`}
           aria-pressed={currentSort === 'popular'}
         >
@@ -146,8 +146,8 @@ export function FeedFilters({
             onClick={() => handleTagClick(null)}
             className={`flex-shrink-0 px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
               currentTag === null
-                ? 'bg-[#020912] text-[#fcfcfc]'
-                : 'bg-transparent text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)]'
+                ? 'bg-primary text-secondary'
+                : 'bg-transparent text-primary border border-border-medium hover:border-[rgba(2,9,18,0.4)]'
             }`}
           >
             #All
@@ -162,8 +162,8 @@ export function FeedFilters({
                 onClick={() => handleTagClick(tag)}
                 className={`flex-shrink-0 px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-[#020912] text-[#fcfcfc]'
-                    : 'bg-transparent text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)]'
+                    ? 'bg-primary text-secondary'
+                    : 'bg-transparent text-primary border border-border-medium hover:border-[rgba(2,9,18,0.4)]'
                 }`}
               >
                 {tag.startsWith('#') ? tag : `#${tag}`}

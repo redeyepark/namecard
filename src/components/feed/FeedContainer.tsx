@@ -150,7 +150,7 @@ export function FeedContainer({
         </div>
       ) : !loading ? (
         <div className="flex flex-col items-center justify-center py-20 sm:py-32">
-          <div className="w-16 h-16 mb-4 text-gray-300">
+          <div className="w-16 h-16 mb-4 text-text-tertiary">
             <svg
               fill="none"
               viewBox="0 0 24 24"
@@ -166,10 +166,10 @@ export function FeedContainer({
               />
             </svg>
           </div>
-          <p className="text-lg font-medium text-gray-400">
+          <p className="text-lg font-medium text-text-tertiary">
             표시할 카드가 없습니다
           </p>
-          <p className="mt-1 text-sm text-gray-400">
+          <p className="mt-1 text-sm text-text-tertiary">
             다른 필터를 선택하거나 나중에 다시 확인해주세요
           </p>
         </div>
@@ -179,7 +179,7 @@ export function FeedContainer({
       {loading && (
         <div className="flex justify-center py-8">
           <svg
-            className="animate-spin h-6 w-6 text-gray-400"
+            className="animate-spin h-6 w-6 text-text-tertiary"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -205,10 +205,10 @@ export function FeedContainer({
       {/* Error message */}
       {error && (
         <div className="text-center py-8" role="alert">
-          <p className="text-red-600 text-sm">{error}</p>
+          <p className="text-error text-sm">{error}</p>
           <button
             onClick={() => fetchCards(nextCursor, false)}
-            className="mt-2 px-4 py-1.5 text-sm font-medium text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
+            className="mt-2 px-4 py-1.5 text-sm font-medium text-primary border border-border-medium hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
           >
             다시 시도
           </button>
@@ -217,7 +217,7 @@ export function FeedContainer({
 
       {/* End of feed message */}
       {!hasMore && cards.length > 0 && !loading && (
-        <p className="text-center py-8 text-sm text-[#020912]/40">
+        <p className="text-center py-8 text-sm text-primary/40">
           더 이상 카드가 없습니다
         </p>
       )}

@@ -47,8 +47,8 @@ export function LikeButton({
   const textSize = size === 'sm' ? 'text-[11px]' : 'text-sm';
 
   // Color classes based on variant and liked state
-  const likedColor = 'text-red-500';
-  const unlikedColor = variant === 'overlay' ? 'text-white/80' : 'text-gray-500';
+  const likedColor = 'text-error';
+  const unlikedColor = variant === 'overlay' ? 'text-white/80' : 'text-text-secondary';
   const countColor = liked ? likedColor : unlikedColor;
 
   return (

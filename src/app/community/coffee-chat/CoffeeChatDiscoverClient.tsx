@@ -64,7 +64,7 @@ export function CoffeeChatDiscoverClient({
         <div className="mb-4">
           <Link
             href="/community/coffee-chat/my"
-            className="inline-flex items-center gap-1 text-sm text-[#020912]/60 hover:text-[#020912] transition-colors"
+            className="inline-flex items-center gap-1 text-sm text-primary/60 hover:text-primary transition-colors"
           >
             내 커피챗 보기
             <svg

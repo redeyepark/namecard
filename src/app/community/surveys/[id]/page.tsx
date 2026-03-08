@@ -24,12 +24,12 @@ export default async function SurveyDetailPage({ params }: PageProps) {
   const user = await getServerUser();
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc]">
-      <header className="bg-[#020912] text-[#fcfcfc]">
+    <div className="min-h-screen bg-secondary">
+      <header className="bg-primary text-secondary">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
           <Link
             href="/community/surveys"
-            className="inline-flex items-center gap-1 text-xs text-[#fcfcfc]/50 hover:text-[#fcfcfc]/80 transition-colors"
+            className="inline-flex items-center gap-1 text-xs text-secondary/50 hover:text-secondary/80 transition-colors"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />

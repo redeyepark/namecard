@@ -67,7 +67,7 @@ export default function UserMenuDropdown() {
       {/* Trigger button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-2 py-1 px-1.5 transition-colors duration-150 hover:bg-[#020912]/5"
+        className="flex items-center gap-2 py-1 px-1.5 transition-colors duration-150 hover:bg-primary/5"
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="User menu"
@@ -83,7 +83,7 @@ export default function UserMenuDropdown() {
           />
         ) : (
           <span
-            className="flex items-center justify-center w-7 h-7 bg-[#e4f6ff] text-[#020912] text-xs font-semibold"
+            className="flex items-center justify-center w-7 h-7 bg-accent-blue text-primary text-xs font-semibold"
             style={{ borderRadius: '9999px' }}
           >
             {user.name?.charAt(0)?.toUpperCase() ?? 'U'}
@@ -91,13 +91,13 @@ export default function UserMenuDropdown() {
         )}
 
         {/* Name */}
-        <span className="text-sm font-medium text-[#020912] hidden sm:inline max-w-[120px] truncate">
+        <span className="text-sm font-medium text-primary hidden sm:inline max-w-[120px] truncate">
           {user.name}
         </span>
 
         {/* Admin badge */}
         {isAdmin && (
-          <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#fcfcfc] bg-[#020912]">
+          <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary bg-primary">
             Admin
           </span>
         )}
@@ -110,7 +110,7 @@ export default function UserMenuDropdown() {
           fill="none"
           strokeWidth={2}
           stroke="currentColor"
-          className={`text-[#020912]/40 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
+          className={`text-primary/40 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
           aria-hidden="true"
         >
           <path
@@ -125,7 +125,7 @@ export default function UserMenuDropdown() {
       <div
         className={`
           absolute right-0 top-full mt-1 w-48 z-50
-          bg-white border shadow-lg
+          bg-surface border border-border-medium shadow-lg
           transition-all duration-150 origin-top-right
           ${
             isOpen
@@ -133,7 +133,6 @@ export default function UserMenuDropdown() {
               : 'opacity-0 -translate-y-1 pointer-events-none'
           }
         `}
-        style={{ borderColor: 'rgba(2, 9, 18, 0.1)' }}
         role="menu"
         aria-orientation="vertical"
       >
@@ -144,7 +143,7 @@ export default function UserMenuDropdown() {
               href={item.href}
               onClick={close}
               role="menuitem"
-              className="block w-full text-left px-4 py-2.5 text-sm text-[#020912] hover:bg-[#020912]/5 transition-colors duration-100"
+              className="block w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-primary/5 transition-colors duration-100"
             >
               {item.label}
             </Link>
@@ -152,8 +151,7 @@ export default function UserMenuDropdown() {
 
           {/* Separator */}
           <div
-            className="my-1 border-t"
-            style={{ borderColor: 'rgba(2, 9, 18, 0.1)' }}
+            className="my-1 border-t border-border-medium"
             role="separator"
           />
 
@@ -164,7 +162,7 @@ export default function UserMenuDropdown() {
               signOut();
             }}
             role="menuitem"
-            className="block w-full text-left px-4 py-2.5 text-sm text-[#020912]/60 hover:bg-[#020912]/5 hover:text-[#020912] transition-colors duration-100"
+            className="block w-full text-left px-4 py-2.5 text-sm text-primary/60 hover:bg-primary/5 hover:text-primary transition-colors duration-100"
           >
             {'\uB85C\uADF8\uC544\uC6C3'}
           </button>

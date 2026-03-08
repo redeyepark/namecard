@@ -105,37 +105,37 @@ export function FeedCardThumbnail({ card }: FeedCardThumbnailProps) {
         {/* Text below image */}
         <div className="pt-2.5 pb-1 font-[family-name:var(--font-figtree),sans-serif]">
           {/* Display name */}
-          <p className="text-sm font-medium text-[#020912] leading-snug truncate">
+          <p className="text-sm font-medium text-primary leading-snug truncate">
             {card.displayName}
           </p>
 
           {/* User info */}
           {card.userId ? (
-            <p className="text-xs text-[#020912]/40 mt-0.5 truncate">
+            <p className="text-xs text-primary/40 mt-0.5 truncate">
               <span
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   window.location.href = `/profile/${card.userId}`;
                 }}
-                className="cursor-pointer hover:text-[#020912]/60 transition-colors"
+                className="cursor-pointer hover:text-primary/60 transition-colors"
               >
                 {card.userDisplayName || 'Anonymous'}
               </span>
               {card.likeCount > 0 && (
-                <span className="ml-2 text-[#020912]/30">
+                <span className="ml-2 text-primary/30">
                   {card.likeCount}
                 </span>
               )}
             </p>
           ) : (
-            <p className="text-xs text-[#020912]/30 mt-0.5">
+            <p className="text-xs text-primary/30 mt-0.5">
               Anonymous
             </p>
           )}
 
           {/* Theme label */}
-          <p className="text-[10px] text-[#020912]/30 uppercase tracking-wide mt-1">
+          <p className="text-[10px] text-primary/30 uppercase tracking-wide mt-1">
             {config.label}
           </p>
         </div>

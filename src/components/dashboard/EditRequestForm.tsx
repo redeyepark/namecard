@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from 'react';
 import type { CardRequest } from '@/types/request';
 import type { SocialLink } from '@/types/card';
+import { Button, Input, Textarea, Select } from '@/components/ui';
 
 interface EditRequestFormProps {
   request: CardRequest & { originalAvatarUrl: string | null };
@@ -138,65 +139,59 @@ export function EditRequestForm({ request, onSave, onCancel }: EditRequestFormPr
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-lg font-bold text-gray-900">요청 수정</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-lg font-bold text-text-primary">요청 수정</h1>
+        <p className="text-sm text-text-secondary mt-1">
           카드 정보를 수정한 후 저장하세요.
         </p>
       </div>
 
       {/* Display name */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">
-          표시 이름
-        </label>
-        <input
+      <div className="bg-surface rounded-xl p-4 border border-bg">
+        <Input
           id="displayName"
+          label="표시 이름"
           type="text"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           maxLength={40}
           required
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+          helperText={`${displayName.length}/40`}
+          className="min-h-[44px]"
         />
-        <p className="text-xs text-gray-400 mt-1">{displayName.length}/40</p>
       </div>
 
       {/* Full name */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-          전체 이름
-        </label>
-        <input
+      <div className="bg-surface rounded-xl p-4 border border-bg">
+        <Input
           id="fullName"
+          label="전체 이름"
           type="text"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           maxLength={50}
           required
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+          helperText={`${fullName.length}/50`}
+          className="min-h-[44px]"
         />
-        <p className="text-xs text-gray-400 mt-1">{fullName.length}/50</p>
       </div>
 
       {/* Title */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-          직함
-        </label>
-        <input
+      <div className="bg-surface rounded-xl p-4 border border-bg">
+        <Input
           id="title"
+          label="직함"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={80}
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+          helperText={`${title.length}/80`}
+          className="min-h-[44px]"
         />
-        <p className="text-xs text-gray-400 mt-1">{title.length}/80</p>
       </div>
 
       {/* Hashtags */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="bg-surface rounded-xl p-4 border border-bg">
+        <label className="block text-sm font-medium text-text-primary mb-2">
           해시태그
         </label>
 
@@ -205,13 +200,13 @@ export function EditRequestForm({ request, onSave, onCancel }: EditRequestFormPr
             {hashtags.map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-bg text-text-primary rounded-full text-sm"
               >
                 {tag}
                 <button
                   type="button"
                   onClick={() => handleRemoveHashtag(index)}
-                  className="text-gray-400 hover:text-red-500 transition-colors p-0.5"
+                  className="text-text-tertiary hover:text-error transition-colors p-0.5"
                   aria-label={`${tag} 삭제`}
                 >
                   <svg
@@ -235,75 +230,75 @@ export function EditRequestForm({ request, onSave, onCancel }: EditRequestFormPr
         )}
 
         <div className="flex gap-2">
-          <input
+          <Input
             type="text"
             value={hashtagInput}
             onChange={(e) => setHashtagInput(e.target.value)}
             onKeyDown={handleHashtagKeyDown}
             placeholder="#태그"
             maxLength={30}
-            className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+            className="min-h-[44px]"
             aria-label="해시태그 입력"
           />
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="md"
             onClick={handleAddHashtag}
-            className="px-4 py-2.5 bg-gray-800 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors min-h-[44px]"
+            className="min-h-[44px]"
           >
             추가
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Social links */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="bg-surface rounded-xl p-4 border border-bg">
+        <label className="block text-sm font-medium text-text-primary mb-2">
           소셜 링크
         </label>
 
         {socialLinks.length > 0 && (
           <div className="space-y-3 mb-3">
             {socialLinks.map((link, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-3 space-y-2">
+              <div key={index} className="border border-divider rounded-lg p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-500">링크 {index + 1}</span>
+                  <span className="text-xs font-medium text-text-secondary">링크 {index + 1}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveSocialLink(index)}
-                    className="text-xs text-red-600 hover:text-red-700 transition-colors px-2 py-1"
+                    className="text-xs text-error hover:text-error/80 transition-colors px-2 py-1"
                     aria-label={`링크 ${index + 1} 삭제`}
                   >
                     삭제
                   </button>
                 </div>
-                <select
+                <Select
                   value={link.platform}
                   onChange={(e) =>
                     handleUpdateSocialLink(index, 'platform', e.target.value)
                   }
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+                  options={PLATFORM_OPTIONS.map((opt) => ({
+                    value: opt.value,
+                    label: opt.label,
+                  }))}
+                  className="min-h-[44px]"
                   aria-label={`링크 ${index + 1} 플랫폼`}
-                >
-                  {PLATFORM_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <input
+                />
+                <Input
                   type="text"
                   value={link.url}
                   onChange={(e) => handleUpdateSocialLink(index, 'url', e.target.value)}
                   placeholder="URL 또는 이메일"
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+                  className="min-h-[44px]"
                   aria-label={`링크 ${index + 1} URL`}
                 />
-                <input
+                <Input
                   type="text"
                   value={link.label}
                   onChange={(e) => handleUpdateSocialLink(index, 'label', e.target.value)}
                   placeholder="표시 라벨 (선택)"
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+                  className="min-h-[44px]"
                   aria-label={`링크 ${index + 1} 라벨`}
                 />
               </div>
@@ -311,63 +306,69 @@ export function EditRequestForm({ request, onSave, onCancel }: EditRequestFormPr
           </div>
         )}
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="md"
           onClick={handleAddSocialLink}
-          className="w-full px-4 py-2.5 border border-dashed border-gray-300 text-gray-600 text-sm rounded-lg hover:border-gray-400 hover:text-gray-700 transition-colors min-h-[44px]"
+          className="w-full border border-dashed border-border-medium text-text-secondary hover:border-primary/40 hover:text-text-primary min-h-[44px]"
         >
           + 링크 추가
-        </button>
+        </Button>
       </div>
 
       {/* Note */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100">
-        <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">
-          메모
-        </label>
-        <textarea
+      <div className="bg-surface rounded-xl p-4 border border-bg">
+        <Textarea
           id="note"
+          label="메모"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={3}
           placeholder="추가 요청 사항을 입력하세요"
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+          className="resize-y"
         />
       </div>
 
       {/* Error */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="p-3 bg-error/5 border border-error/20 rounded-lg" role="alert">
+          <p className="text-sm text-error">{error}</p>
         </div>
       )}
 
       {/* Actions */}
       <div className="flex gap-3">
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          size="lg"
           disabled={saving || !displayName.trim() || !fullName.trim()}
           onClick={() => { confirmRef.current = false; }}
-          className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="min-h-[44px]"
         >
           {saving ? '저장 중...' : '저장'}
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
+          variant="primary"
+          size="lg"
           disabled={saving || !displayName.trim() || !fullName.trim()}
           onClick={() => { confirmRef.current = true; }}
-          className="px-6 py-2.5 text-sm font-medium text-white bg-[#2d8c3c] rounded-lg hover:bg-[#246e30] transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-success hover:bg-success/90 min-h-[44px]"
         >
           {saving ? '처리 중...' : '저장 후 확정'}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
+          size="lg"
           onClick={onCancel}
           disabled={saving}
-          className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px] disabled:opacity-50"
+          className="min-h-[44px]"
         >
           취소
-        </button>
+        </Button>
       </div>
     </form>
   );

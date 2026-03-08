@@ -1,6 +1,7 @@
 'use client';
 
 import { useCardStore } from '@/stores/useCardStore';
+import { Button } from '@/components/ui';
 
 export function ExpInput() {
   const exp = useCardStore((state) => state.card.pokemonMeta?.exp ?? 100);
@@ -26,19 +27,20 @@ export function ExpInput() {
     <div className="space-y-3">
       <label
         htmlFor="pokemon-exp"
-        className="block text-sm font-medium text-gray-700"
+        className="block text-sm font-medium text-text-primary"
       >
         EXP
       </label>
       <div className="flex items-center gap-2">
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={decrement}
           aria-label="Decrease EXP by 10"
-          className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-400 transition-colors text-lg font-medium"
+          className="w-10 h-10 text-lg"
         >
           -
-        </button>
+        </Button>
         <input
           id="pokemon-exp"
           type="number"
@@ -46,16 +48,17 @@ export function ExpInput() {
           max={999}
           value={exp}
           onChange={handleChange}
-          className="w-20 px-3 py-2.5 border border-gray-300 rounded-md text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-20 px-3 py-2.5 border border-border-medium rounded-radius-md text-center text-sm bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring min-h-[44px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={increment}
           aria-label="Increase EXP by 10"
-          className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-400 transition-colors text-lg font-medium"
+          className="w-10 h-10 text-lg"
         >
           +
-        </button>
+        </Button>
       </div>
     </div>
   );

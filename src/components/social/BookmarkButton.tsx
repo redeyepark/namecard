@@ -34,7 +34,7 @@ export function BookmarkButton({ cardId, initialBookmarked }: BookmarkButtonProp
       onClick={handleClick}
       disabled={isLoading}
       className={`inline-flex items-center transition-colors duration-150 disabled:opacity-70 ${
-        bookmarked ? 'text-[#020912]' : 'text-gray-400 hover:text-gray-600'
+        bookmarked ? 'text-primary' : 'text-text-tertiary hover:text-text-secondary'
       }`}
       aria-label={bookmarked ? '북마크 해제' : '북마크'}
     >

@@ -46,7 +46,7 @@ export function StepNavigation({ canProceed, onNext, onPrev }: StepNavigationPro
         <button
           type="button"
           onClick={handlePrev}
-          className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
+          className="px-5 py-2.5 text-sm font-medium text-text-primary bg-surface border border-border-medium rounded-lg hover:bg-bg transition-colors min-h-[44px]"
         >
           이전
         </button>
@@ -56,10 +56,10 @@ export function StepNavigation({ canProceed, onNext, onPrev }: StepNavigationPro
       <button
         type="button"
         onClick={handleNext}
-        className={`px-6 py-2.5 text-sm font-medium text-white rounded-lg transition-colors min-h-[44px] ${
+        className={`px-6 py-2.5 text-sm font-medium text-secondary rounded-lg transition-colors min-h-[44px] ${
           canProceed
-            ? 'bg-red-600 hover:bg-red-700'
-            : 'bg-red-400 hover:bg-red-500'
+            ? 'bg-error hover:bg-error/90'
+            : 'bg-error/60 hover:bg-error/70'
         }`}
       >
         {isLastContentStep ? '의뢰' : '다음'}

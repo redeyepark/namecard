@@ -14,7 +14,7 @@ export function AdminLogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+      className="text-sm text-text-secondary hover:text-text-primary transition-colors"
     >
       로그아웃
     </button>

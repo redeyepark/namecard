@@ -36,15 +36,15 @@ export function CardCompare({
       <div className="grid grid-cols-2 gap-4">
         {/* Original avatar */}
         <div>
-          <p className="text-xs font-medium text-gray-500 mb-2 text-center">
+          <p className="text-xs font-medium text-text-secondary mb-2 text-center">
             원본 사진
           </p>
-          <div className="aspect-[29/45] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+          <div className="aspect-[29/45] rounded-lg overflow-hidden border border-border-medium bg-bg flex items-center justify-center">
             {transformedAvatarUrl ? (
               avatarLoadError ? (
                 <div className="text-center px-2">
-                  <p className="text-xs text-red-500 font-medium mb-1">이미지 로드 실패</p>
-                  <p className="text-xs text-gray-400 break-all">{originalAvatarUrl}</p>
+                  <p className="text-xs text-error font-medium mb-1">이미지 로드 실패</p>
+                  <p className="text-xs text-text-tertiary break-all">{originalAvatarUrl}</p>
                 </div>
               ) : (
                 <img
@@ -56,7 +56,7 @@ export function CardCompare({
                 />
               )
             ) : (
-              <p className="text-xs text-gray-400 text-center px-2">
+              <p className="text-xs text-text-tertiary text-center px-2">
                 업로드된 사진 없음
               </p>
             )}
@@ -65,15 +65,15 @@ export function CardCompare({
 
         {/* Illustration */}
         <div>
-          <p className="text-xs font-medium text-gray-500 mb-2 text-center">
+          <p className="text-xs font-medium text-text-secondary mb-2 text-center">
             일러스트
           </p>
-          <div className="aspect-[29/45] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+          <div className="aspect-[29/45] rounded-lg overflow-hidden border border-border-medium bg-bg flex items-center justify-center">
             {illustrationSrc ? (
               illustrationLoadError ? (
                 <div className="text-center px-2">
-                  <p className="text-xs text-red-500 font-medium mb-1">이미지 로드 실패</p>
-                  <p className="text-xs text-gray-400 break-all">{illustrationSrc}</p>
+                  <p className="text-xs text-error font-medium mb-1">이미지 로드 실패</p>
+                  <p className="text-xs text-text-tertiary break-all">{illustrationSrc}</p>
                 </div>
               ) : (
                 <img
@@ -85,7 +85,7 @@ export function CardCompare({
                 />
               )
             ) : (
-              <p className="text-xs text-gray-400 text-center px-2">
+              <p className="text-xs text-text-tertiary text-center px-2">
                 아직 없음
               </p>
             )}
@@ -94,30 +94,30 @@ export function CardCompare({
       </div>
 
       {/* Debug info toggle and display */}
-      <div className="border-t border-gray-200 pt-3">
+      <div className="border-t border-border-medium pt-3">
         <button
           type="button"
           onClick={() => setShowDebugInfo(!showDebugInfo)}
-          className="text-xs text-gray-500 hover:text-gray-700 font-medium"
+          className="text-xs text-text-secondary hover:text-primary font-medium"
         >
           {showDebugInfo ? '▼' : '▶'} 디버그 정보
         </button>
         {showDebugInfo && (
-          <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200 text-xs space-y-2">
+          <div className="mt-2 p-2 bg-bg rounded border border-border-medium text-xs space-y-2">
             <div>
-              <p className="text-gray-600 font-medium">원본 사진 URL:</p>
+              <p className="text-text-secondary font-medium">원본 사진 URL:</p>
               {originalAvatarUrl ? (
-                <p className="text-gray-700 break-all font-mono">{originalAvatarUrl}</p>
+                <p className="text-text-primary break-all font-mono">{originalAvatarUrl}</p>
               ) : (
-                <p className="text-gray-400">없음</p>
+                <p className="text-text-tertiary">없음</p>
               )}
             </div>
             <div>
-              <p className="text-gray-600 font-medium">일러스트 URL:</p>
+              <p className="text-text-secondary font-medium">일러스트 URL:</p>
               {illustrationSrc ? (
-                <p className="text-gray-700 break-all font-mono">{illustrationSrc}</p>
+                <p className="text-text-primary break-all font-mono">{illustrationSrc}</p>
               ) : (
-                <p className="text-gray-400">없음</p>
+                <p className="text-text-tertiary">없음</p>
               )}
             </div>
           </div>

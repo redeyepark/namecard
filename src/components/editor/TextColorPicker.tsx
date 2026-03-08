@@ -15,7 +15,7 @@ export function TextColorPicker({ color, onChange }: TextColorPickerProps) {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-text-primary">
         텍스트 컬러
       </label>
       <div className="flex gap-4">
@@ -33,16 +33,16 @@ export function TextColorPicker({ color, onChange }: TextColorPickerProps) {
               <div
                 className={`w-10 h-10 rounded-full border-2 transition-all ${
                   isSelected
-                    ? 'ring-2 ring-offset-2 ring-[#020912] border-[#020912] scale-110'
-                    : 'border-gray-300 hover:border-gray-400 hover:scale-105'
+                    ? 'ring-2 ring-offset-2 ring-primary border-primary scale-110'
+                    : 'border-border-medium hover:border-border-medium hover:scale-105'
                 }`}
                 style={{ backgroundColor: preset.hex }}
               />
               <span
                 className={`text-xs leading-tight text-center ${
                   isSelected
-                    ? 'font-semibold text-[#020912]'
-                    : 'text-gray-500 group-hover:text-gray-700'
+                    ? 'font-semibold text-primary'
+                    : 'text-text-secondary group-hover:text-text-primary'
                 }`}
               >
                 {preset.label}

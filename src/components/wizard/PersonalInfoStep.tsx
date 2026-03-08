@@ -24,14 +24,14 @@ export function PersonalInfoStep({ showError }: PersonalInfoStepProps) {
 
   return (
     <section aria-label="Personal information">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">기본 정보 입력</h2>
+      <h2 className="text-lg font-semibold text-primary mb-4">기본 정보 입력</h2>
 
       <div className="space-y-4">
         {/* Display Name (required) */}
         <div>
           <label
             htmlFor="wizard-display-name"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-text-primary mb-1"
           >
             표시 이름 *
           </label>
@@ -46,14 +46,14 @@ export function PersonalInfoStep({ showError }: PersonalInfoStepProps) {
             aria-required="true"
             aria-invalid={shouldShowError}
             aria-describedby={shouldShowError ? 'display-name-error' : undefined}
-            className={`w-full px-3 py-2.5 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px] ${
+            className={`w-full px-3 py-2.5 border rounded-md text-sm focus:outline-none focus:ring-2 focus-visible:ring-focus-ring min-h-[44px] ${
               shouldShowError
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-gray-300'
+                ? 'border-error focus-visible:ring-error'
+                : 'border-border-medium'
             }`}
           />
           {shouldShowError && (
-            <p id="display-name-error" className="mt-1 text-sm text-red-600" role="alert">
+            <p id="display-name-error" className="mt-1 text-sm text-error" role="alert">
               필수 입력 항목입니다
             </p>
           )}
@@ -63,7 +63,7 @@ export function PersonalInfoStep({ showError }: PersonalInfoStepProps) {
         <div>
           <label
             htmlFor="wizard-full-name"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-text-primary mb-1"
           >
             전체 이름
           </label>
@@ -74,7 +74,7 @@ export function PersonalInfoStep({ showError }: PersonalInfoStepProps) {
             onChange={(e) => updateBack({ fullName: e.target.value })}
             maxLength={50}
             placeholder="실명 (선택 사항)"
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+            className="w-full px-3 py-2.5 border border-border-medium rounded-md text-sm focus:outline-none focus:ring-2 focus-visible:ring-focus-ring min-h-[44px]"
           />
         </div>
 
@@ -82,7 +82,7 @@ export function PersonalInfoStep({ showError }: PersonalInfoStepProps) {
         <div>
           <label
             htmlFor="wizard-title"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-text-primary mb-1"
           >
             직함 / 역할
           </label>
@@ -93,7 +93,7 @@ export function PersonalInfoStep({ showError }: PersonalInfoStepProps) {
             onChange={(e) => updateBack({ title: e.target.value })}
             maxLength={80}
             placeholder="예: Software Engineer"
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+            className="w-full px-3 py-2.5 border border-border-medium rounded-md text-sm focus:outline-none focus:ring-2 focus-visible:ring-focus-ring min-h-[44px]"
           />
         </div>
       </div>

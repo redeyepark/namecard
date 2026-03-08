@@ -113,15 +113,15 @@ function CloseIcon() {
 }
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
-  success: 'bg-green-50 border-green-300 text-green-900',
-  error: 'bg-red-50 border-red-300 text-red-900',
-  info: 'bg-blue-50 border-blue-300 text-blue-900',
+  success: 'bg-success/10 border-success/30 text-success',
+  error: 'bg-error/10 border-error/30 text-error',
+  info: 'bg-info/10 border-info/30 text-info',
 };
 
 const VARIANT_ICON_STYLES: Record<ToastVariant, string> = {
-  success: 'text-green-600',
-  error: 'text-red-600',
-  info: 'text-blue-600',
+  success: 'text-success',
+  error: 'text-error',
+  info: 'text-info',
 };
 
 const VARIANT_ICONS: Record<ToastVariant, () => React.JSX.Element> = {

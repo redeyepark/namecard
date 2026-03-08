@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import type { MeetingPreference } from '@/types/coffee-chat';
 import { MEETING_PREFERENCE_LABELS } from '@/types/coffee-chat';
+import { Modal, Button } from '@/components/ui';
 
 interface CoffeeChatRequestModalProps {
   isOpen: boolean;
@@ -36,8 +37,6 @@ export default function CoffeeChatRequestModal({
   const [submitting, setSubmitting] = useState(false);
   const [attempted, setAttempted] = useState(false);
 
-  if (!isOpen) return null;
-
   const isMessageTooShort = message.length < MESSAGE_MIN;
   const isMessageTooLong = message.length > MESSAGE_MAX;
   const isValid = !isMessageTooShort && !isMessageTooLong;
@@ -65,131 +64,111 @@ export default function CoffeeChatRequestModal({
     }
   };
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      onClick={handleOverlayClick}
-    >
-      <div className="bg-[#fcfcfc] max-w-[480px] w-full mx-4 p-6">
-        {/* Title */}
-        <h2 className="text-lg font-semibold font-[family-name:var(--font-figtree),sans-serif] text-[var(--color-primary)] mb-4">
-          커피챗 신청
-        </h2>
+    <Modal open={isOpen} onClose={onClose} title="커피챗 신청" size="md">
+      {/* Target info */}
+      <div className="flex items-center gap-2 mb-5">
+        {targetAvatarUrl ? (
+          <Image
+            src={targetAvatarUrl}
+            alt={targetDisplayName}
+            width={32}
+            height={32}
+            className="rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
+            {targetDisplayName.charAt(0)}
+          </div>
+        )}
+        <span className="text-sm text-primary">
+          {targetDisplayName} 님에게
+        </span>
+      </div>
 
-        {/* Target info */}
-        <div className="flex items-center gap-2 mb-5">
-          {targetAvatarUrl ? (
-            <Image
-              src={targetAvatarUrl}
-              alt={targetDisplayName}
-              width={32}
-              height={32}
-              className="rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-[#020912]/10 flex items-center justify-center text-xs font-medium text-[#020912]">
-              {targetDisplayName.charAt(0)}
-            </div>
+      <form onSubmit={handleSubmit}>
+        {/* Message textarea */}
+        <div className="mb-4">
+          <label
+            htmlFor="coffee-chat-message"
+            className="block text-sm font-medium text-primary mb-1"
+          >
+            메시지 *
+          </label>
+          <textarea
+            id="coffee-chat-message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="자기소개와 만남 목적을 작성해주세요..."
+            maxLength={MESSAGE_MAX}
+            rows={5}
+            className="w-full border border-border-medium bg-transparent px-3 py-2 text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary resize-none"
+          />
+          <div className="flex justify-end mt-1">
+            <span
+              className={`text-xs ${
+                attempted && isMessageTooShort
+                  ? 'text-error'
+                  : 'text-primary/40'
+              }`}
+            >
+              {message.length}/{MESSAGE_MAX}자
+            </span>
+          </div>
+          {attempted && isMessageTooShort && (
+            <p className="text-xs text-error mt-0.5">
+              최소 {MESSAGE_MIN}자 이상 작성해주세요
+            </p>
           )}
-          <span className="text-sm text-[var(--color-primary)]">
-            {targetDisplayName} 님에게
-          </span>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* Message textarea */}
-          <div className="mb-4">
-            <label
-              htmlFor="coffee-chat-message"
-              className="block text-sm font-medium text-[var(--color-primary)] mb-1"
-            >
-              메시지 *
-            </label>
-            <textarea
-              id="coffee-chat-message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="자기소개와 만남 목적을 작성해주세요..."
-              maxLength={MESSAGE_MAX}
-              rows={5}
-              className="w-full border border-[#020912]/20 bg-transparent px-3 py-2 text-sm text-[var(--color-primary)] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912] resize-none"
-            />
-            <div className="flex justify-end mt-1">
-              <span
-                className={`text-xs ${
-                  attempted && isMessageTooShort
-                    ? 'text-red-500'
-                    : 'text-[#020912]/40'
-                }`}
+        {/* Meeting preference */}
+        <fieldset className="mb-6">
+          <legend className="block text-sm font-medium text-primary mb-2">
+            만남 방식 선호
+          </legend>
+          <div className="flex gap-4">
+            {MEETING_OPTIONS.map((option) => (
+              <label
+                key={option}
+                className="flex items-center gap-1.5 cursor-pointer text-sm text-primary"
               >
-                {message.length}/{MESSAGE_MAX}자
-              </span>
-            </div>
-            {attempted && isMessageTooShort && (
-              <p className="text-xs text-red-500 mt-0.5">
-                최소 {MESSAGE_MIN}자 이상 작성해주세요
-              </p>
-            )}
+                <input
+                  type="radio"
+                  name="meetingPreference"
+                  value={option}
+                  checked={meetingPreference === option}
+                  onChange={() => setMeetingPreference(option)}
+                  className="accent-primary"
+                />
+                {MEETING_PREFERENCE_LABELS[option]}
+              </label>
+            ))}
           </div>
+        </fieldset>
 
-          {/* Meeting preference */}
-          <fieldset className="mb-6">
-            <legend className="block text-sm font-medium text-[var(--color-primary)] mb-2">
-              만남 방식 선호
-            </legend>
-            <div className="flex gap-4">
-              {MEETING_OPTIONS.map((option) => (
-                <label
-                  key={option}
-                  className="flex items-center gap-1.5 cursor-pointer text-sm text-[var(--color-primary)]"
-                >
-                  <input
-                    type="radio"
-                    name="meetingPreference"
-                    value={option}
-                    checked={meetingPreference === option}
-                    onChange={() => setMeetingPreference(option)}
-                    className="accent-[#020912]"
-                  />
-                  {MEETING_PREFERENCE_LABELS[option]}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          {/* Action buttons */}
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={submitting}
-              className="border border-[#020912] bg-transparent text-[#020912] hover:bg-[#020912]/5 px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              disabled={submitting || (attempted && !isValid)}
-              className="bg-[#020912] text-[#fcfcfc] hover:opacity-90 px-4 py-2 text-sm font-medium transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? (
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 border border-[#fcfcfc] border-t-transparent rounded-full animate-spin" />
-                  신청중...
-                </span>
-              ) : (
-                '신청하기'
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {/* Action buttons */}
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            disabled={submitting}
+          >
+            취소
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            loading={submitting}
+            disabled={submitting || (attempted && !isValid)}
+          >
+            신청하기
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

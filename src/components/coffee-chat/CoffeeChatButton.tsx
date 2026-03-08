@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Button } from '@/components/ui';
 
 interface CoffeeChatButtonProps {
   targetUserId: string;
@@ -28,16 +29,17 @@ export default function CoffeeChatButton({
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-start gap-1">
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           disabled
-          className="border border-[#020912]/30 bg-transparent text-[#020912]/40 px-4 py-2 text-sm font-medium cursor-not-allowed"
         >
           ☕ 커피챗 신청
-        </button>
+        </Button>
         <Link
           href="/login"
-          className="text-xs text-[#020912]/60 underline underline-offset-2 hover:text-[#020912] transition-colors"
+          className="text-xs text-primary/60 underline underline-offset-2 hover:text-primary transition-colors"
         >
           로그인 후 커피챗을 신청하세요
         </Link>
@@ -49,16 +51,18 @@ export default function CoffeeChatButton({
   if (existingChatId) {
     return (
       <div className="flex flex-col items-start gap-1">
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           disabled
-          className="border border-[#6b7280] bg-transparent text-[#6b7280] px-4 py-2 text-sm font-medium cursor-not-allowed"
+          className="border-text-secondary text-text-secondary"
         >
           이미 요청된 커피챗이 있습니다
-        </button>
+        </Button>
         <Link
           href="/community/coffee-chat/my"
-          className="text-xs text-[#020912]/60 underline underline-offset-2 hover:text-[#020912] transition-colors"
+          className="text-xs text-primary/60 underline underline-offset-2 hover:text-primary transition-colors"
         >
           내 커피챗 보기
         </Link>
@@ -68,12 +72,14 @@ export default function CoffeeChatButton({
 
   // Default: active request button
   return (
-    <button
+    <Button
       type="button"
+      variant="secondary"
+      size="sm"
       onClick={onRequestClick}
-      className="border border-[#020912] bg-transparent hover:bg-[#020912] hover:text-[#fcfcfc] text-[#020912] px-4 py-2 text-sm font-medium transition-all"
+      className="border-primary hover:bg-primary hover:text-secondary"
     >
       ☕ 커피챗 신청
-    </button>
+    </Button>
   );
 }

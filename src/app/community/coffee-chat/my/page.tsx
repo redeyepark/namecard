@@ -18,7 +18,7 @@ export default async function MyCoffeeChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc]">
+    <div className="min-h-screen bg-secondary">
       <MyCoffeeChatClient />
     </div>
   );

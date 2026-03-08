@@ -151,18 +151,18 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
   );
 
   return (
-    <div className="bg-white border border-[rgba(2,9,18,0.15)] p-8">
+    <div className="bg-surface border border-border-medium p-8">
       {/* Success message */}
       {success && (
-        <div className="mb-6 p-3 bg-green-50 border border-green-200" role="status">
-          <p className="text-sm text-green-700">프로필이 성공적으로 저장되었습니다.</p>
+        <div className="mb-6 p-3 bg-success/10 border border-success/20" role="status">
+          <p className="text-sm text-success">프로필이 성공적으로 저장되었습니다.</p>
         </div>
       )}
 
       {/* Error message */}
       {error && (
-        <div className="mb-6 p-3 bg-red-50 border border-red-200" role="alert">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mb-6 p-3 bg-error/10 border border-error/20" role="alert">
+          <p className="text-sm text-error">{error}</p>
         </div>
       )}
 
@@ -183,12 +183,12 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
             type="button"
             onClick={handleAvatarClick}
             disabled={isAvatarUploading}
-            className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[rgba(2,9,18,0.15)] hover:border-[#020912]/40 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 disabled:opacity-50 group"
+            className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-border-medium hover:border-[#020912]/40 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:opacity-50 group"
             aria-label={resolvedAvatarSrc ? '프로필 사진 변경' : '프로필 사진 추가'}
           >
             {isAvatarUploading ? (
-              <div className="w-full h-full bg-[#fcfcfc] flex items-center justify-center">
-                <svg className="w-6 h-6 animate-spin text-[#020912]/50" fill="none" viewBox="0 0 24 24">
+              <div className="w-full h-full bg-secondary flex items-center justify-center">
+                <svg className="w-6 h-6 animate-spin text-primary/50" fill="none" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -226,7 +226,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
                 </div>
               </>
             ) : (
-              <div className="w-full h-full bg-[#fcfcfc] flex flex-col items-center justify-center text-[#020912]/30 group-hover:text-[#020912]/50 transition-colors duration-200">
+              <div className="w-full h-full bg-secondary flex flex-col items-center justify-center text-primary/30 group-hover:text-primary/50 transition-colors duration-200">
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -249,16 +249,16 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
                   type="button"
                   onClick={handleAvatarClick}
                   disabled={isAvatarUploading}
-                  className="text-xs text-[#020912]/60 hover:text-[#020912] disabled:opacity-50 transition-colors duration-200"
+                  className="text-xs text-primary/60 hover:text-primary disabled:opacity-50 transition-colors duration-200"
                 >
                   변경
                 </button>
-                <span className="text-xs text-[#020912]/20">|</span>
+                <span className="text-xs text-primary/20">|</span>
                 <button
                   type="button"
                   onClick={handleAvatarDelete}
                   disabled={isAvatarUploading}
-                  className="text-xs text-red-500/70 hover:text-red-600 disabled:opacity-50 transition-colors duration-200"
+                  className="text-xs text-error/70 hover:text-red-600 disabled:opacity-50 transition-colors duration-200"
                 >
                   삭제
                 </button>
@@ -268,7 +268,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
                 type="button"
                 onClick={handleAvatarClick}
                 disabled={isAvatarUploading}
-                className="text-xs text-[#020912]/60 hover:text-[#020912] disabled:opacity-50 transition-colors duration-200"
+                className="text-xs text-primary/60 hover:text-primary disabled:opacity-50 transition-colors duration-200"
               >
                 사진 추가
               </button>
@@ -277,7 +277,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
 
           {/* Avatar error message */}
           {avatarError && (
-            <p className="text-xs text-red-500 mt-1.5 text-center max-w-[240px]" role="alert">
+            <p className="text-xs text-error mt-1.5 text-center max-w-[240px]" role="alert">
               {avatarError}
             </p>
           )}
@@ -287,7 +287,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
         <div>
           <label
             htmlFor="profileDisplayName"
-            className="block text-sm font-medium text-[#020912]/70 mb-1"
+            className="block text-sm font-medium text-primary/70 mb-1"
           >
             표시 이름
           </label>
@@ -300,7 +300,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
             required
             maxLength={100}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent disabled:opacity-50 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent disabled:opacity-50 transition-all duration-200"
           />
         </div>
 
@@ -308,7 +308,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
         <div>
           <label
             htmlFor="profileBio"
-            className="block text-sm font-medium text-[#020912]/70 mb-1"
+            className="block text-sm font-medium text-primary/70 mb-1"
           >
             소개
           </label>
@@ -320,12 +320,12 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
             maxLength={bioMaxLength}
             rows={3}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent disabled:opacity-50 transition-all duration-200 resize-none"
+            className="w-full px-4 py-2.5 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent disabled:opacity-50 transition-all duration-200 resize-none"
           />
           <div className="flex justify-end mt-1">
             <span
               className={`text-xs ${
-                bio.length > bioMaxLength ? 'text-red-500' : 'text-[#020912]/40'
+                bio.length > bioMaxLength ? 'text-error' : 'text-primary/40'
               }`}
             >
               {bio.length}/{bioMaxLength}
@@ -336,10 +336,10 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
         {/* Public toggle */}
         <div className="flex items-center justify-between py-2">
           <div>
-            <span className="text-sm font-medium text-[#020912]/70">
+            <span className="text-sm font-medium text-primary/70">
               프로필 공개
             </span>
-            <p className="text-xs text-[#020912]/40 mt-0.5">
+            <p className="text-xs text-primary/40 mt-0.5">
               다른 사용자가 내 프로필과 카드를 볼 수 있습니다
             </p>
           </div>
@@ -350,11 +350,11 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
             onClick={() => setIsPublic(!isPublic)}
             disabled={isLoading}
             className={`relative inline-flex h-6 w-11 items-center transition-colors duration-200 disabled:opacity-50 ${
-              isPublic ? 'bg-[#020912]' : 'bg-gray-300'
+              isPublic ? 'bg-primary' : 'bg-border-medium'
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform bg-white transition-transform duration-200 ${
+              className={`inline-block h-4 w-4 transform bg-surface transition-transform duration-200 ${
                 isPublic ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
@@ -365,7 +365,7 @@ export function ProfileEditForm({ profile, onSave }: ProfileEditFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 bg-[#020912] text-[#fcfcfc] text-sm font-semibold hover:bg-[#020912]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="w-full py-3 bg-primary text-secondary text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           {isLoading ? (
             <span className="inline-flex items-center gap-2">

@@ -12,7 +12,7 @@ export function PhotoUploadStep() {
 
   return (
     <section aria-label="Photo and color settings">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">사진 및 색상</h2>
+      <h2 className="text-lg font-semibold text-primary mb-4">사진 및 색상</h2>
 
       <div className="space-y-6">
         {/* Avatar image upload */}

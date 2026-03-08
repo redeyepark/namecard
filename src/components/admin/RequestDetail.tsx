@@ -403,56 +403,56 @@ export function RequestDetail({
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-xl font-bold text-[#020912]">
+            <h1 className="text-xl font-bold text-primary">
               {request.card.front.displayName}
             </h1>
             <StatusBadge status={request.status} />
           </div>
-          <p className="text-xs font-mono text-gray-400">{request.id}</p>
+          <p className="text-xs font-mono text-text-tertiary">{request.id}</p>
         </div>
       </div>
 
       {/* Status banners */}
       {status === 'confirmed' && (
-        <div className="p-3 bg-[#dbe9e0]/50 border border-[#dbe9e0]">
-          <p className="text-sm text-[#020912] font-medium">
+        <div className="p-3 bg-accent-green/50 border border-accent-green">
+          <p className="text-sm text-primary font-medium">
             이 의뢰는 확정 완료되었습니다.
           </p>
         </div>
       )}
       {status === 'rejected' && (
-        <div className="p-3 bg-red-50 border border-red-200">
-          <p className="text-sm text-red-700 font-medium">
+        <div className="p-3 bg-error/5 border border-error/20">
+          <p className="text-sm text-error font-medium">
             이 의뢰는 반려되었습니다.
           </p>
           {latestFeedbackEntry?.adminFeedback && (
-            <p className="text-sm text-red-600 mt-1">
+            <p className="text-sm text-error mt-1">
               사유: {latestFeedbackEntry.adminFeedback}
             </p>
           )}
         </div>
       )}
       {status === 'delivered' && (
-        <div className="p-3 bg-[#e4f6ff]/50 border border-[#e4f6ff]">
-          <p className="text-sm text-[#020912] font-medium">
+        <div className="p-3 bg-accent-blue/50 border border-accent-blue">
+          <p className="text-sm text-primary font-medium">
             이 의뢰는 배송 완료되었습니다.
           </p>
         </div>
       )}
       {status === 'cancelled' && (
-        <div className="p-3 bg-gray-50 border border-gray-200">
-          <p className="text-sm text-[#020912]/60 font-medium">
+        <div className="p-3 bg-bg border border-border-medium">
+          <p className="text-sm text-primary/60 font-medium">
             이 의뢰는 사용자에 의해 취소되었습니다.
           </p>
         </div>
       )}
       {status === 'revision_requested' && (
-        <div className="p-3 bg-[#ffdfc8]/50 border border-[#ffdfc8]">
-          <p className="text-sm text-[#020912] font-medium">
+        <div className="p-3 bg-accent-peach/50 border border-accent-peach">
+          <p className="text-sm text-primary font-medium">
             사용자에게 수정을 요청한 상태입니다.
           </p>
           {latestFeedbackEntry?.adminFeedback && (
-            <p className="text-sm text-[#020912]/70 mt-1">
+            <p className="text-sm text-primary/70 mt-1">
               요청 내용: {latestFeedbackEntry.adminFeedback}
             </p>
           )}
@@ -460,8 +460,8 @@ export function RequestDetail({
       )}
 
       {/* Visibility toggle - admin can always toggle */}
-      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">공개 설정</h2>
+      <div className="bg-surface p-4 border border-border-medium">
+        <h2 className="text-sm font-medium text-text-primary mb-3">공개 설정</h2>
         <VisibilityToggle
           isPublic={request.isPublic}
           disabled={visibilityLoading}
@@ -470,13 +470,13 @@ export function RequestDetail({
       </div>
 
       {/* QR code section */}
-      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+      <div className="bg-surface p-4 border border-border-medium">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-gray-700">QR 코드</h2>
+          <h2 className="text-sm font-medium text-text-primary">QR 코드</h2>
           <button
             type="button"
             onClick={() => setShowQR(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors min-h-[44px]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-surface border border-border-medium hover:bg-accent-blue transition-colors min-h-[44px]"
           >
             <svg
               width="16"
@@ -513,8 +513,8 @@ export function RequestDetail({
       />
 
       {/* Event assignment */}
-      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">이벤트 할당</h2>
+      <div className="bg-surface p-4 border border-border-medium">
+        <h2 className="text-sm font-medium text-text-primary mb-3">이벤트 할당</h2>
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <EventSelector
@@ -530,14 +530,14 @@ export function RequestDetail({
       </div>
 
       {/* Card data */}
-      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+      <div className="bg-surface p-4 border border-border-medium">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium text-gray-700">카드 정보</h2>
+          <h2 className="text-sm font-medium text-text-primary">카드 정보</h2>
           {!isTerminal && !isEditing && (
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="px-3 py-1 text-xs font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors"
+              className="px-3 py-1 text-xs font-medium text-primary bg-surface border border-border-medium hover:bg-accent-blue transition-colors"
             >
               수정
             </button>
@@ -547,113 +547,113 @@ export function RequestDetail({
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div>
-                <label className="text-gray-500 text-xs block mb-1">표시 이름</label>
+                <label className="text-text-secondary text-xs block mb-1">표시 이름</label>
                 <input
                   type="text"
                   value={editFront.displayName}
                   onChange={(e) => setEditFront({ ...editFront, displayName: e.target.value })}
-                  className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                 />
               </div>
               <div>
-                <label className="text-gray-500 text-xs block mb-1">전체 이름</label>
+                <label className="text-text-secondary text-xs block mb-1">전체 이름</label>
                 <input
                   type="text"
                   value={editBack.fullName}
                   onChange={(e) => setEditBack({ ...editBack, fullName: e.target.value })}
-                  className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                 />
               </div>
               <div>
-                <label className="text-gray-500 text-xs block mb-1">직함</label>
+                <label className="text-text-secondary text-xs block mb-1">직함</label>
                 <input
                   type="text"
                   value={editBack.title}
                   onChange={(e) => setEditBack({ ...editBack, title: e.target.value })}
-                  className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                 />
               </div>
               <div>
-                <label className="text-gray-500 text-xs block mb-1">해시태그 (쉼표로 구분)</label>
+                <label className="text-text-secondary text-xs block mb-1">해시태그 (쉼표로 구분)</label>
                 <input
                   type="text"
                   value={editBack.hashtags.join(', ')}
                   onChange={(e) => setEditBack({ ...editBack, hashtags: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-                  className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                  className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                 />
               </div>
               <div>
-                <label className="text-gray-500 text-xs block mb-1">앞면 배경색</label>
+                <label className="text-text-secondary text-xs block mb-1">앞면 배경색</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={editFront.backgroundColor}
                     onChange={(e) => setEditFront({ ...editFront, backgroundColor: e.target.value })}
-                    className="w-8 h-8 border border-gray-200 cursor-pointer"
+                    className="w-8 h-8 border border-border-medium cursor-pointer"
                   />
                   <input
                     type="text"
                     value={editFront.backgroundColor}
                     onChange={(e) => setEditFront({ ...editFront, backgroundColor: e.target.value })}
-                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-gray-500 text-xs block mb-1">뒷면 배경색</label>
+                <label className="text-text-secondary text-xs block mb-1">뒷면 배경색</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={editBack.backgroundColor}
                     onChange={(e) => setEditBack({ ...editBack, backgroundColor: e.target.value })}
-                    className="w-8 h-8 border border-gray-200 cursor-pointer"
+                    className="w-8 h-8 border border-border-medium cursor-pointer"
                   />
                   <input
                     type="text"
                     value={editBack.backgroundColor}
                     onChange={(e) => setEditBack({ ...editBack, backgroundColor: e.target.value })}
-                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-gray-500 text-xs block mb-1">앞면 텍스트 색상</label>
+                <label className="text-text-secondary text-xs block mb-1">앞면 텍스트 색상</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={editFront.textColor}
                     onChange={(e) => setEditFront({ ...editFront, textColor: e.target.value })}
-                    className="w-8 h-8 border border-gray-200 cursor-pointer"
+                    className="w-8 h-8 border border-border-medium cursor-pointer"
                   />
                   <input
                     type="text"
                     value={editFront.textColor}
                     onChange={(e) => setEditFront({ ...editFront, textColor: e.target.value })}
-                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-gray-500 text-xs block mb-1">뒷면 텍스트 색상</label>
+                <label className="text-text-secondary text-xs block mb-1">뒷면 텍스트 색상</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={editBack.textColor}
                     onChange={(e) => setEditBack({ ...editBack, textColor: e.target.value })}
-                    className="w-8 h-8 border border-gray-200 cursor-pointer"
+                    className="w-8 h-8 border border-border-medium cursor-pointer"
                   />
                   <input
                     type="text"
                     value={editBack.textColor}
                     onChange={(e) => setEditBack({ ...editBack, textColor: e.target.value })}
-                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                    className="flex-1 px-2 py-1.5 text-xs font-mono border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
               </div>
             </div>
             {/* Theme selector */}
-            <div className="sm:col-span-2 pt-2 border-t border-gray-100">
-              <label className="text-gray-500 text-xs block mb-2">테마</label>
+            <div className="sm:col-span-2 pt-2 border-t border-divider">
+              <label className="text-text-secondary text-xs block mb-2">테마</label>
               <div className="flex gap-2">
                 {(['classic', 'pokemon', 'hearthstone', 'harrypotter', 'tarot', 'nametag'] as CardTheme[]).map((themeOption) => (
                   <button
@@ -662,8 +662,8 @@ export function RequestDetail({
                     onClick={() => setEditTheme(themeOption)}
                     className={`px-4 py-2 text-sm font-medium border transition-colors ${
                       editTheme === themeOption
-                        ? 'border-[#020912] bg-[#020912] text-[#fcfcfc]'
-                        : 'border-[rgba(2,9,18,0.15)] bg-white text-[#020912] hover:bg-[#e4f6ff]'
+                        ? 'border-primary bg-primary text-secondary'
+                        : 'border-[rgba(2,9,18,0.15)] bg-white text-primary hover:bg-accent-blue'
                     }`}
                   >
                     {themeOption === 'classic' ? 'Classic' : themeOption === 'pokemon' ? 'Pokemon' : themeOption === 'hearthstone' ? 'Hearthstone' : themeOption === 'harrypotter' ? 'Harry Potter' : 'Tarot'}
@@ -675,13 +675,13 @@ export function RequestDetail({
             {editTheme === 'pokemon' && (
               <>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Pokemon Type</label>
+                  <label className="text-text-secondary text-xs block mb-1">Pokemon Type</label>
                   <select
                     value={editPokemonMeta.type}
                     onChange={(e) =>
                       setEditPokemonMeta({ ...editPokemonMeta, type: e.target.value as PokemonType })
                     }
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   >
                     {POKEMON_TYPES.map((t) => (
                       <option key={t.id} value={t.id}>
@@ -691,7 +691,7 @@ export function RequestDetail({
                   </select>
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">EXP (0-999)</label>
+                  <label className="text-text-secondary text-xs block mb-1">EXP (0-999)</label>
                   <input
                     type="number"
                     min={0}
@@ -703,7 +703,7 @@ export function RequestDetail({
                         setEditPokemonMeta({ ...editPokemonMeta, exp: Math.max(0, Math.min(999, val)) });
                       }
                     }}
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </>
@@ -712,13 +712,13 @@ export function RequestDetail({
             {editTheme === 'hearthstone' && (
               <>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Hearthstone Class</label>
+                  <label className="text-text-secondary text-xs block mb-1">Hearthstone Class</label>
                   <select
                     value={editHearthstoneMeta.classType}
                     onChange={(e) =>
                       setEditHearthstoneMeta({ ...editHearthstoneMeta, classType: e.target.value as HearthstoneClass })
                     }
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   >
                     {HEARTHSTONE_CLASSES.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -728,7 +728,7 @@ export function RequestDetail({
                   </select>
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Mana (0-10)</label>
+                  <label className="text-text-secondary text-xs block mb-1">Mana (0-10)</label>
                   <input
                     type="number"
                     min={0}
@@ -740,11 +740,11 @@ export function RequestDetail({
                         setEditHearthstoneMeta({ ...editHearthstoneMeta, mana: Math.max(0, Math.min(10, val)) });
                       }
                     }}
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Attack (0-12)</label>
+                  <label className="text-text-secondary text-xs block mb-1">Attack (0-12)</label>
                   <input
                     type="number"
                     min={0}
@@ -756,11 +756,11 @@ export function RequestDetail({
                         setEditHearthstoneMeta({ ...editHearthstoneMeta, attack: Math.max(0, Math.min(12, val)) });
                       }
                     }}
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Health (1-12)</label>
+                  <label className="text-text-secondary text-xs block mb-1">Health (1-12)</label>
                   <input
                     type="number"
                     min={1}
@@ -772,7 +772,7 @@ export function RequestDetail({
                         setEditHearthstoneMeta({ ...editHearthstoneMeta, health: Math.max(1, Math.min(12, val)) });
                       }
                     }}
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </>
@@ -781,13 +781,13 @@ export function RequestDetail({
             {editTheme === 'harrypotter' && (
               <>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">House</label>
+                  <label className="text-text-secondary text-xs block mb-1">House</label>
                   <select
                     value={editHarrypotterMeta.house}
                     onChange={(e) =>
                       setEditHarrypotterMeta({ ...editHarrypotterMeta, house: e.target.value as HarrypotterHouse })
                     }
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   >
                     {HARRYPOTTER_HOUSES.map((h) => (
                       <option key={h.id} value={h.id}>
@@ -797,7 +797,7 @@ export function RequestDetail({
                   </select>
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Year (1-7)</label>
+                  <label className="text-text-secondary text-xs block mb-1">Year (1-7)</label>
                   <input
                     type="number"
                     min={1}
@@ -809,11 +809,11 @@ export function RequestDetail({
                         setEditHarrypotterMeta({ ...editHarrypotterMeta, year: Math.max(1, Math.min(7, val)) });
                       }
                     }}
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Spell Power (0-999)</label>
+                  <label className="text-text-secondary text-xs block mb-1">Spell Power (0-999)</label>
                   <input
                     type="number"
                     min={0}
@@ -825,7 +825,7 @@ export function RequestDetail({
                         setEditHarrypotterMeta({ ...editHarrypotterMeta, spellPower: Math.max(0, Math.min(999, val)) });
                       }
                     }}
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </>
@@ -834,13 +834,13 @@ export function RequestDetail({
             {editTheme === 'tarot' && (
               <>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Arcana</label>
+                  <label className="text-text-secondary text-xs block mb-1">Arcana</label>
                   <select
                     value={editTarotMeta.arcana}
                     onChange={(e) =>
                       setEditTarotMeta({ ...editTarotMeta, arcana: e.target.value as TarotArcana })
                     }
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                   >
                     {TAROT_ARCANAS.map((a) => (
                       <option key={a.id} value={a.id}>
@@ -850,7 +850,7 @@ export function RequestDetail({
                   </select>
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Card Number (0-21)</label>
+                  <label className="text-text-secondary text-xs block mb-1">Card Number (0-21)</label>
                   <input
                     type="number"
                     min={0}
@@ -862,11 +862,11 @@ export function RequestDetail({
                         setEditTarotMeta({ ...editTarotMeta, cardNumber: Math.max(0, Math.min(21, val)) });
                       }
                     }}
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs block mb-1">Mystique (0-999)</label>
+                  <label className="text-text-secondary text-xs block mb-1">Mystique (0-999)</label>
                   <input
                     type="number"
                     min={0}
@@ -878,7 +878,7 @@ export function RequestDetail({
                         setEditTarotMeta({ ...editTarotMeta, mystique: Math.max(0, Math.min(999, val)) });
                       }
                     }}
-                    className="w-full px-2 py-1.5 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1.5 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </>
@@ -886,12 +886,12 @@ export function RequestDetail({
             {/* Social links editing */}
             {editBack.socialLinks.length > 0 && (
               <div>
-                <label className="text-gray-500 text-xs block mb-1">소셜 링크</label>
+                <label className="text-text-secondary text-xs block mb-1">소셜 링크</label>
                 <div className="space-y-2">
                   {editBack.socialLinks.map((link, i) => (
                     <div key={i} className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-gray-500 w-16">{link.platform}</span>
+                        <span className="text-xs font-medium text-text-secondary w-16">{link.platform}</span>
                         <input
                           type="text"
                           value={link.url}
@@ -900,12 +900,12 @@ export function RequestDetail({
                             newLinks[i] = { ...newLinks[i], url: e.target.value };
                             setEditBack({ ...editBack, socialLinks: newLinks });
                           }}
-                          className="flex-1 px-2 py-1.5 text-xs border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                          className="flex-1 px-2 py-1.5 text-xs border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                           placeholder="URL"
                         />
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400 w-16">라벨</span>
+                        <span className="text-xs text-text-tertiary w-16">라벨</span>
                         <input
                           type="text"
                           value={link.label || ''}
@@ -914,7 +914,7 @@ export function RequestDetail({
                             newLinks[i] = { ...newLinks[i], label: e.target.value };
                             setEditBack({ ...editBack, socialLinks: newLinks });
                           }}
-                          className="flex-1 px-2 py-1.5 text-xs border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30"
+                          className="flex-1 px-2 py-1.5 text-xs border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                           placeholder="표시 라벨 (선택)"
                         />
                       </div>
@@ -929,7 +929,7 @@ export function RequestDetail({
                 type="button"
                 onClick={handleSaveCardEdit}
                 disabled={actionLoading}
-                className="px-5 py-2 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50"
+                className="px-5 py-2 text-sm font-medium text-secondary bg-primary hover:bg-primary/90 transition-colors min-h-[44px] disabled:opacity-50"
               >
                 {actionLoading ? '저장 중...' : '저장'}
               </button>
@@ -937,7 +937,7 @@ export function RequestDetail({
                 type="button"
                 onClick={handleCancelEdit}
                 disabled={actionLoading}
-                className="px-5 py-2 text-sm font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors min-h-[44px] disabled:opacity-50"
+                className="px-5 py-2 text-sm font-medium text-primary bg-surface border border-border-medium hover:bg-accent-blue transition-colors min-h-[44px] disabled:opacity-50"
               >
                 취소
               </button>
@@ -946,20 +946,20 @@ export function RequestDetail({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="text-gray-500">표시 이름</span>
-              <p className="font-medium text-gray-900">{request.card.front.displayName}</p>
+              <span className="text-text-secondary">표시 이름</span>
+              <p className="font-medium text-primary">{request.card.front.displayName}</p>
             </div>
             <div>
-              <span className="text-gray-500">전체 이름</span>
-              <p className="font-medium text-gray-900">{request.card.back.fullName}</p>
+              <span className="text-text-secondary">전체 이름</span>
+              <p className="font-medium text-primary">{request.card.back.fullName}</p>
             </div>
             <div>
-              <span className="text-gray-500">직함</span>
-              <p className="font-medium text-gray-900">{request.card.back.title || '-'}</p>
+              <span className="text-text-secondary">직함</span>
+              <p className="font-medium text-primary">{request.card.back.title || '-'}</p>
             </div>
             <div>
-              <span className="text-gray-500">해시태그</span>
-              <p className="font-medium text-gray-900">
+              <span className="text-text-secondary">해시태그</span>
+              <p className="font-medium text-primary">
                 {request.card.back.hashtags.length > 0
                   ? request.card.back.hashtags.join(', ')
                   : '-'}
@@ -967,87 +967,87 @@ export function RequestDetail({
             </div>
             {request.card.back.socialLinks.length > 0 && (
               <div className="sm:col-span-2">
-                <span className="text-gray-500">소셜 링크</span>
+                <span className="text-text-secondary">소셜 링크</span>
                 <div className="mt-1 space-y-1">
                   {request.card.back.socialLinks.map((link, i) => (
-                    <p key={i} className="text-gray-900 text-xs">
+                    <p key={i} className="text-primary text-xs">
                       <span className="font-medium">{link.platform}</span>: {link.url}
-                      {link.label && <span className="text-gray-500 ml-2">({link.label})</span>}
+                      {link.label && <span className="text-text-secondary ml-2">({link.label})</span>}
                     </p>
                   ))}
                 </div>
               </div>
             )}
             <div>
-              <span className="text-gray-500">테마</span>
-              <p className="font-medium text-gray-900">
+              <span className="text-text-secondary">테마</span>
+              <p className="font-medium text-primary">
                 {(request.card.theme ?? 'classic') === 'classic' ? 'Classic' : request.card.theme === 'pokemon' ? 'Pokemon' : request.card.theme === 'hearthstone' ? 'Hearthstone' : request.card.theme === 'harrypotter' ? 'Harry Potter' : 'Tarot'}
                 {request.card.theme === 'pokemon' && request.card.pokemonMeta && (
-                  <span className="text-xs text-gray-500 ml-2">
+                  <span className="text-xs text-text-secondary ml-2">
                     ({POKEMON_TYPES.find(t => t.id === request.card.pokemonMeta?.type)?.name ?? request.card.pokemonMeta.type} / EXP {request.card.pokemonMeta.exp})
                   </span>
                 )}
                 {request.card.theme === 'hearthstone' && request.card.hearthstoneMeta && (
-                  <span className="text-xs text-gray-500 ml-2">
+                  <span className="text-xs text-text-secondary ml-2">
                     ({HEARTHSTONE_CLASSES.find(c => c.id === request.card.hearthstoneMeta?.classType)?.name ?? request.card.hearthstoneMeta.classType} / Mana {request.card.hearthstoneMeta.mana} / ATK {request.card.hearthstoneMeta.attack} / HP {request.card.hearthstoneMeta.health})
                   </span>
                 )}
                 {request.card.theme === 'harrypotter' && request.card.harrypotterMeta && (
-                  <span className="text-xs text-gray-500 ml-2">
+                  <span className="text-xs text-text-secondary ml-2">
                     ({HARRYPOTTER_HOUSES.find(h => h.id === request.card.harrypotterMeta?.house)?.name ?? request.card.harrypotterMeta.house} / Year {request.card.harrypotterMeta.year} / SP {request.card.harrypotterMeta.spellPower})
                   </span>
                 )}
                 {request.card.theme === 'tarot' && request.card.tarotMeta && (
-                  <span className="text-xs text-gray-500 ml-2">
+                  <span className="text-xs text-text-secondary ml-2">
                     ({TAROT_ARCANAS.find(a => a.id === request.card.tarotMeta?.arcana)?.name ?? request.card.tarotMeta.arcana} / No.{request.card.tarotMeta.cardNumber} / Mystique {request.card.tarotMeta.mystique})
                   </span>
                 )}
               </p>
             </div>
             <div>
-              <span className="text-gray-500">앞면 배경색</span>
+              <span className="text-text-secondary">앞면 배경색</span>
               <div className="flex items-center gap-2 mt-1">
                 <div
-                  className="w-5 h-5 rounded border border-gray-200"
+                  className="w-5 h-5 rounded border border-border-medium"
                   style={{ backgroundColor: request.card.front.backgroundColor }}
                 />
-                <span className="text-xs font-mono text-gray-600">
+                <span className="text-xs font-mono text-text-secondary">
                   {request.card.front.backgroundColor}
                 </span>
               </div>
             </div>
             <div>
-              <span className="text-gray-500">뒷면 배경색</span>
+              <span className="text-text-secondary">뒷면 배경색</span>
               <div className="flex items-center gap-2 mt-1">
                 <div
-                  className="w-5 h-5 rounded border border-gray-200"
+                  className="w-5 h-5 rounded border border-border-medium"
                   style={{ backgroundColor: request.card.back.backgroundColor }}
                 />
-                <span className="text-xs font-mono text-gray-600">
+                <span className="text-xs font-mono text-text-secondary">
                   {request.card.back.backgroundColor}
                 </span>
               </div>
             </div>
             <div>
-              <span className="text-gray-500">앞면 텍스트 색상</span>
+              <span className="text-text-secondary">앞면 텍스트 색상</span>
               <div className="flex items-center gap-2 mt-1">
                 <div
-                  className="w-5 h-5 rounded border border-gray-200"
+                  className="w-5 h-5 rounded border border-border-medium"
                   style={{ backgroundColor: request.card.front.textColor }}
                 />
-                <span className="text-xs font-mono text-gray-600">
+                <span className="text-xs font-mono text-text-secondary">
                   {request.card.front.textColor}
                 </span>
               </div>
             </div>
             <div>
-              <span className="text-gray-500">뒷면 텍스트 색상</span>
+              <span className="text-text-secondary">뒷면 텍스트 색상</span>
               <div className="flex items-center gap-2 mt-1">
                 <div
-                  className="w-5 h-5 rounded border border-gray-200"
+                  className="w-5 h-5 rounded border border-border-medium"
                   style={{ backgroundColor: request.card.back.textColor }}
                 />
-                <span className="text-xs font-mono text-gray-600">
+                <span className="text-xs font-mono text-text-secondary">
                   {request.card.back.textColor}
                 </span>
               </div>
@@ -1057,8 +1057,8 @@ export function RequestDetail({
       </div>
 
       {/* Image comparison */}
-      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">이미지 비교</h2>
+      <div className="bg-surface p-4 border border-border-medium">
+        <h2 className="text-sm font-medium text-text-primary mb-3">이미지 비교</h2>
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1">
             <CardCompare
@@ -1069,7 +1069,7 @@ export function RequestDetail({
           </div>
           {showIllustrationUploader && (
             <div className="sm:w-[200px] shrink-0">
-              <p className="text-xs font-medium text-gray-500 mb-2">일러스트 업로드</p>
+              <p className="text-xs font-medium text-text-secondary mb-2">일러스트 업로드</p>
               <IllustrationUploader
                 currentImage={illustrationPreview}
                 onImageSelect={setIllustrationPreview}
@@ -1081,7 +1081,7 @@ export function RequestDetail({
                   type="button"
                   onClick={handleSaveIllustration}
                   disabled={actionLoading}
-                  className="mt-2 w-full px-3 py-2 text-xs font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50"
+                  className="mt-2 w-full px-3 py-2 text-xs font-medium text-secondary bg-primary hover:bg-primary/90 transition-colors min-h-[44px] disabled:opacity-50"
                 >
                   {actionLoading ? '저장 중...' : '일러스트 저장'}
                 </button>
@@ -1092,8 +1092,8 @@ export function RequestDetail({
       </div>
 
       {/* Card preview */}
-      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">명함 미리보기</h2>
+      <div className="bg-surface p-4 border border-border-medium">
+        <h2 className="text-sm font-medium text-text-primary mb-3">명함 미리보기</h2>
         <AdminCardPreview
           card={isEditing
             ? { front: editFront, back: editBack, theme: editTheme, pokemonMeta: editTheme === 'pokemon' ? editPokemonMeta : undefined, hearthstoneMeta: editTheme === 'hearthstone' ? editHearthstoneMeta : undefined, harrypotterMeta: editTheme === 'harrypotter' ? editHarrypotterMeta : undefined, tarotMeta: editTheme === 'tarot' ? editTarotMeta : undefined }
@@ -1105,44 +1105,44 @@ export function RequestDetail({
 
       {/* User note */}
       {request.note && (
-        <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
-          <h2 className="text-sm font-medium text-gray-700 mb-2">사용자 메모</h2>
-          <p className="text-sm text-gray-600 whitespace-pre-wrap">{request.note}</p>
+        <div className="bg-surface p-4 border border-border-medium">
+          <h2 className="text-sm font-medium text-text-primary mb-2">사용자 메모</h2>
+          <p className="text-sm text-text-secondary whitespace-pre-wrap">{request.note}</p>
         </div>
       )}
 
       {/* Dates */}
-      <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+      <div className="bg-surface p-4 border border-border-medium">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <span className="text-gray-500">제출일</span>
-            <p className="text-gray-900">{submittedDate}</p>
+            <span className="text-text-secondary">제출일</span>
+            <p className="text-primary">{submittedDate}</p>
           </div>
           <div>
-            <span className="text-gray-500">최종 수정일</span>
-            <p className="text-gray-900">{updatedDate}</p>
+            <span className="text-text-secondary">최종 수정일</span>
+            <p className="text-primary">{updatedDate}</p>
           </div>
         </div>
       </div>
 
       {/* Status history */}
       {request.statusHistory.length > 0 && (
-        <div className="bg-white p-4 border border-[rgba(2,9,18,0.15)]">
+        <div className="bg-surface p-4 border border-border-medium">
           <StatusHistory history={request.statusHistory} />
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200" role="alert">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="p-3 bg-error/5 border border-error/20" role="alert">
+          <p className="text-sm text-error">{error}</p>
         </div>
       )}
 
       {/* Feedback textarea (shown when activeAction is set) */}
       {activeAction && (
-        <div className="bg-white rounded-xl p-4 border border-gray-100 space-y-3">
-          <h3 className="text-sm font-medium text-gray-700">
+        <div className="bg-white rounded-xl p-4 border border-divider space-y-3">
+          <h3 className="text-sm font-medium text-text-primary">
             {activeAction === 'reject' ? '반려 사유' : '수정 요청 내용'}
           </h3>
           <textarea
@@ -1153,7 +1153,7 @@ export function RequestDetail({
                 ? '반려 사유를 입력해 주세요...'
                 : '수정이 필요한 내용을 입력해 주세요...'
             }
-            className="w-full min-h-[100px] p-3 text-sm border border-[rgba(2,9,18,0.15)] focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent resize-y"
+            className="w-full min-h-[100px] p-3 text-sm border border-border-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-transparent resize-y"
             disabled={actionLoading}
             aria-label={activeAction === 'reject' ? '반려 사유' : '수정 요청 내용'}
           />
@@ -1164,7 +1164,7 @@ export function RequestDetail({
               disabled={!feedbackText.trim() || actionLoading}
               className={`px-5 py-2 text-sm font-medium text-[#fcfcfc] transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed ${
                 activeAction === 'reject'
-                  ? 'bg-red-600 hover:bg-red-700'
+                  ? 'bg-error hover:bg-error/90'
                   : 'bg-[#020912] hover:bg-[#020912]/90'
               }`}
             >
@@ -1178,7 +1178,7 @@ export function RequestDetail({
               type="button"
               onClick={handleCancelAction}
               disabled={actionLoading}
-              className="px-5 py-2 text-sm font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#e4f6ff] transition-colors min-h-[44px] disabled:opacity-50"
+              className="px-5 py-2 text-sm font-medium text-primary bg-surface border border-border-medium hover:bg-accent-blue transition-colors min-h-[44px] disabled:opacity-50"
             >
               취소
             </button>
@@ -1195,7 +1195,7 @@ export function RequestDetail({
                 type="button"
                 onClick={handleRegister}
                 disabled={!canRegister || actionLoading}
-                className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 text-sm font-medium text-secondary bg-primary hover:bg-primary/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? '처리 중...' : '등록'}
               </button>
@@ -1203,7 +1203,7 @@ export function RequestDetail({
                 type="button"
                 onClick={() => setActiveAction('reject')}
                 disabled={actionLoading}
-                className="px-6 py-2.5 text-sm font-medium text-red-600 bg-white border border-red-300 hover:bg-red-50 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 text-sm font-medium text-error bg-white border border-error/30 hover:bg-error/5 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 반려
               </button>
@@ -1215,7 +1215,7 @@ export function RequestDetail({
                 type="button"
                 onClick={handleConfirm}
                 disabled={actionLoading}
-                className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 text-sm font-medium text-secondary bg-primary hover:bg-primary/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? '처리 중...' : '확정'}
               </button>
@@ -1223,7 +1223,7 @@ export function RequestDetail({
                 type="button"
                 onClick={() => setActiveAction('revision_request')}
                 disabled={actionLoading}
-                className="px-6 py-2.5 text-sm font-medium text-[#020912] bg-white border border-[rgba(2,9,18,0.15)] hover:bg-[#ffdfc8]/50 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 text-sm font-medium text-primary bg-white border border-border-medium hover:bg-accent-peach transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 수정 요청
               </button>
@@ -1234,7 +1234,7 @@ export function RequestDetail({
               type="button"
               onClick={handleDeliver}
               disabled={actionLoading}
-              className="px-6 py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 text-sm font-medium text-secondary bg-primary hover:bg-primary/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {actionLoading ? '처리 중...' : '배송 완료'}
             </button>
@@ -1243,12 +1243,12 @@ export function RequestDetail({
       )}
 
       {/* Delete button - always visible for admin */}
-      <div className="mt-4 pt-4 border-t border-[rgba(2,9,18,0.08)]">
+      <div className="mt-4 pt-4 border-t border-divider">
         <button
           type="button"
           onClick={handleDelete}
           disabled={actionLoading}
-          className="px-5 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 hover:bg-red-50 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-5 py-2 text-sm font-medium text-error bg-white border border-error/30 hover:bg-error/5 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {actionLoading ? '처리 중...' : '삭제'}
         </button>

@@ -6,31 +6,31 @@ const STATUS_CONFIG: Record<
 > = {
   submitted: {
     label: '의뢰됨',
-    className: 'bg-[#e4f6ff] text-[#020912]',
+    className: 'bg-accent-blue text-primary',
   },
   processing: {
     label: '작업중',
-    className: 'bg-[#ffa639]/20 text-[#020912]',
+    className: 'bg-accent-orange/20 text-primary',
   },
   confirmed: {
     label: '확정',
-    className: 'bg-[#dbe9e0] text-[#020912]',
+    className: 'bg-accent-green text-primary',
   },
   revision_requested: {
     label: '수정요청',
-    className: 'bg-[#ffdfc8] text-[#020912]',
+    className: 'bg-accent-peach text-primary',
   },
   rejected: {
     label: '반려',
-    className: 'bg-red-100 text-red-800',
+    className: 'bg-error/10 text-error',
   },
   delivered: {
     label: '전달완료',
-    className: 'bg-[#020912] text-[#fcfcfc]',
+    className: 'bg-primary text-secondary',
   },
   cancelled: {
     label: '취소',
-    className: 'bg-gray-100 text-gray-800',
+    className: 'bg-divider text-primary',
   },
 };
 

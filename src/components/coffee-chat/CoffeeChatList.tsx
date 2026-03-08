@@ -33,17 +33,17 @@ const EMPTY_MESSAGES: Record<string, string> = {
 
 function SkeletonChatCard() {
   return (
-    <div className="border border-[rgba(2,9,18,0.1)] bg-white p-4 mb-3 animate-pulse">
+    <div className="border border-primary/10 bg-surface p-4 mb-3 animate-pulse">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#020912]/10" />
-          <div className="h-3.5 bg-[#020912]/10 w-24" />
+          <div className="w-9 h-9 rounded-full bg-primary/10" />
+          <div className="h-3.5 bg-primary/10 w-24" />
         </div>
-        <div className="h-5 bg-[#020912]/10 w-14" />
+        <div className="h-5 bg-primary/10 w-14" />
       </div>
-      <div className="h-3 bg-[#020912]/5 w-full mb-1.5" />
-      <div className="h-3 bg-[#020912]/5 w-2/3 mb-2" />
-      <div className="h-2.5 bg-[#020912]/5 w-28" />
+      <div className="h-3 bg-primary/5 w-full mb-1.5" />
+      <div className="h-3 bg-primary/5 w-2/3 mb-2" />
+      <div className="h-2.5 bg-primary/5 w-28" />
     </div>
   );
 }
@@ -65,7 +65,7 @@ export default function CoffeeChatList({
   return (
     <div>
       {/* Tab row */}
-      <div className="flex border-b border-[rgba(2,9,18,0.1)] mb-4">
+      <div className="flex border-b border-primary/10 mb-4">
         {TABS.map((t) => (
           <button
             key={t.key}
@@ -73,8 +73,8 @@ export default function CoffeeChatList({
             onClick={() => onTabChange(t.key)}
             className={`flex-1 pb-2.5 text-sm font-medium transition-colors duration-150 ${
               tab === t.key
-                ? 'text-[#020912] border-b-2 border-[#020912]'
-                : 'text-[#020912]/40 hover:text-[#020912]/70'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-primary/40 hover:text-primary/70'
             }`}
           >
             {t.label}
@@ -91,8 +91,8 @@ export default function CoffeeChatList({
             onClick={() => onStatusFilterChange(f.key)}
             className={`px-3 py-1 text-xs font-medium transition-colors duration-150 ${
               statusFilter === f.key
-                ? 'bg-[#020912] text-[#fcfcfc]'
-                : 'border border-[rgba(2,9,18,0.15)] text-[#020912]/60 hover:text-[#020912] hover:border-[#020912]/30'
+                ? 'bg-primary text-secondary'
+                : 'border border-border-medium text-primary/60 hover:text-primary hover:border-primary/30'
             }`}
           >
             {f.label}
@@ -112,7 +112,7 @@ export default function CoffeeChatList({
       {/* Empty state */}
       {showEmpty && (
         <div className="text-center py-12">
-          <p className="text-sm text-[#020912]/40">
+          <p className="text-sm text-primary/40">
             {EMPTY_MESSAGES[tab]}
           </p>
         </div>
@@ -134,7 +134,7 @@ export default function CoffeeChatList({
       {/* Loading more indicator */}
       {loading && chats.length > 0 && (
         <div className="flex justify-center py-4">
-          <div className="w-5 h-5 border-2 border-[#020912]/20 border-t-[#020912] rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
         </div>
       )}
 

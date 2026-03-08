@@ -44,13 +44,7 @@ export default function TopNav() {
 
   return (
     <header
-      className="sticky top-0 z-40 hidden md:block w-full border-b"
-      style={{
-        backgroundColor: 'rgba(252, 252, 252, 0.95)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        borderColor: 'rgba(2, 9, 18, 0.1)',
-      }}
+      className="sticky top-0 z-40 hidden md:block w-full border-b bg-secondary/95 backdrop-blur-sm border-border-medium"
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         {/* Left section: Logo + nav links */}
@@ -58,7 +52,7 @@ export default function TopNav() {
           {/* Logo */}
           <Link
             href="/"
-            className="text-lg font-bold text-[#020912] tracking-tight"
+            className="text-lg font-bold text-primary tracking-tight"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
             Namecard
@@ -77,8 +71,8 @@ export default function TopNav() {
                       relative flex items-center gap-1.5 text-sm font-medium py-4 transition-colors duration-150
                       ${
                         active
-                          ? 'text-[#020912] font-semibold'
-                          : 'text-[#020912]/50 hover:text-[#020912]/80'
+                          ? 'text-primary font-semibold'
+                          : 'text-primary/50 hover:text-primary/80'
                       }
                     `}
                   >
@@ -89,7 +83,7 @@ export default function TopNav() {
                     {/* Active bottom border indicator */}
                     {active && (
                       <span
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#020912]"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
                         aria-hidden="true"
                       />
                     )}
@@ -103,13 +97,13 @@ export default function TopNav() {
         {/* Right section: User menu or login */}
         <div className="flex items-center">
           {isLoading ? (
-            <div className="w-7 h-7 bg-gray-200 animate-pulse" style={{ borderRadius: '9999px' }} />
+            <div className="w-7 h-7 bg-divider animate-pulse" style={{ borderRadius: '9999px' }} />
           ) : user ? (
             <UserMenuDropdown />
           ) : (
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-all duration-200"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-secondary bg-primary hover:bg-primary/90 transition-all duration-200"
             >
               <svg
                 className="w-4 h-4"

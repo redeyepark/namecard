@@ -69,7 +69,7 @@ export function WizardContainer() {
 
         {/* Step content */}
         <div className="flex-1 min-w-0">
-          <div className="bg-white p-4 sm:p-6 border border-[rgba(2,9,18,0.15)]">
+          <div className="bg-surface p-4 sm:p-6 border border-border-medium">
             <div key={wizardStep} className="wizard-step-enter">
               {wizardStep === 1 && <PersonalInfoStep showError={showError} />}
               {wizardStep === 2 && <PhotoUploadStep />}

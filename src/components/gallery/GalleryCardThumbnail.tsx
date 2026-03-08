@@ -118,23 +118,23 @@ export function GalleryCardThumbnail({
       {/* Text below image */}
       <div className="pt-2.5 pb-1 font-[family-name:var(--font-figtree),sans-serif]">
         {/* Display name */}
-        <p className="text-sm font-medium text-[#020912] leading-snug truncate">
+        <p className="text-sm font-medium text-primary leading-snug truncate">
           {card.displayName}
         </p>
 
         {/* Title (if exists) */}
         {card.title && (
-          <p className="text-xs text-[#020912]/50 mt-0.5 truncate">
+          <p className="text-xs text-primary/50 mt-0.5 truncate">
             {card.title}
           </p>
         )}
 
         {/* User info row (when in feed/community context) */}
         {showUserInfo && (
-          <p className="text-xs text-[#020912]/40 mt-0.5 truncate">
+          <p className="text-xs text-primary/40 mt-0.5 truncate">
             {userDisplayName || 'Anonymous'}
             {(likeCount ?? 0) > 0 && (
-              <span className="ml-2 text-[#020912]/30">
+              <span className="ml-2 text-primary/30">
                 {likeCount}
               </span>
             )}
@@ -142,7 +142,7 @@ export function GalleryCardThumbnail({
         )}
 
         {/* Theme label */}
-        <p className="text-[10px] text-[#020912]/30 uppercase tracking-wide mt-1">
+        <p className="text-[10px] text-primary/30 uppercase tracking-wide mt-1">
           {config.label}
         </p>
       </div>

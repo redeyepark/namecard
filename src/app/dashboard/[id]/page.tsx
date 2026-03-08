@@ -61,7 +61,7 @@ export default function DashboardDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <svg
-          className="animate-spin h-6 w-6 text-gray-400"
+          className="animate-spin h-6 w-6 text-text-tertiary"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -79,7 +79,7 @@ export default function DashboardDetailPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-text-secondary">
           <svg
             className="animate-spin h-6 w-6 mx-auto mb-2"
             xmlns="http://www.w3.org/2000/svg"
@@ -100,10 +100,10 @@ export default function DashboardDetailPage() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center py-12" role="alert">
-          <p className="text-red-600 text-sm mb-4">{error}</p>
+          <p className="text-error text-sm mb-4">{error}</p>
           <button
             onClick={() => router.push('/dashboard')}
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
             <svg
               className="w-4 h-4"

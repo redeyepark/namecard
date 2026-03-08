@@ -12,7 +12,7 @@ export function HearthstoneStatInput() {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-text-primary">
         Stats
       </label>
       <div className="grid grid-cols-3 gap-3">
@@ -96,7 +96,7 @@ function StatField({
           type="button"
           onClick={decrement}
           aria-label={`Decrease ${label}`}
-          className="w-8 h-8 flex items-center justify-center rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium"
+          className="w-8 h-8 flex items-center justify-center rounded border border-border-medium bg-surface text-text-secondary hover:bg-bg transition-colors text-sm font-medium"
         >
           -
         </button>
@@ -107,13 +107,13 @@ function StatField({
           max={max}
           value={value}
           onChange={handleChange}
-          className="w-12 px-1 py-1.5 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-12 px-1 py-1.5 border border-border-medium rounded text-center text-sm bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         <button
           type="button"
           onClick={increment}
           aria-label={`Increase ${label}`}
-          className="w-8 h-8 flex items-center justify-center rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium"
+          className="w-8 h-8 flex items-center justify-center rounded border border-border-medium bg-surface text-text-secondary hover:bg-bg transition-colors text-sm font-medium"
         >
           +
         </button>

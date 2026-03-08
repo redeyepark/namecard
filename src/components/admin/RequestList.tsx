@@ -95,7 +95,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-text-secondary">
         <svg
           className="animate-spin h-6 w-6 mx-auto mb-2"
           xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +114,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
   if (error) {
     return (
       <div className="text-center py-12" role="alert">
-        <p className="text-red-600 text-sm">{error}</p>
+        <p className="text-error text-sm">{error}</p>
       </div>
     );
   }
@@ -122,7 +122,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
   if (requests.length === 0 && !isExternalMode) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 text-sm">아직 의뢰가 없습니다</p>
+        <p className="text-text-secondary text-sm">아직 의뢰가 없습니다</p>
       </div>
     );
   }
@@ -131,8 +131,8 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
     <div>
       {/* Internal filter bar: only shown when not using external data */}
       {!isExternalMode && (
-      <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3 flex-wrap">
-        <label className="text-xs font-medium text-[#020912]/60">이벤트:</label>
+      <div className="px-4 py-3 border-b border-divider flex items-center gap-3 flex-wrap">
+        <label className="text-xs font-medium text-primary/60">이벤트:</label>
         <EventFilter value={eventFilter} onChange={setEventFilter} />
 
         <div className="relative">
@@ -141,14 +141,14 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="이름 또는 ID 검색..."
-            className="text-sm border border-[rgba(2,9,18,0.15)] rounded-none bg-white px-3 py-1.5 pr-8 text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 w-52"
+            className="text-sm border border-border-medium rounded-none bg-surface px-3 py-1.5 pr-8 text-primary placeholder:text-text-tertiary focus:outline-none focus:border-[#020912]/40 w-52"
             aria-label="이름 또는 ID로 검색"
           />
           {searchQuery !== '' && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#020912]/30 hover:text-[#020912]/60 transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-secondary transition-colors"
               aria-label="검색어 지우기"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -159,7 +159,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
         </div>
 
         {(eventFilter !== '' || searchQuery.trim() !== '') && (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-text-secondary">
             {filteredRequests.length}건
           </span>
         )}
@@ -169,14 +169,14 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">사진</th>
-              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">요청 ID</th>
-              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">이름</th>
-              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">이벤트</th>
-              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">제출일</th>
-              <th className="text-left py-3 px-4 font-medium text-[#020912]/60">상태</th>
-              <th className="text-left py-3 px-4 font-medium text-[#020912]/60"></th>
+            <tr className="border-b border-border-medium">
+              <th className="text-left py-3 px-4 font-medium text-primary/60">사진</th>
+              <th className="text-left py-3 px-4 font-medium text-primary/60">요청 ID</th>
+              <th className="text-left py-3 px-4 font-medium text-primary/60">이름</th>
+              <th className="text-left py-3 px-4 font-medium text-primary/60">이벤트</th>
+              <th className="text-left py-3 px-4 font-medium text-primary/60">제출일</th>
+              <th className="text-left py-3 px-4 font-medium text-primary/60">상태</th>
+              <th className="text-left py-3 px-4 font-medium text-primary/60"></th>
             </tr>
           </thead>
           <tbody>
@@ -193,7 +193,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
                 <tr
                   key={req.id}
                   onClick={() => router.push(`/admin/${req.id}`)}
-                  className="border-b border-[rgba(2,9,18,0.08)] hover:bg-[#e4f6ff] cursor-pointer transition-colors"
+                  className="border-b border-divider hover:bg-accent-blue cursor-pointer transition-colors"
                   role="link"
                   tabIndex={0}
                   onKeyDown={(e) => {
@@ -205,7 +205,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
                 >
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-10 h-12 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <div className="w-10 h-12 rounded border border-border-medium bg-bg flex items-center justify-center overflow-hidden flex-shrink-0">
                         {req.originalAvatarUrl ? (
                           <img
                             src={req.originalAvatarUrl}
@@ -218,7 +218,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
                             }}
                           />
                         ) : (
-                          <p className="text-xs text-gray-300">없음</p>
+                          <p className="text-xs text-text-tertiary">없음</p>
                         )}
                       </div>
                       {req.illustrationUrl && (
@@ -237,16 +237,16 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
                       )}
                     </div>
                   </td>
-                  <td className="py-3 px-4 font-mono text-xs text-gray-600">
+                  <td className="py-3 px-4 font-mono text-xs text-text-secondary">
                     {req.id.slice(0, 8)}...
                   </td>
-                  <td className="py-3 px-4 text-[#020912] font-medium">
+                  <td className="py-3 px-4 text-primary font-medium">
                     {req.displayName}
                   </td>
                   <td className="py-3 px-4">
                     <EventBadge eventName={req.eventName || undefined} />
                   </td>
-                  <td className="py-3 px-4 text-[#020912]/50">{formatted}</td>
+                  <td className="py-3 px-4 text-text-secondary">{formatted}</td>
                   <td className="py-3 px-4">
                     <StatusBadge status={req.status} />
                   </td>
@@ -255,7 +255,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
                       type="button"
                       onClick={(e) => handleDelete(e, req.id, req.displayName)}
                       disabled={deletingId === req.id}
-                      className="text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                      className="text-red-400 hover:text-error transition-colors disabled:opacity-50"
                       title="삭제"
                     >
                       {deletingId === req.id ? (
@@ -279,7 +279,7 @@ export function RequestList({ externalData, onDeleteSuccess }: RequestListProps)
 
       {filteredRequests.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-gray-500 text-sm">
+          <p className="text-text-secondary text-sm">
             {isExternalMode
               ? '필터 조건에 맞는 의뢰가 없습니다'
               : searchQuery.trim() !== ''

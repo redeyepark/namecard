@@ -1,6 +1,7 @@
 'use client';
 
 import type { CoffeeChatStatus } from '@/types/coffee-chat';
+import { Button } from '@/components/ui';
 
 interface CoffeeChatActionsProps {
   status: CoffeeChatStatus;
@@ -31,36 +32,42 @@ export default function CoffeeChatActions({
     if (!isRequester) {
       return (
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={onAccept}
             disabled={loading}
-            className="bg-[#10b981] text-white hover:bg-[#059669] px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="bg-success hover:bg-success/90"
           >
             수락
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={onDecline}
             disabled={loading}
-            className="bg-[#6b7280] text-white hover:bg-[#4b5563] px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="bg-text-secondary text-white border-text-secondary hover:bg-text-secondary/80"
           >
             정중히 거절
-          </button>
+          </Button>
         </div>
       );
     }
 
     return (
       <div className="flex items-center gap-2">
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={onCancel}
           disabled={loading}
-          className="border border-[#6b7280] text-[#6b7280] hover:bg-[#6b7280] hover:text-white px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="border-text-secondary text-text-secondary hover:bg-text-secondary hover:text-white"
         >
           취소
-        </button>
+        </Button>
       </div>
     );
   }
@@ -69,14 +76,15 @@ export default function CoffeeChatActions({
   if (status === 'accepted') {
     return (
       <div className="flex items-center gap-2">
-        <button
+        <Button
           type="button"
+          variant="primary"
+          size="sm"
           onClick={onComplete}
           disabled={loading}
-          className="bg-[#020912] text-[#fcfcfc] hover:opacity-90 px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
           만남 완료
-        </button>
+        </Button>
       </div>
     );
   }

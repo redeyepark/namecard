@@ -50,7 +50,7 @@ export default function BookmarksPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <svg
-          className="animate-spin h-6 w-6 text-gray-400"
+          className="animate-spin h-6 w-6 text-text-tertiary"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -70,14 +70,14 @@ export default function BookmarksPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#020912]">북마크</h1>
-          <p className="mt-1 text-sm text-[#020912]/50">
+          <h1 className="text-2xl font-bold text-primary">북마크</h1>
+          <p className="mt-1 text-sm text-primary/50">
             저장한 명함을 모아볼 수 있습니다.
           </p>
         </div>
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#020912] bg-[#e4f6ff] hover:bg-[#e4f6ff]/70 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-accent-blue hover:bg-accent-blue/70 transition-colors"
         >
           <svg
             className="w-4 h-4"
@@ -99,7 +99,7 @@ export default function BookmarksPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-text-secondary">
           <svg
             className="animate-spin h-6 w-6 mx-auto mb-2"
             xmlns="http://www.w3.org/2000/svg"
@@ -114,12 +114,12 @@ export default function BookmarksPage() {
         </div>
       ) : error ? (
         <div className="text-center py-12" role="alert">
-          <p className="text-red-600 text-sm">{error}</p>
+          <p className="text-error text-sm">{error}</p>
         </div>
       ) : cards.length === 0 ? (
         <div className="text-center py-16">
           <svg
-            className="w-12 h-12 mx-auto mb-4 text-[#020912]/20"
+            className="w-12 h-12 mx-auto mb-4 text-primary/20"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
@@ -132,8 +132,8 @@ export default function BookmarksPage() {
               d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
             />
           </svg>
-          <p className="text-sm text-[#020912]/50">북마크한 카드가 없습니다</p>
-          <p className="mt-1 text-xs text-[#020912]/30">
+          <p className="text-sm text-primary/50">북마크한 카드가 없습니다</p>
+          <p className="mt-1 text-xs text-primary/30">
             갤러리에서 마음에 드는 명함을 북마크해보세요.
           </p>
         </div>

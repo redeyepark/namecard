@@ -22,10 +22,10 @@ function QuestionCardCompact({ question }: { question: QuestionWithAuthor }) {
   return (
     <Link
       href={`/community/questions/${question.id}`}
-      className="block border border-[rgba(2,9,18,0.15)] p-4 hover:border-[rgba(2,9,18,0.4)] transition-all duration-200 bg-white"
+      className="block border border-border-medium p-4 hover:border-primary/40 transition-all duration-200 bg-surface"
     >
       {/* Content preview (max 2 lines) */}
-      <p className="text-sm text-[#020912]/80 leading-relaxed line-clamp-2 mb-3">
+      <p className="text-sm text-primary/80 leading-relaxed line-clamp-2 mb-3">
         {question.content}
       </p>
 
@@ -35,13 +35,13 @@ function QuestionCardCompact({ question }: { question: QuestionWithAuthor }) {
           {question.hashtags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-[#020912]/5 text-[#020912]/70"
+              className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-primary/5 text-primary/70"
             >
               #{tag}
             </span>
           ))}
           {question.hashtags.length > 3 && (
-            <span className="text-xs text-[#020912]/40">
+            <span className="text-xs text-primary/40">
               +{question.hashtags.length - 3}
             </span>
           )}
@@ -58,19 +58,19 @@ function QuestionCardCompact({ question }: { question: QuestionWithAuthor }) {
               className="w-5 h-5 object-cover"
             />
           ) : (
-            <div className="w-5 h-5 bg-[#020912]/10 flex items-center justify-center text-[10px] font-medium text-[#020912]/50">
+            <div className="w-5 h-5 bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary/50">
               {question.author.displayName.charAt(0)}
             </div>
           )}
-          <span className="text-xs text-[#020912]/50">
+          <span className="text-xs text-primary/50">
             {question.author.displayName}
           </span>
-          <span className="text-xs text-[#020912]/25">
+          <span className="text-xs text-primary/25">
             {getRelativeTime(question.createdAt)}
           </span>
         </div>
 
-        <div className="flex items-center gap-1 text-xs text-[#020912]/40">
+        <div className="flex items-center gap-1 text-xs text-primary/40">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
           </svg>
@@ -110,7 +110,7 @@ export function RecentQuestions() {
     return (
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-bold text-[#020912]">
+          <h2 className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-bold text-primary">
             새로운 질문
           </h2>
         </div>
@@ -118,13 +118,13 @@ export function RecentQuestions() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="border border-[rgba(2,9,18,0.08)] p-4 animate-pulse"
+              className="border border-primary/8 p-4 animate-pulse"
             >
-              <div className="h-4 bg-[#020912]/5 w-3/4 mb-3" />
-              <div className="h-3 bg-[#020912]/5 w-1/2 mb-3" />
+              <div className="h-4 bg-primary/5 w-3/4 mb-3" />
+              <div className="h-3 bg-primary/5 w-1/2 mb-3" />
               <div className="flex items-center justify-between">
-                <div className="h-3 bg-[#020912]/5 w-20" />
-                <div className="h-3 bg-[#020912]/5 w-8" />
+                <div className="h-3 bg-primary/5 w-20" />
+                <div className="h-3 bg-primary/5 w-8" />
               </div>
             </div>
           ))}
@@ -138,12 +138,12 @@ export function RecentQuestions() {
   return (
     <section className="mb-10">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-bold text-[#020912]">
+        <h2 className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-bold text-primary">
           새로운 질문
         </h2>
         <Link
           href="/community/questions"
-          className="text-xs text-[#020912]/50 hover:text-[#020912]/80 transition-colors flex items-center gap-1"
+          className="text-xs text-primary/50 hover:text-primary/80 transition-colors flex items-center gap-1"
         >
           전체 보기
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">

@@ -9,8 +9,8 @@ export function UserMenu() {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
-        <div className="w-16 h-4 rounded bg-gray-200 animate-pulse hidden sm:block" />
+        <div className="w-8 h-8 rounded-full bg-divider animate-pulse" />
+        <div className="w-16 h-4 rounded bg-divider animate-pulse hidden sm:block" />
       </div>
     );
   }
@@ -19,7 +19,7 @@ export function UserMenu() {
     return (
       <Link
         href="/login"
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/90 transition-all duration-200"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-secondary bg-primary hover:bg-primary/90 transition-all duration-200"
       >
         <svg
           className="w-4 h-4"
@@ -46,12 +46,12 @@ export function UserMenu() {
         <img
           src={user.image}
           alt={user.name ?? 'User avatar'}
-          className="w-8 h-8 ring-2 ring-[#e4f6ff]"
+          className="w-8 h-8 ring-2 ring-accent-blue"
           referrerPolicy="no-referrer"
         />
       ) : (
-        <div className="w-8 h-8 bg-[#e4f6ff] flex items-center justify-center">
-          <span className="text-sm font-semibold text-[#020912]">
+        <div className="w-8 h-8 bg-accent-blue flex items-center justify-center">
+          <span className="text-sm font-semibold text-primary">
             {user.name?.charAt(0)?.toUpperCase() ?? 'U'}
           </span>
         </div>
@@ -59,9 +59,9 @@ export function UserMenu() {
 
       {/* Name and role badge */}
       <div className="hidden sm:flex items-center gap-2">
-        <span className="text-sm font-medium text-[#020912]">{user.name}</span>
+        <span className="text-sm font-medium text-primary">{user.name}</span>
         {isAdmin && (
-          <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#fcfcfc] bg-[#020912]">
+          <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary bg-primary">
             관리자
           </span>
         )}
@@ -70,7 +70,7 @@ export function UserMenu() {
       {/* Gallery link */}
       <Link
         href="/cards"
-        className="text-sm text-[#020912]/60 hover:text-[#020912] transition-colors font-[family-name:var(--font-figtree),sans-serif]"
+        className="text-sm text-primary/60 hover:text-primary transition-colors font-[family-name:var(--font-figtree),sans-serif]"
       >
         갤러리
       </Link>
@@ -78,7 +78,7 @@ export function UserMenu() {
       {/* Create namecard link */}
       <Link
         href="/create"
-        className="text-sm text-[#020912]/60 hover:text-[#020912] transition-colors font-[family-name:var(--font-figtree),sans-serif]"
+        className="text-sm text-primary/60 hover:text-primary transition-colors font-[family-name:var(--font-figtree),sans-serif]"
       >
         명함만들기
       </Link>
@@ -86,7 +86,7 @@ export function UserMenu() {
       {/* My requests link */}
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#020912] bg-[#e4f6ff] hover:bg-[#e4f6ff]/70 transition-all duration-200"
+        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary bg-accent-blue hover:bg-accent-blue/70 transition-all duration-200"
         aria-label="내 요청"
       >
         <svg
@@ -108,7 +108,7 @@ export function UserMenu() {
       {/* Settings link */}
       <Link
         href="/dashboard/settings"
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#020912] bg-[#e4f6ff] hover:bg-[#e4f6ff]/70 transition-all duration-200"
+        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary bg-accent-blue hover:bg-accent-blue/70 transition-all duration-200"
         aria-label="설정"
       >
         <svg
@@ -135,7 +135,7 @@ export function UserMenu() {
       {/* Logout button */}
       <button
         onClick={() => signOut()}
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#020912]/60 bg-[#020912]/5 hover:bg-[#020912]/10 hover:text-[#020912] transition-all duration-200"
+        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary/60 bg-primary/5 hover:bg-primary/10 hover:text-primary transition-all duration-200"
         aria-label="로그아웃"
       >
         <svg

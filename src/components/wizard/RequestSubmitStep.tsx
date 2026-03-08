@@ -66,14 +66,14 @@ export function RequestSubmitStep() {
     return (
       <section aria-label="Request submitted">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-success/10 rounded-full flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="32"
               height="32"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#16a34a"
+              stroke="currentColor" className="text-success"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -82,28 +82,28 @@ export function RequestSubmitStep() {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-primary">
             의뢰가 접수되었습니다!
           </h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-text-secondary">
             어드민이 확인 후 손그림 일러스트로 제작해 드립니다.
           </p>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-2">
+        <div className="bg-bg rounded-lg p-4 mb-6 space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">요청 ID</span>
-            <span className="font-mono text-gray-900 text-xs">
+            <span className="text-text-secondary">요청 ID</span>
+            <span className="font-mono text-primary text-xs">
               {result.id.slice(0, 8)}...
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">제출 시간</span>
-            <span className="text-gray-900">{formattedDate}</span>
+            <span className="text-text-secondary">제출 시간</span>
+            <span className="text-primary">{formattedDate}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">상태</span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <span className="text-text-secondary">상태</span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-info/10 text-info">
               의뢰됨
             </span>
           </div>
@@ -113,7 +113,7 @@ export function RequestSubmitStep() {
           <button
             type="button"
             onClick={resetWizard}
-            className="w-full px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
+            className="w-full px-4 py-2.5 text-sm font-medium text-text-primary bg-surface border border-border-medium rounded-lg hover:bg-bg transition-colors min-h-[44px]"
           >
             새 명함 만들기
           </button>
@@ -126,8 +126,8 @@ export function RequestSubmitStep() {
   return (
     <section aria-label="Request submission">
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-gray-900">명함 의뢰하기</h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <h2 className="text-xl font-bold text-primary">명함 의뢰하기</h2>
+        <p className="mt-1 text-sm text-text-secondary">
           아래 내용을 확인하고 의뢰를 제출하세요.
         </p>
       </div>
@@ -135,11 +135,11 @@ export function RequestSubmitStep() {
       {/* Card preview */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center items-center sm:items-start mb-6">
         <div className="w-full max-w-[260px]">
-          <p className="text-xs font-medium text-gray-500 mb-2 text-center">앞면</p>
+          <p className="text-xs font-medium text-text-secondary mb-2 text-center">앞면</p>
           <CardFront />
         </div>
         <div className="w-full max-w-[260px]">
-          <p className="text-xs font-medium text-gray-500 mb-2 text-center">뒷면</p>
+          <p className="text-xs font-medium text-text-secondary mb-2 text-center">뒷면</p>
           <CardBack />
         </div>
       </div>
@@ -148,7 +148,7 @@ export function RequestSubmitStep() {
       <div className="mb-6">
         <label
           htmlFor="request-note"
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className="block text-sm font-medium text-text-primary mb-1"
         >
           메모 (선택)
         </label>
@@ -159,17 +159,17 @@ export function RequestSubmitStep() {
           placeholder="일러스트 스타일이나 요청사항을 적어주세요..."
           rows={3}
           maxLength={500}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-border-medium rounded-lg text-sm resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:border-transparent"
         />
-        <p className="text-xs text-gray-400 text-right mt-1">
+        <p className="text-xs text-text-tertiary text-right mt-1">
           {note.length}/500
         </p>
       </div>
 
       {/* Error message */}
       {submitState === 'error' && errorMessage && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
-          <p className="text-sm text-red-700">{errorMessage}</p>
+        <div className="mb-4 p-3 bg-error/5 border border-error/20 rounded-lg" role="alert">
+          <p className="text-sm text-error">{errorMessage}</p>
         </div>
       )}
 
@@ -179,7 +179,7 @@ export function RequestSubmitStep() {
           type="button"
           onClick={handleSubmit}
           disabled={submitState === 'loading'}
-          className="w-full px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full px-4 py-2.5 text-sm font-medium text-secondary bg-error rounded-lg hover:bg-error/90 transition-colors min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {submitState === 'loading' ? (
             <>

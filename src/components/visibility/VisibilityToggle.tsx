@@ -29,10 +29,10 @@ export function VisibilityToggle({
           onClick={() => onToggle(!isPublic)}
           className={`
             relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#020912]
+            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
             ${isPublic
-              ? 'bg-[#2d8c3c]'
-              : 'bg-gray-300'
+              ? 'bg-success'
+              : 'bg-border-medium'
             }
             ${disabled
               ? 'opacity-50 cursor-not-allowed'
@@ -50,14 +50,14 @@ export function VisibilityToggle({
 
         {/* Disabled tooltip */}
         {disabled && disabledReason && (
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs text-white bg-gray-800 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs text-secondary bg-primary rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
             {disabledReason}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-800" />
+            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-primary" />
           </div>
         )}
       </div>
 
-      <span className="text-sm text-[#020912]/70">
+      <span className="text-sm text-primary/70">
         {isPublic ? '공개' : '비공개'}
       </span>
     </div>

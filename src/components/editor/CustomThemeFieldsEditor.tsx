@@ -21,8 +21,8 @@ export function CustomThemeFieldsEditor({ themeSlug }: CustomThemeFieldsEditorPr
       <div className="space-y-2">
         {[1, 2].map((i) => (
           <div key={i} className="animate-pulse">
-            <div className="h-3 bg-gray-200 w-20 mb-1" />
-            <div className="h-9 bg-gray-100 w-full" />
+            <div className="h-3 bg-border-light w-20 mb-1" />
+            <div className="h-9 bg-bg w-full" />
           </div>
         ))}
       </div>
@@ -38,7 +38,7 @@ export function CustomThemeFieldsEditor({ themeSlug }: CustomThemeFieldsEditorPr
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium text-gray-700">
+      <p className="text-sm font-medium text-text-primary">
         Custom Fields
       </p>
       {themeDef.customFields.map((field) => {
@@ -48,7 +48,7 @@ export function CustomThemeFieldsEditor({ themeSlug }: CustomThemeFieldsEditorPr
           <div key={field.key}>
             <label
               htmlFor={`ctf-${field.key}`}
-              className="block text-xs font-medium text-gray-600 mb-1"
+              className="block text-xs font-medium text-text-secondary mb-1"
             >
               {field.label}
             </label>
@@ -58,7 +58,7 @@ export function CustomThemeFieldsEditor({ themeSlug }: CustomThemeFieldsEditorPr
                 type="text"
                 value={String(currentValue)}
                 onChange={(e) => setCustomThemeMeta(field.key, e.target.value)}
-                className="w-full border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-400"
+                className="w-full border border-border-medium px-3 py-2 text-sm bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:border-primary"
               />
             ) : (
               <input
@@ -73,7 +73,7 @@ export function CustomThemeFieldsEditor({ themeSlug }: CustomThemeFieldsEditorPr
                   if (field.max !== undefined) val = Math.min(field.max, val);
                   setCustomThemeMeta(field.key, val);
                 }}
-                className="w-full border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-400"
+                className="w-full border border-border-medium px-3 py-2 text-sm bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:border-primary"
               />
             )}
           </div>

@@ -76,9 +76,9 @@ export function LandingPage() {
   // Loading spinner
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fcfcfc]">
+      <div className="min-h-screen flex items-center justify-center bg-secondary">
         <svg
-          className="animate-spin h-5 w-5 text-[#020912]/30"
+          className="animate-spin h-5 w-5 text-primary/30"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -92,14 +92,14 @@ export function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcfcfc]">
+    <div className="min-h-screen flex flex-col bg-secondary">
 
       {/* ============================================================
           HEADER - Only for unauthenticated users (GlobalNav handles authenticated)
           ============================================================ */}
       {!isAuthenticated && (
         <header className="w-full max-w-5xl mx-auto px-6 sm:px-8 pt-8 flex items-center justify-between">
-          <span className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-semibold tracking-wide text-[#020912]">
+          <span className="font-[family-name:var(--font-figtree),sans-serif] text-lg font-semibold tracking-wide text-primary">
             Namecard
           </span>
           <LoginButton />
@@ -114,7 +114,7 @@ export function LandingPage() {
       }`}>
         {!isAuthenticated && (
           <div>
-            <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-[clamp(1.75rem,4vw,3rem)] font-bold tracking-tight leading-[1.1] text-[#020912]">
+            <h1 className="font-[family-name:var(--font-figtree),sans-serif] text-[clamp(1.75rem,4vw,3rem)] font-bold tracking-tight leading-[1.1] text-primary">
               나만의 색을
               <br />
               찾아보세요
@@ -122,7 +122,7 @@ export function LandingPage() {
 
             <Link
               href="/login"
-              className="font-[family-name:var(--font-figtree),sans-serif] text-base text-[#020912] hover:underline underline-offset-4 inline-block mt-6"
+              className="font-[family-name:var(--font-figtree),sans-serif] text-base text-primary hover:underline underline-offset-4 inline-block mt-6"
             >
               시작하기 &rarr;
             </Link>
@@ -156,7 +156,7 @@ export function LandingPage() {
                     <div className="w-full min-h-[200px] flex items-center justify-center">
                       <p
                         className={`font-[family-name:var(--font-figtree),sans-serif] text-base font-medium ${
-                          isThemeDark(featuredCard.theme) ? 'text-white/80' : 'text-[#020912]/70'
+                          isThemeDark(featuredCard.theme) ? 'text-white/80' : 'text-primary/70'
                         }`}
                       >
                         {featuredCard.displayName}
@@ -189,19 +189,19 @@ export function LandingPage() {
         >
           <Link
             href="/login"
-            className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-[#020912]/40 hover:text-[#020912] transition-opacity duration-200"
+            className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-primary/40 hover:text-primary transition-opacity duration-200"
           >
             갤러리
           </Link>
-          <span className="text-[#020912]/20" aria-hidden="true">&middot;</span>
+          <span className="text-primary/20" aria-hidden="true">&middot;</span>
           <Link
             href="/login"
-            className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-[#020912]/40 hover:text-[#020912] transition-opacity duration-200"
+            className="font-[family-name:var(--font-figtree),sans-serif] text-sm text-primary/40 hover:text-primary transition-opacity duration-200"
           >
             명함 만들기
           </Link>
         </nav>
-        <p className="font-[family-name:var(--font-figtree),sans-serif] text-xs text-[#020912]/20 text-center">
+        <p className="font-[family-name:var(--font-figtree),sans-serif] text-xs text-primary/20 text-center">
           &copy; 2026 Namecard
         </p>
       </footer>

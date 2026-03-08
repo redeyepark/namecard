@@ -85,7 +85,7 @@ export function QuestionDetail({
   return (
     <div>
       {/* Question header */}
-      <div className="pb-4 border-b border-[rgba(2,9,18,0.15)]">
+      <div className="pb-4 border-b border-border-medium">
         {/* Author info */}
         <div className="flex items-center gap-2 mb-4">
           <Link href={`/profile/${question.author.id}`} className="flex items-center gap-2 group">
@@ -96,26 +96,26 @@ export function QuestionDetail({
                 className="w-8 h-8 object-cover"
               />
             ) : (
-              <div className="w-8 h-8 bg-[#020912]/10 flex items-center justify-center text-sm font-medium text-[#020912]/50">
+              <div className="w-8 h-8 bg-primary/10 flex items-center justify-center text-sm font-medium text-primary/50">
                 {question.author.displayName.charAt(0)}
               </div>
             )}
-            <span className="text-sm font-medium text-[#020912] group-hover:underline">
+            <span className="text-sm font-medium text-primary group-hover:underline">
               {question.author.displayName}
             </span>
           </Link>
-          <span className="text-xs text-[#020912]/30">
+          <span className="text-xs text-primary/30">
             {getRelativeTime(question.createdAt)}
           </span>
           {question.isOwner && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-[#020912]/5 text-[#020912]/50">
+            <span className="text-[10px] px-1.5 py-0.5 bg-primary/5 text-primary/50">
               내 질문
             </span>
           )}
         </div>
 
         {/* Full question content */}
-        <p className="text-sm text-[#020912]/80 leading-relaxed whitespace-pre-wrap mb-4">
+        <p className="text-sm text-primary/80 leading-relaxed whitespace-pre-wrap mb-4">
           {question.content}
         </p>
 
@@ -133,7 +133,7 @@ export function QuestionDetail({
           <button
             type="button"
             onClick={handleDelete}
-            className="text-xs text-[#020912]/30 hover:text-red-500 transition-all duration-200"
+            className="text-xs text-primary/30 hover:text-error transition-all duration-200"
           >
             질문 삭제
           </button>
@@ -143,7 +143,7 @@ export function QuestionDetail({
       {/* Thoughts section */}
       <div className="mt-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-[#020912]">
+          <span className="text-sm font-medium text-primary">
             답변 {thoughts.length}개
           </span>
         </div>

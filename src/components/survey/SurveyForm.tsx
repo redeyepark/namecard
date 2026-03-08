@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { CreateSurveyInput } from '@/types/survey';
+import { Modal, Button } from '@/components/ui';
 
 interface SurveyFormProps {
   isOpen: boolean;
@@ -129,197 +130,177 @@ export function SurveyForm({ isOpen, onClose, onSubmit, isCreating }: SurveyForm
     [question, options, selectMode, hashtags, closesAt, onSubmit, onClose]
   );
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-[#020912]/50"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative w-full sm:max-w-lg bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] p-6 sm:mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-[#020912]">설문 만들기</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-[#020912]/40 hover:text-[#020912] transition-all duration-200"
-            aria-label="닫기"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <Modal open={isOpen} onClose={onClose} title="설문 만들기" size="lg">
+      <form onSubmit={handleSubmit}>
+        {/* Question */}
+        <textarea
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="설문 질문을 입력하세요..."
+          rows={3}
+          maxLength={500}
+          className="w-full px-3 py-2.5 text-sm text-primary bg-primary/[0.02] border border-border-medium placeholder:text-primary/30 focus:outline-none focus:border-primary/40 resize-none transition-all duration-200"
+        />
+        <div className="flex justify-end mt-1">
+          <span className="text-xs text-primary/30">{question.length}/500</span>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* Question */}
-          <textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="설문 질문을 입력하세요..."
-            rows={3}
-            maxLength={500}
-            className="w-full px-3 py-2.5 text-sm text-[#020912] bg-[#020912]/[0.02] border border-[rgba(2,9,18,0.15)] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 resize-none transition-all duration-200"
+        {/* Select mode */}
+        <div className="mt-3">
+          <label className="text-xs font-medium text-primary/60 mb-1.5 block">
+            투표 방식
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setSelectMode('single')}
+              className={`px-3 py-1.5 text-sm font-medium border transition-all duration-200 ${
+                selectMode === 'single'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-border-medium text-primary/40 hover:border-primary/40'
+              }`}
+            >
+              단일 선택
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectMode('multi')}
+              className={`px-3 py-1.5 text-sm font-medium border transition-all duration-200 ${
+                selectMode === 'multi'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-border-medium text-primary/40 hover:border-primary/40'
+              }`}
+            >
+              복수 선택
+            </button>
+          </div>
+        </div>
+
+        {/* Options */}
+        <div className="mt-3">
+          <label className="text-xs font-medium text-primary/60 mb-1.5 block">
+            옵션 (2~10개)
+          </label>
+          <div className="flex flex-col gap-2">
+            {options.map((opt, index) => (
+              <div key={index} className="flex gap-2">
+                <input
+                  type="text"
+                  value={opt}
+                  onChange={(e) => updateOption(index, e.target.value)}
+                  placeholder={`옵션 ${index + 1}`}
+                  maxLength={200}
+                  className="flex-1 px-3 py-1.5 text-sm text-primary bg-primary/[0.02] border border-border-medium placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-all duration-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeOption(index)}
+                  disabled={options.length <= 2}
+                  className="px-2 text-primary/30 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                  aria-label={`옵션 ${index + 1} 삭제`}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={addOption}
+            disabled={options.length >= 10}
+            className="mt-2"
+          >
+            + 옵션 추가
+          </Button>
+        </div>
+
+        {/* Close date */}
+        <div className="mt-3">
+          <label className="text-xs font-medium text-primary/60 mb-1.5 block">
+            마감일 (선택사항)
+          </label>
+          <input
+            type="datetime-local"
+            value={closesAt}
+            onChange={(e) => setClosesAt(e.target.value)}
+            className="w-full px-3 py-1.5 text-sm text-primary bg-primary/[0.02] border border-border-medium focus:outline-none focus:border-primary/40 transition-all duration-200"
           />
-          <div className="flex justify-end mt-1">
-            <span className="text-xs text-[#020912]/30">{question.length}/500</span>
-          </div>
+        </div>
 
-          {/* Select mode */}
-          <div className="mt-3">
-            <label className="text-xs font-medium text-[#020912]/60 mb-1.5 block">
-              투표 방식
-            </label>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setSelectMode('single')}
-                className={`px-3 py-1.5 text-sm font-medium border transition-all duration-200 ${
-                  selectMode === 'single'
-                    ? 'border-[#020912] bg-[#020912]/5 text-[#020912]'
-                    : 'border-[rgba(2,9,18,0.15)] text-[#020912]/40 hover:border-[rgba(2,9,18,0.4)]'
-                }`}
-              >
-                단일 선택
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectMode('multi')}
-                className={`px-3 py-1.5 text-sm font-medium border transition-all duration-200 ${
-                  selectMode === 'multi'
-                    ? 'border-[#020912] bg-[#020912]/5 text-[#020912]'
-                    : 'border-[rgba(2,9,18,0.15)] text-[#020912]/40 hover:border-[rgba(2,9,18,0.4)]'
-                }`}
-              >
-                복수 선택
-              </button>
-            </div>
+        {/* Hashtag input */}
+        <div className="mt-3">
+          <label className="text-xs font-medium text-primary/60 mb-1.5 block">
+            해시태그 (선택사항, 최대 5개)
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagKeyDown}
+              placeholder="해시태그 입력 후 Enter"
+              maxLength={20}
+              className="flex-1 px-3 py-1.5 text-sm text-primary bg-primary/[0.02] border border-border-medium placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-all duration-200"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={addTag}
+            >
+              추가
+            </Button>
           </div>
-
-          {/* Options */}
-          <div className="mt-3">
-            <label className="text-xs font-medium text-[#020912]/60 mb-1.5 block">
-              옵션 (2~10개)
-            </label>
-            <div className="flex flex-col gap-2">
-              {options.map((opt, index) => (
-                <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={opt}
-                    onChange={(e) => updateOption(index, e.target.value)}
-                    placeholder={`옵션 ${index + 1}`}
-                    maxLength={200}
-                    className="flex-1 px-3 py-1.5 text-sm text-[#020912] bg-[#020912]/[0.02] border border-[rgba(2,9,18,0.15)] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 transition-all duration-200"
-                  />
+          {hashtags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {hashtags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium bg-primary/5 text-primary/70"
+                >
+                  #{tag}
                   <button
                     type="button"
-                    onClick={() => removeOption(index)}
-                    disabled={options.length <= 2}
-                    className="px-2 text-[#020912]/30 hover:text-[#020912] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
-                    aria-label={`옵션 ${index + 1} 삭제`}
+                    onClick={() => removeTag(tag)}
+                    className="text-primary/40 hover:text-primary"
+                    aria-label={`${tag} 태그 삭제`}
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
-                </div>
+                </span>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={addOption}
-              disabled={options.length >= 10}
-              className="mt-2 px-3 py-1.5 text-xs font-medium text-[#020912]/60 border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              + 옵션 추가
-            </button>
-          </div>
+          )}
+        </div>
 
-          {/* Close date */}
-          <div className="mt-3">
-            <label className="text-xs font-medium text-[#020912]/60 mb-1.5 block">
-              마감일 (선택사항)
-            </label>
-            <input
-              type="datetime-local"
-              value={closesAt}
-              onChange={(e) => setClosesAt(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm text-[#020912] bg-[#020912]/[0.02] border border-[rgba(2,9,18,0.15)] focus:outline-none focus:border-[#020912]/40 transition-all duration-200"
-            />
-          </div>
+        {error && <p className="mt-2 text-xs text-error">{error}</p>}
 
-          {/* Hashtag input */}
-          <div className="mt-3">
-            <label className="text-xs font-medium text-[#020912]/60 mb-1.5 block">
-              해시태그 (선택사항, 최대 5개)
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagKeyDown}
-                placeholder="해시태그 입력 후 Enter"
-                maxLength={20}
-                className="flex-1 px-3 py-1.5 text-sm text-[#020912] bg-[#020912]/[0.02] border border-[rgba(2,9,18,0.15)] placeholder:text-[#020912]/30 focus:outline-none focus:border-[#020912]/40 transition-all duration-200"
-              />
-              <button
-                type="button"
-                onClick={addTag}
-                className="px-3 py-1.5 text-sm font-medium text-[#020912] border border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)] transition-all duration-200"
-              >
-                추가
-              </button>
-            </div>
-            {hashtags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {hashtags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium bg-[#020912]/5 text-[#020912]/70"
-                  >
-                    #{tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="text-[#020912]/40 hover:text-[#020912]"
-                      aria-label={`${tag} 태그 삭제`}
-                    >
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
-
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-[#020912]/60 hover:text-[#020912] transition-all duration-200"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              disabled={isCreating || !isValid()}
-              className="px-4 py-2 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              {isCreating ? '등록 중...' : '설문 등록'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+          >
+            취소
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={isCreating || !isValid()}
+          >
+            {isCreating ? '등록 중...' : '설문 등록'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

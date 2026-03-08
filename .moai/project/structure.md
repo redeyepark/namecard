@@ -59,6 +59,10 @@ namecard/
 │   │   │   │   └── [id]/
 │   │   │   │       ├── page.tsx           # 질문 상세 페이지 (생각 목록, 좋아요)
 │   │   │   │       └── QuestionDetailActions.tsx # 질문 상세 액션 (삭제 등)
+│   │   │   ├── surveys/
+│   │   │   │   ├── page.tsx               # 설문/투표 피드 페이지
+│   │   │   │   └── [id]/
+│   │   │   │       └── page.tsx           # 설문 상세 페이지
 │   │   │   └── coffee-chat/
 │   │   │       ├── page.tsx               # 커피챗 탐색 페이지 (회원 그리드)
 │   │   │       ├── CoffeeChatDiscoverClient.tsx # 커피챗 탐색 클라이언트
@@ -105,6 +109,10 @@ namecard/
 │   │       │   │       └── route.ts       # POST (PDF 업로드 → Supabase Storage, requireAdminToken)
 │   │       │   ├── login/
 │   │       │   │   └── route.ts           # 관리자 로그인 API
+│   │       │   ├── questions/
+│   │       │   │   ├── route.ts           # GET/POST (관리자 질문 목록/생성, requireAdmin)
+│   │       │   │   └── [id]/
+│   │       │   │       └── route.ts       # PUT/DELETE (관리자 질문 수정/삭제, requireAdmin)
 │   │       │   └── logout/
 │   │       │       └── route.ts           # 관리자 로그아웃 API
 │   │       ├── webhooks/
@@ -139,6 +147,17 @@ namecard/
 │   │       │   └── [id]/
 │   │       │       └── like/
 │   │       │           └── route.ts       # POST/DELETE (생각 좋아요 토글)
+│   │       ├── mbti/
+│   │       │   ├── questions/
+│   │       │   │   └── route.ts           # GET (MBTI 진행 상태, requireAuth)
+│   │       │   └── answer/
+│   │       │       └── route.ts           # POST (MBTI 답변 제출, requireAuth)
+│   │       ├── surveys/
+│   │       │   ├── route.ts               # GET/POST (설문 목록/생성)
+│   │       │   └── [id]/
+│   │       │       ├── route.ts           # GET (설문 상세)
+│   │       │       └── vote/
+│   │       │           └── route.ts       # POST (투표, requireAuth)
 │   │       ├── coffee-chat/
 │   │       │   ├── route.ts               # GET/POST (커피챗 목록/생성, requireAuth)
 │   │       │   ├── [id]/
@@ -233,6 +252,20 @@ namecard/
 │   │   │   └── __tests__/                 # 커뮤니티 컴포넌트 테스트
 │   │   │       ├── QuestionCard.test.tsx   # QuestionCard 단위 테스트
 │   │   │       └── ThoughtForm.test.tsx    # ThoughtForm 단위 테스트
+│   │   ├── mbti/                           # MBTI 컴포넌트
+│   │   │   ├── MbtiSection.tsx            # MBTI 메인 섹션 (진행바, 질문 목록)
+│   │   │   ├── MbtiQuestionCard.tsx       # 개별 질문 카드 (잠금/활성/완료 3가지 상태)
+│   │   │   ├── MbtiLevelBadge.tsx         # "Lv.X" 레벨 배지
+│   │   │   └── MbtiResultBadge.tsx        # MBTI 타입 배지 (예: "ENFP")
+│   │   ├── survey/                        # 설문/투표 컴포넌트
+│   │   │   ├── SurveyCard.tsx             # 설문 카드 (피드용)
+│   │   │   ├── SurveyFeed.tsx             # 설문 피드 (무한 스크롤)
+│   │   │   ├── SurveyForm.tsx             # 설문 작성 폼
+│   │   │   ├── SurveyDetail.tsx           # 설문 상세 뷰
+│   │   │   ├── SurveyVoteUI.tsx           # 투표 UI 컴포넌트
+│   │   │   ├── SurveyResults.tsx          # 투표 결과 시각화
+│   │   │   ├── SurveyFilters.tsx          # 설문 필터 (해시태그)
+│   │   │   └── OfficialBadge.tsx          # 관리자 공식 배지
 │   │   ├── coffee-chat/                   # 커피챗 컴포넌트
 │   │   │   ├── CoffeeChatCard.tsx         # 커피챗 요청 카드
 │   │   │   ├── CoffeeChatDetail.tsx       # 커피챗 상세 뷰
@@ -316,6 +349,11 @@ namecard/
 │   │   ├── useThoughtLike.ts              # 생각 좋아요 토글 훅
 │   │   ├── useCoffeeChat.ts               # 커피챗 CRUD + 목록 훅 (커서 기반 페이지네이션)
 │   │   ├── useCoffeeChatCount.ts           # 커피챗 Pending 카운트 훅 (60초 폴링)
+│   │   ├── useMbtiProgress.ts             # MBTI 데이터 조회 및 답변 제출 훅
+│   │   ├── useSurveys.ts                  # 설문 피드 훅
+│   │   ├── useSurveyDetail.ts             # 설문 상세 훅
+│   │   ├── useSurveyVote.ts               # 설문 투표 훅
+│   │   ├── useSurveyCreate.ts             # 설문 생성 훅
 │   │   └── __tests__/
 │   │       └── useThoughtLike.test.ts     # 생각 좋아요 훅 단위 테스트
 │   ├── types/
@@ -326,6 +364,8 @@ namecard/
 │   │   ├── print-order.ts                 # 인쇄 주문 타입 (PrintOrder, PrintOrderItem, ShippingAddress)
 │   │   ├── question.ts                    # 질문/생각 타입 (Question, Thought, QuestionWithAuthor, ThoughtWithAuthor)
 │   │   ├── coffee-chat.ts                 # 커피챗 타입 (CoffeeChat, CoffeeChatWithUsers, DiscoverableMember, VALID_TRANSITIONS)
+│   │   ├── mbti.ts                        # MBTI 타입 (MbtiQuestion, MbtiAnswer, MbtiProgress, MbtiDimension 등)
+│   │   ├── survey.ts                      # 설문/투표 타입
 │   │   ├── event.ts                       # 이벤트 타입
 │   │   └── kakao.d.ts                     # 카카오 SDK 타입 선언
 │   ├── lib/
@@ -343,7 +383,9 @@ namecard/
 │   │   ├── gelato-types.ts                # Gelato API 타입 및 상수
 │   │   ├── event-storage.ts               # 이벤트 DB 연산
 │   │   ├── question-storage.ts            # 질문/생각 DB 연산 (stripHtml XSS 방지, 커서 기반 페이지네이션)
-│   │   └── coffee-chat-storage.ts         # 커피챗 DB 연산 (상태 전이 검증, rate limiting, 프로필 일괄 조회)
+│   │   ├── coffee-chat-storage.ts         # 커피챗 DB 연산 (상태 전이 검증, rate limiting, 프로필 일괄 조회)
+│   │   ├── mbti-storage.ts               # MBTI DB 연산 (getMbtiQuestions, getUserMbtiAnswers, getMbtiProgress, submitMbtiAnswer)
+│   │   └── survey-storage.ts             # 설문/투표 DB 연산
 │   ├── test/
 │   │   └── setup.ts                       # Vitest 테스트 환경 설정
 │   └── lib/__tests__/                     # 라이브러리 단위 테스트
@@ -357,7 +399,8 @@ namecard/
 │   ├── project/                           # 프로젝트 문서
 │   └── specs/                             # SPEC 문서
 │       ├── SPEC-UI-001/                   # Namecard Editor SPEC
-│       └── SPEC-DASHBOARD-001/            # User Dashboard SPEC
+│       ├── SPEC-DASHBOARD-001/            # User Dashboard SPEC
+│       └── SPEC-SURVEY-001/               # 커뮤니티 설문/투표 SPEC
 ├── .claude/                               # Claude Code 설정
 │   ├── agents/                            # Sub-agent 정의
 │   ├── commands/                          # Slash commands
@@ -374,7 +417,12 @@ namecard/
 │       ├── 009_add_likes_bookmarks.sql    # 좋아요/북마크 테이블 생성
 │       ├── 010_add_print_orders.sql       # 인쇄 주문 테이블 (print_orders, print_order_items)
 │       ├── 011_add_questions_thoughts.sql # 질문/생각 테이블 (community_questions, community_thoughts, thought_likes + RLS + 트리거)
-│       └── 012_add_coffee_chat.sql        # 커피챗 테이블 (coffee_chat_requests + 5-상태 FSM + LEAST/GREATEST 유니크 인덱스)
+│       ├── 012_add_coffee_chat.sql        # 커피챗 테이블 (coffee_chat_requests + 5-상태 FSM + LEAST/GREATEST 유니크 인덱스)
+│       ├── 013_add_coffee_chat_preferences.sql # 커피챗 개인 선호도
+│       ├── 014_add_surveys.sql            # 설문/투표 테이블 (community_surveys, survey_options, survey_votes)
+│       ├── 015_fix_thoughts_rls.sql       # Thoughts RLS 수정
+│       ├── 016_add_mbti_system.sql        # MBTI 테이블 (mbti_questions, mbti_answers) + user_profiles level/mbti_type
+│       └── 017_add_more_mbti_questions.sql # 32개 추가 MBTI 질문
 ├── _AEC/                                  # 참조용 디자인 에셋
 ├── public/                                # Static assets
 ├── package.json                           # 프로젝트 의존성 및 스크립트
@@ -432,6 +480,17 @@ User -> POST /api/coffee-chat -> 커피챗 요청 생성 (rate limit: 5건/24h) 
 Receiver -> POST /api/coffee-chat/[id]/respond -> 수락/거절 (이메일 조건부 공개) -> 상태 전이 검증
 User -> GET /api/coffee-chat/pending-count -> Pending 카운트 조회 (60초 폴링)
 User -> /community/coffee-chat/my -> GET /api/coffee-chat -> 내 요청/수신 목록 (커서 기반 페이지네이션)
+
+[MBTI 흐름]
+User -> /community/questions -> MbtiSection -> GET /api/mbti/questions (진행 상태) -> Supabase DB (mbti_questions, mbti_answers)
+User -> POST /api/mbti/answer -> 답변 제출 (requireAuth) -> Supabase DB -> 레벨 업 + MBTI 타입 자동 계산
+
+[설문/투표 흐름]
+User -> /community/surveys -> GET /api/surveys (설문 목록) -> Supabase DB (community_surveys)
+User -> /community/surveys/[id] -> GET /api/surveys/[id] -> 설문 상세 + 투표 결과
+User -> POST /api/surveys -> 설문 작성 (requireAuth) -> Supabase DB
+User -> POST /api/surveys/[id]/vote -> 투표 (requireAuth) -> Supabase DB (survey_votes)
+Admin -> POST /api/admin/questions -> 관리자 질문 생성 (requireAdmin) -> Supabase DB
 
 [Link-in-Bio 프로필 흐름]
 User -> /profile/[id] -> GET /api/profiles/[id] + GET /api/profiles/[id]/links -> 프로필 + 링크 렌더링
@@ -543,7 +602,11 @@ layout.tsx (Root - AuthProvider 래핑)
 │   └── FeedCardThumbnail          # 카드 썸네일 (북마크 해제 가능)
 │
 ├── community/questions/page.tsx (Questions) # 질문 피드
-│   ├── CommunityNav               # 커뮤니티 탭 네비게이션 (질문/커피챗)
+│   ├── CommunityNav               # 커뮤니티 탭 네비게이션 (질문/커피챗/설문)
+│   ├── MbtiSection                # MBTI 메인 섹션 (진행바, 질문 목록)
+│   │   ├── MbtiQuestionCard       # 개별 질문 카드 (잠금/활성/완료)
+│   │   ├── MbtiLevelBadge         # "Lv.X" 레벨 배지
+│   │   └── MbtiResultBadge        # MBTI 타입 배지
 │   ├── QuestionFeed               # 질문 피드 (무한 스크롤)
 │   │   └── QuestionCard           # 질문 카드 (해시태그, 생각 수)
 │   │       └── HashtagChip        # 해시태그 칩
@@ -557,6 +620,19 @@ layout.tsx (Root - AuthProvider 래핑)
 │   │   └── ThoughtCard            # 생각 카드
 │   │       └── ThoughtLikeButton  # 생각 좋아요 버튼
 │   └── ThoughtForm               # 생각 작성 폼
+│
+├── community/surveys/page.tsx (Surveys) # 설문/투표 피드
+│   ├── CommunityNav               # 커뮤니티 탭 네비게이션
+│   ├── SurveyFeed                 # 설문 피드 (무한 스크롤)
+│   │   └── SurveyCard             # 설문 카드
+│   │       └── OfficialBadge      # 관리자 공식 배지
+│   ├── SurveyForm                 # 설문 작성 폼
+│   └── SurveyFilters              # 설문 필터 (해시태그)
+│
+├── community/surveys/[id]/page.tsx (SurveyDetail) # 설문 상세
+│   ├── SurveyDetail               # 설문 상세 뷰
+│   ├── SurveyVoteUI               # 투표 UI 컴포넌트
+│   └── SurveyResults              # 투표 결과 시각화
 │
 ├── community/coffee-chat/page.tsx (CoffeeChat Discover) # 커피챗 탐색
 │   ├── CommunityNav               # 커뮤니티 탭 네비게이션
@@ -645,32 +721,34 @@ layout.tsx (Root - AuthProvider 래핑)
 | `src/components/wizard/` | 6단계 명함 제작 위저드 컴포넌트 |
 | `src/components/dashboard/` | 사용자 대시보드 컴포넌트 (ProgressStepper, MyRequestList, RequestCard, EmptyState, MyRequestDetail) |
 | `src/components/feed/` | 커뮤니티 피드 컴포넌트 (FeedContainer, FeedCardThumbnail, FeedFilters) |
-| `src/components/community/` | 커뮤니티 컴포넌트 - 질문/생각 (QuestionCard, QuestionFeed, QuestionForm, QuestionDetail, QuestionFilters, ThoughtCard, ThoughtForm, ThoughtList, ThoughtLikeButton, HashtagChip, CommunityNav) |
+| `src/components/community/` | 커뮤니티 컴포넌트 - 질문/생각 (QuestionCard, QuestionFeed, QuestionForm, QuestionDetail, QuestionFilters, ThoughtCard, ThoughtForm, ThoughtList, ThoughtLikeButton, HashtagChip, CommunityNav - 질문/커피챗/설문 탭) |
+| `src/components/mbti/` | MBTI 컴포넌트 (MbtiSection, MbtiQuestionCard, MbtiLevelBadge, MbtiResultBadge) |
+| `src/components/survey/` | 설문/투표 컴포넌트 (SurveyCard, SurveyFeed, SurveyForm, SurveyDetail, SurveyVoteUI, SurveyResults, SurveyFilters, OfficialBadge) |
 | `src/components/coffee-chat/` | 커피챗 컴포넌트 (CoffeeChatCard, CoffeeChatDetail, CoffeeChatList, CoffeeChatButton, CoffeeChatRequestModal, CoffeeChatActions, CoffeeChatStatusBadge, CoffeeChatBadge, MemberCard, MemberDiscoverGrid) |
 | `src/components/profile/` | 사용자 프로필 컴포넌트 - Link-in-Bio 스타일 (ProfileHeader, ProfileEditForm, SocialIconRow, LinkButton, LinkList, CardPortfolio, LinkEditor, LinkEditModal, SocialLinksEditor, ThemeDistribution) |
 | `src/components/social/` | 소셜 상호작용 컴포넌트 (LikeButton, BookmarkButton) |
 | `src/components/admin/` | 관리자 대시보드 컴포넌트 (BulkUploadModal, IllustrationUploader, EventPdfDownload, CustomThemeManager, PrintOrderManager, PrintCardSelector, PrintQuoteView, ShippingAddressForm, PrintOrderStatus, PrintOrderHistory 등) |
 | `src/stores/` | Zustand 상태 관리 (localStorage persist 포함) |
-| `src/hooks/` | 커스텀 React 훅 (좋아요, 북마크, 커스텀 테마, 인쇄 주문, 링크, 질문, 생각, 생각 좋아요, 커피챗, 커피챗 카운트, 관리자 필터) |
-| `src/types/` | TypeScript 타입 정의 (카드, 요청, 프로필, 커스텀 테마, 인쇄 주문, 질문, 커피챗, 이벤트) |
-| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환, QR 코드/vCard 생성, 프로필 DB 연산, 질문/생각 DB 연산, 커피챗 DB 연산, 이벤트 DB 연산). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수, `qrcode.ts`에 `generateVCard()`, `generateQRDataURL()`, `getCardPublicURL()` 함수, `profile-storage.ts`에 프로필 CRUD 함수, `question-storage.ts`에 질문/생각 CRUD + `stripHtml()` 함수, `coffee-chat-storage.ts`에 커피챗 CRUD + 상태 전이 검증 함수 포함 |
+| `src/hooks/` | 커스텀 React 훅 (좋아요, 북마크, 커스텀 테마, 인쇄 주문, 링크, 질문, 생각, 생각 좋아요, 커피챗, 커피챗 카운트, 관리자 필터, MBTI 진행, 설문 피드/상세/투표/생성) |
+| `src/types/` | TypeScript 타입 정의 (카드, 요청, 프로필, 커스텀 테마, 인쇄 주문, 질문, 커피챗, MBTI, 설문, 이벤트) |
+| `src/lib/` | 유틸리티 함수 (Supabase 클라이언트, 인증, 스토리지, 내보내기, 검증, 소셜 핸들 추출, URL 변환, QR 코드/vCard 생성, 프로필 DB 연산, 질문/생각 DB 연산, 커피챗 DB 연산, MBTI DB 연산, 설문 DB 연산, 이벤트 DB 연산). `storage.ts`에 `getRequestsByUser(email)` 함수, `social-utils.ts`에 `extractHandle()` 함수, `url-utils.ts`에 `convertGoogleDriveUrl()` 함수, `qrcode.ts`에 `generateVCard()`, `generateQRDataURL()`, `getCardPublicURL()` 함수, `profile-storage.ts`에 프로필 CRUD 함수, `question-storage.ts`에 질문/생각 CRUD + `stripHtml()` 함수, `coffee-chat-storage.ts`에 커피챗 CRUD + 상태 전이 검증 함수, `mbti-storage.ts`에 MBTI CRUD + 진행 상태 함수, `survey-storage.ts`에 설문 CRUD 함수 포함 |
 | `src/test/` | 테스트 환경 설정 |
 | `.github/workflows/` | GitHub Actions CI/CD 워크플로우 (Cloudflare Workers 배포) |
-| `supabase/migrations/` | Supabase DB 마이그레이션 파일 (커스텀 테마, 커뮤니티, 좋아요/북마크, 인쇄 주문, 질문/생각, 커피챗) |
+| `supabase/migrations/` | Supabase DB 마이그레이션 파일 (커스텀 테마, 커뮤니티, 좋아요/북마크, 인쇄 주문, 질문/생각, 커피챗, 커피챗 선호도, 설문/투표, Thoughts RLS, MBTI 시스템) |
 
 ## 파일 수 현황
 
 | 카테고리 | 파일 수 |
 |---------|--------|
-| 페이지/레이아웃 (`.tsx` in `app/`) | 34 |
-| API 라우트 (`.ts` in `app/api/`) | 44 |
-| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 115 |
-| 커스텀 훅 (`.ts` in `hooks/`) | 11 |
+| 페이지/레이아웃 (`.tsx` in `app/`) | 36 |
+| API 라우트 (`.ts` in `app/api/`) | 51 |
+| React 컴포넌트 (`.tsx`/`.ts` in `components/`) | 127 |
+| 커스텀 훅 (`.ts` in `hooks/`) | 16 |
 | Zustand Store (`.ts` in `stores/`) | 1 |
-| 타입 정의 (`.ts` in `types/`) | 9 |
-| 유틸리티 (`.ts` in `lib/`) | 15 |
+| 타입 정의 (`.ts` in `types/`) | 11 |
+| 유틸리티 (`.ts` in `lib/`) | 17 |
 | 미들웨어 (`.ts`) | 1 |
 | 테스트 (`.ts`, `.test.ts`, `.test.tsx`) | 9 |
 | 스타일시트 (`.css`) | 1 |
-| DB 마이그레이션 (`.sql`) | 12 |
-| 총 소스 파일 | 252 |
+| DB 마이그레이션 (`.sql`) | 17 |
+| 총 소스 파일 | 287 |

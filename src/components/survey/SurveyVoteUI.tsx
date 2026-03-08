@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { SurveyDetail } from '@/types/survey';
+import { Button } from '@/components/ui';
 
 interface SurveyVoteUIProps {
   survey: SurveyDetail;
@@ -42,8 +43,8 @@ export function SurveyVoteUI({ survey, onVote, isVoting }: SurveyVoteUIProps) {
             disabled={isVoting}
             className={`flex items-center gap-3 w-full px-3 py-2.5 text-sm text-left border transition-all duration-200 ${
               isSelected
-                ? 'border-[#020912] bg-[#020912]/5'
-                : 'border-[rgba(2,9,18,0.15)] hover:border-[rgba(2,9,18,0.4)]'
+                ? 'border-primary bg-primary/5'
+                : 'border-border-medium hover:border-primary/40'
             } ${isVoting ? 'opacity-30 cursor-not-allowed' : ''}`}
           >
             {/* Radio / Checkbox indicator */}
@@ -52,29 +53,31 @@ export function SurveyVoteUI({ survey, onVote, isVoting }: SurveyVoteUIProps) {
                 survey.selectMode === 'single' ? 'rounded-full' : ''
               } ${
                 isSelected
-                  ? 'border-[#020912] bg-[#020912]'
-                  : 'border-[rgba(2,9,18,0.3)]'
+                  ? 'border-primary bg-primary'
+                  : 'border-primary/30'
               }`}
             >
               {isSelected && (
-                <svg className="w-2.5 h-2.5 text-[#fcfcfc]" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" aria-hidden="true">
+                <svg className="w-2.5 h-2.5 text-secondary" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
               )}
             </span>
-            <span className="text-[#020912]">{option.label}</span>
+            <span className="text-primary">{option.label}</span>
           </button>
         );
       })}
 
-      <button
+      <Button
         type="button"
+        variant="primary"
+        size="sm"
         onClick={handleVote}
         disabled={isVoting || selected.length === 0}
-        className="mt-2 w-full py-2.5 text-sm font-medium text-[#fcfcfc] bg-[#020912] hover:bg-[#020912]/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+        className="mt-2 w-full"
       >
         {isVoting ? '투표 중...' : '투표하기'}
-      </button>
+      </Button>
     </div>
   );
 }

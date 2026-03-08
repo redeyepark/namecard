@@ -82,7 +82,7 @@ export function ThemeSelector() {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-text-primary">
         Theme
       </label>
       <div
@@ -104,8 +104,8 @@ export function ThemeSelector() {
               onKeyDown={(e) => handleKeyDown(e, option.id)}
               className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                 isSelected
-                  ? 'border-gray-900 bg-gray-50 shadow-sm'
-                  : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-primary bg-bg shadow-sm'
+                  : 'border-border-light bg-surface hover:border-border-medium hover:bg-bg'
               }`}
             >
               {/* Icon area */}
@@ -117,7 +117,7 @@ export function ThemeSelector() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={1.5}
-                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                    className={`w-7 h-7 ${isSelected ? 'text-text-primary' : 'text-text-tertiary'}`}
                   >
                     <path
                       strokeLinecap="round"
@@ -132,7 +132,7 @@ export function ThemeSelector() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={1.5}
-                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                    className={`w-7 h-7 ${isSelected ? 'text-text-primary' : 'text-text-tertiary'}`}
                   >
                     <path
                       strokeLinecap="round"
@@ -148,7 +148,7 @@ export function ThemeSelector() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={1.5}
-                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                    className={`w-7 h-7 ${isSelected ? 'text-text-primary' : 'text-text-tertiary'}`}
                   >
                     <path
                       strokeLinecap="round"
@@ -169,7 +169,7 @@ export function ThemeSelector() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={1.5}
-                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                    className={`w-7 h-7 ${isSelected ? 'text-text-primary' : 'text-text-tertiary'}`}
                   >
                     <path
                       strokeLinecap="round"
@@ -195,7 +195,7 @@ export function ThemeSelector() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={1.5}
-                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                    className={`w-7 h-7 ${isSelected ? 'text-text-primary' : 'text-text-tertiary'}`}
                   >
                     <rect x="4" y="2" width="16" height="20" rx="2" strokeLinecap="round" strokeLinejoin="round" />
                     <circle cx="12" cy="10" r="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -209,7 +209,7 @@ export function ThemeSelector() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={1.5}
-                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                    className={`w-7 h-7 ${isSelected ? 'text-text-primary' : 'text-text-tertiary'}`}
                   >
                     <rect x="3" y="3" width="18" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
                     <circle cx="12" cy="10" r="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -223,7 +223,7 @@ export function ThemeSelector() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={1.5}
-                    className={`w-7 h-7 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}
+                    className={`w-7 h-7 ${isSelected ? 'text-text-primary' : 'text-text-tertiary'}`}
                   >
                     <path
                       strokeLinecap="round"
@@ -243,7 +243,7 @@ export function ThemeSelector() {
               {/* Label */}
               <span
                 className={`text-sm font-medium ${
-                  isSelected ? 'text-gray-900' : 'text-gray-500'
+                  isSelected ? 'text-text-primary' : 'text-text-secondary'
                 }`}
               >
                 {option.label}
@@ -252,7 +252,7 @@ export function ThemeSelector() {
               {/* Description */}
               <span
                 className={`text-xs ${
-                  isSelected ? 'text-gray-600' : 'text-gray-400'
+                  isSelected ? 'text-text-secondary' : 'text-text-tertiary'
                 }`}
               >
                 {option.description}
@@ -266,19 +266,19 @@ export function ThemeSelector() {
       {customLoading ? (
         <div className="pt-2">
           <div className="flex items-center gap-2 mb-3">
-            <div className="h-px flex-1 bg-gray-200" />
-            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Custom</span>
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-px flex-1 bg-divider" />
+            <span className="text-[10px] text-text-tertiary uppercase tracking-wider">Custom</span>
+            <div className="h-px flex-1 bg-divider" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-gray-100 animate-pulse"
+                className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-border-light animate-pulse"
               >
-                <div className="w-10 h-10 rounded-full bg-gray-100" />
-                <div className="h-3 bg-gray-100 w-16" />
-                <div className="h-2 bg-gray-50 w-12" />
+                <div className="w-10 h-10 rounded-full bg-bg" />
+                <div className="h-3 bg-bg w-16" />
+                <div className="h-2 bg-bg w-12" />
               </div>
             ))}
           </div>
@@ -287,9 +287,9 @@ export function ThemeSelector() {
         <div className="pt-2">
           {/* Divider label */}
           <div className="flex items-center gap-2 mb-3">
-            <div className="h-px flex-1 bg-gray-200" />
-            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Custom</span>
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-px flex-1 bg-divider" />
+            <span className="text-[10px] text-text-tertiary uppercase tracking-wider">Custom</span>
+            <div className="h-px flex-1 bg-divider" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
             {activeCustomThemes.map((ct) => {
@@ -306,8 +306,8 @@ export function ThemeSelector() {
                   onKeyDown={(e) => handleKeyDown(e, ct.slug as CardTheme)}
                   className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                     isSelected
-                      ? 'border-gray-900 bg-gray-50 shadow-sm'
-                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-primary bg-bg shadow-sm'
+                      : 'border-border-light bg-surface hover:border-border-medium hover:bg-bg'
                   }`}
                 >
                   {/* Colored circle icon */}
@@ -322,7 +322,7 @@ export function ThemeSelector() {
                   {/* Label */}
                   <span
                     className={`text-sm font-medium truncate max-w-full ${
-                      isSelected ? 'text-gray-900' : 'text-gray-500'
+                      isSelected ? 'text-text-primary' : 'text-text-secondary'
                     }`}
                   >
                     {ct.name}
@@ -331,7 +331,7 @@ export function ThemeSelector() {
                   {/* Description */}
                   <span
                     className={`text-xs ${
-                      isSelected ? 'text-gray-600' : 'text-gray-400'
+                      isSelected ? 'text-text-secondary' : 'text-text-tertiary'
                     }`}
                   >
                     {ct.baseTemplate === 'classic' ? 'Classic base' : 'Nametag base'}

@@ -149,7 +149,7 @@ export default function SettingsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <svg
-          className="animate-spin h-6 w-6 text-gray-400"
+          className="animate-spin h-6 w-6 text-text-tertiary"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -169,14 +169,14 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#020912]">설정</h1>
-          <p className="mt-1 text-sm text-[#020912]/50">
+          <h1 className="text-2xl font-bold text-primary">설정</h1>
+          <p className="mt-1 text-sm text-primary/50">
             프로필과 계정을 관리합니다.
           </p>
         </div>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#020912] bg-[#e4f6ff] hover:bg-[#e4f6ff]/70 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-accent-blue hover:bg-accent-blue/70 transition-colors"
         >
           <svg
             className="w-4 h-4"
@@ -200,11 +200,11 @@ export default function SettingsPage() {
       <div className="max-w-md space-y-8">
         {/* Profile Edit Section */}
         <section>
-          <h2 className="text-lg font-bold text-[#020912] mb-3">프로필 편집</h2>
+          <h2 className="text-lg font-bold text-primary mb-3">프로필 편집</h2>
           {profileLoading ? (
-            <div className="bg-white border border-[rgba(2,9,18,0.15)] p-8 flex justify-center">
+            <div className="bg-surface border border-border-medium p-8 flex justify-center">
               <svg
-                className="animate-spin h-6 w-6 text-gray-400"
+                className="animate-spin h-6 w-6 text-text-tertiary"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -215,8 +215,8 @@ export default function SettingsPage() {
               </svg>
             </div>
           ) : profileError ? (
-            <div className="bg-white border border-[rgba(2,9,18,0.15)] p-8">
-              <p className="text-sm text-red-600">{profileError}</p>
+            <div className="bg-surface border border-border-medium p-8">
+              <p className="text-sm text-error">{profileError}</p>
             </div>
           ) : profile ? (
             <ProfileEditForm profile={profile} onSave={handleProfileSave} />
@@ -225,7 +225,7 @@ export default function SettingsPage() {
 
         {/* Coffee Chat Settings Section */}
         <section>
-          <h2 className="text-lg font-bold text-[#020912] mb-3">커피챗 설정</h2>
+          <h2 className="text-lg font-bold text-primary mb-3">커피챗 설정</h2>
           {profile ? (
             <CoffeeChatSettings
               preferences={profile.coffeeChatPreferences ?? null}
@@ -238,13 +238,13 @@ export default function SettingsPage() {
 
         {/* Password Change Section */}
         <section>
-          <h2 className="text-lg font-bold text-[#020912] mb-3">비밀번호 변경</h2>
+          <h2 className="text-lg font-bold text-primary mb-3">비밀번호 변경</h2>
           {!isEmailProvider ? (
             /* Social login message */
-            <div className="bg-white border border-[rgba(2,9,18,0.15)] p-8">
+            <div className="bg-surface border border-border-medium p-8">
               <div className="flex items-start gap-3">
                 <svg
-                  className="w-5 h-5 text-[#ffa639] mt-0.5 shrink-0"
+                  className="w-5 h-5 text-accent-orange mt-0.5 shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
@@ -257,7 +257,7 @@ export default function SettingsPage() {
                     d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
                   />
                 </svg>
-                <p className="text-sm text-[#020912]/70 leading-relaxed">
+                <p className="text-sm text-primary/70 leading-relaxed">
                   소셜 로그인(Google) 계정은 비밀번호를 변경할 수 없습니다.
                   Google 계정 설정에서 비밀번호를 관리해주세요.
                 </p>
@@ -265,14 +265,14 @@ export default function SettingsPage() {
             </div>
           ) : (
             /* Password change form */
-            <div className="bg-white border border-[rgba(2,9,18,0.15)] p-8">
+            <div className="bg-surface border border-border-medium p-8">
               {/* Success message */}
               {success && (
                 <div
-                  className="mb-6 p-3 bg-green-50 border border-green-200"
+                  className="mb-6 p-3 bg-success/5 border border-success/20"
                   role="status"
                 >
-                  <p className="text-sm text-green-700">
+                  <p className="text-sm text-success">
                     비밀번호가 성공적으로 변경되었습니다.
                   </p>
                 </div>
@@ -281,10 +281,10 @@ export default function SettingsPage() {
               {/* Error message */}
               {error && (
                 <div
-                  className="mb-6 p-3 bg-red-50 border border-red-200"
+                  className="mb-6 p-3 bg-error/5 border border-error/20"
                   role="alert"
                 >
-                  <p className="text-sm text-red-700">{error}</p>
+                  <p className="text-sm text-error">{error}</p>
                 </div>
               )}
 
@@ -293,7 +293,7 @@ export default function SettingsPage() {
                 <div>
                   <label
                     htmlFor="currentPassword"
-                    className="block text-sm font-medium text-[#020912]/70 mb-1"
+                    className="block text-sm font-medium text-primary/70 mb-1"
                   >
                     현재 비밀번호
                   </label>
@@ -306,12 +306,12 @@ export default function SettingsPage() {
                       placeholder="현재 비밀번호를 입력하세요"
                       required
                       disabled={isLoading}
-                      className="w-full px-4 py-2.5 pr-10 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent disabled:opacity-50 transition-all duration-200"
+                      className="w-full px-4 py-2.5 pr-10 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent disabled:opacity-50 transition-all duration-200"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#020912]/40 hover:text-[#020912]/70 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary/70 transition-colors"
                       aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
                     >
                       {showPassword ? (
@@ -356,7 +356,7 @@ export default function SettingsPage() {
                 <div>
                   <label
                     htmlFor="newPassword"
-                    className="block text-sm font-medium text-[#020912]/70 mb-1"
+                    className="block text-sm font-medium text-primary/70 mb-1"
                   >
                     새 비밀번호
                   </label>
@@ -369,7 +369,7 @@ export default function SettingsPage() {
                     required
                     minLength={6}
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent disabled:opacity-50 transition-all duration-200"
+                    className="w-full px-4 py-2.5 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent disabled:opacity-50 transition-all duration-200"
                   />
                 </div>
 
@@ -377,7 +377,7 @@ export default function SettingsPage() {
                 <div>
                   <label
                     htmlFor="confirmNewPassword"
-                    className="block text-sm font-medium text-[#020912]/70 mb-1"
+                    className="block text-sm font-medium text-primary/70 mb-1"
                   >
                     새 비밀번호 확인
                   </label>
@@ -390,7 +390,7 @@ export default function SettingsPage() {
                     required
                     minLength={6}
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 bg-[#fcfcfc] border border-[rgba(2,9,18,0.15)] text-sm text-[#020912] placeholder:text-[#020912]/30 focus:outline-none focus:ring-2 focus:ring-[#020912]/30 focus:border-transparent disabled:opacity-50 transition-all duration-200"
+                    className="w-full px-4 py-2.5 bg-secondary border border-border-medium text-sm text-primary placeholder:text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus:border-transparent disabled:opacity-50 transition-all duration-200"
                   />
                 </div>
 
@@ -398,7 +398,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 bg-[#020912] text-[#fcfcfc] text-sm font-semibold hover:bg-[#020912]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="w-full py-3 bg-primary text-secondary text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   {isLoading ? (
                     <span className="inline-flex items-center gap-2">
